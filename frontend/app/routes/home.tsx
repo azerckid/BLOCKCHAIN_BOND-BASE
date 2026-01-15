@@ -1,12 +1,12 @@
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { StatSummary, StatItem } from "@/components/portfolio/stat-summary";
 import { BondCard, type BondProps } from "@/components/bonds/bond-card";
-import { HugeiconsIcon } from "@hugeicons/react";
+
 import {
-    CoinsIcon,
-    GlobalIcon,
+    Coins01Icon,
+    Globe02Icon,
     Analytics01Icon,
-    LicenseIcon
+    Certificate01Icon
 } from "@hugeicons/core-free-icons";
 
 export function meta() {
@@ -78,28 +78,28 @@ export default function Home() {
                     </div>
                     <StatSummary>
                         <StatItem
-                            label="Total Portfolio Value"
+                            title="Total Portfolio Value"
                             value="$124,500"
-                            trend={{ value: "12.5%", positive: true }}
-                            icon={<HugeiconsIcon icon={CoinsIcon} size={20} />}
-                            color="vibrant"
+                            trend={{ value: "12.5%", isUp: true }}
+                            icon={Coins01Icon}
+                            vibrant
                         />
                         <StatItem
-                            label="Average Yield (APR)"
+                            title="Average Yield (APR)"
                             value="13.2%"
-                            icon={<HugeiconsIcon icon={Analytics01Icon} size={20} />}
+                            icon={Analytics01Icon}
                             description="Weighted across all assets"
                         />
                         <StatItem
-                            label="Unclaimed Yield"
+                            title="Unclaimed Yield"
                             value="$1,245.80"
-                            icon={<HugeiconsIcon icon={LicenseIcon} size={20} />}
-                            trend={{ value: "$142.0", positive: true }}
+                            icon={Certificate01Icon}
+                            trend={{ value: "$142.0", isUp: true }}
                         />
                         <StatItem
-                            label="TVL in Protocol"
+                            title="TVL in Protocol"
                             value="$42.5M"
-                            icon={<HugeiconsIcon icon={GlobalIcon} size={20} />}
+                            icon={Globe02Icon}
                             description="+2.4M since last week"
                         />
                     </StatSummary>

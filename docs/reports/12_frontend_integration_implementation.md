@@ -65,19 +65,38 @@
 ## 7. UI/UX 검증 체크리스트 (Verification Checklist)
 
 ### 7.1 지갑 연결 (Wallet Connection)
-- [ ] **Connect Flow**: 'Connect Wallet' 버튼 클릭 시 메타마스크 팝업이 정상적으로 뜨는가?
-- [ ] **Address Display**: 연결 후 버튼 텍스트가 지갑 주소(`0x12..34abcd`)로 축약되어 표시되는가?
-- [ ] **Persistence**: 브라우저 새로고침 후에도 연결 상태가 유지되는가? (Auto-connect)
-- [ ] **Disconnect**: 연결 해제 시 상태가 초기화되고 버튼이 복구되는가?
-- [ ] **Network Switch**: Creditcoin Testnet이 아닌 경우 네트워크 전환 팝업이 트리거되는가?
+- [x] **Connect Flow**: 'Connect Wallet' 버튼 클릭 시 메타마스크 팝업이 정상적으로 뜨는가?
+- [x] **Address Display**: 연결 후 버튼 텍스트가 지갑 주소(`0x12..34abcd`)로 축약되어 표시되는가?
+- [x] **Persistence**: 브라우저 새로고침 후에도 연결 상태가 유지되는가? (Auto-connect)
+- [x] **Disconnect**: 연결 해제 시 상태가 초기화되고 버튼이 복구되는가?
+- [x] **Network Switch**: Creditcoin Testnet이 아닌 경우 네트워크 전환 팝업이 트리거되는가?
 
 ### 7.2 데이터 바인딩 (Data Binding)
-- [ ] **Balance Sync**: 대시보드/지갑 메뉴의 MockUSDC 잔액이 메타마스크 잔액과 일치하는가?
-- [ ] **Token List**: 포트폴리오 페이지에서 보유한 BondToken 리스트가 정상적으로 표시되는가?
-- [ ] **Reward Display**: 수령(Claim) 가능한 예상 수익금이 0이 아닌 값으로 표시되는가? (조건 충족 시)
+- [x] **Balance Sync**: 대시보드/지갑 메뉴의 MockUSDC 잔액이 메타마스크 잔액과 일치하는가?
+- [x] **Token List**: 포트폴리오 페이지에서 보유한 BondToken 리스트가 정상적으로 표시되는가?
+- [x] **Reward Display**: 수령(Claim) 가능한 예상 수익금이 0이 아닌 값으로 표시되는가? (조건 충족 시)
 
 ### 7.3 트랜잭션 경험 (Transaction UX)
-- [ ] **Investment**: 'Invest' 실행 시 Approve -> Purchase의 2단계 서명이 정상적으로 요청되는가?
-- [ ] **Feedback**: 트랜잭션 대기 중 'Pending', 'Loading' 등의 시각적 피드백(스피너, 토스트)이 제공되는가?
-- [ ] **Notification**: 트랜잭션 성공/실패 시 적절한 Toast 알림 메시지가 출력되는가?
-- [ ] **Optimistic UI**: 성공 직후 UI 데이터(잔액 등)가 즉시 갱신되는가?
+- [x] **Investment**: 'Invest' 실행 시 Approve -> Purchase의 2단계 서명이 정상적으로 요청되는가?
+- [x] **Feedback**: 트랜잭션 대기 중 'Pending', 'Loading' 등의 시각적 피드백(스피너, 토스트)이 제공되는가?
+- [x] **Notification**: 트랜잭션 성공/실패 시 적절한 Toast 알림 메시지가 출력되는가?
+- [x] **Optimistic UI**: 성공 직후 UI 데이터(잔액 등)가 즉시 갱신되는가?
+
+## 8. 구현 결과 요약 (Implementation Summary)
+
+### 8.1 주요 기능 구현 완료 (Features)
+1.  **지갑 연동 (Wallet Config)**: `wagmi` + `viem` 기반의 지갑 연결, 네트워크 자동 전환, 연결 상태 지속성 구현 완료.
+2.  **Faucet 기능**: 테스트용 `MockUSDC`를 즉시 수령할 수 있는 Faucet 버튼을 지갑 설정 메뉴에 탑재.
+3.  **투자 프로세스 (Investment Flow)**:
+    *   `ERC20 Approve` -> `LiquidityPool Purchase` 2단계 트랜잭션 흐름 완성.
+    *   모달 UI에서의 상태 관리 및 무한 토스트 루프 버그 수정 완료.
+4.  **포트폴리오 대시보드 (Portfolio)**:
+    *   **TVL (Total Value Locked)**: 보유한 `BondToken`의 총 가치를 실시간으로 합산하여 표시 (SSR Hydration 이슈 해결).
+    *   **Investment List**: 실제 보유 중인 채권 리스트 필터링 및 렌더링.
+    *   **Claim Yield**: `YieldDistributor` 컨트랙트와 연동하여 실시간 수익 조회 및 수령 트랜잭션 구현.
+
+### 8.2 해결된 이슈 (Resolved Issues)
+*   **Faucet 로딩 무한 루프**: ABI 불일치(`erc20Abi` vs `MockUSDC.abi`) 문제 수정.
+*   **투자 완료 후 토스트 반복**: `useEffect` 의존성 배열 최적화로 해결.
+*   **TVL 텍스트 가시성**: 검은 배경에 검은 글씨(`bg-neutral-900 text-neutral-900`) 문제를 `vibrant` 모드 적용 및 `className` 충돌 해결로 수정.
+*   **Hydration Mismatch**: `isMounted` 상태 체크를 통해 CSR 환경에서의 데이터 불일치 방지.

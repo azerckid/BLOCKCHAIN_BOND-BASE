@@ -148,10 +148,10 @@ BuildCTC/
    - [x] 포트폴리오 페이지 (Chart, List)
    - [x] 설정 페이지 (Profile, Wallet UI)
 
-- [ ] **Web3 연동** (현재 진행 단계)
-   - [ ] `wagmi` / `viem` 설정
-   - [ ] 지갑 연결 (Connect Wallet) 기능 구현
-   - [ ] 컨트랙트 데이터 바인딩 (Balance, Invest, Claim)
+- [x] **Web3 연동** (완료)
+   - [x] `wagmi` / `viem` 설정
+   - [x] 지갑 연결 (Connect Wallet) 기능 구현
+   - [x] 컨트랙트 데이터 바인딩 (Balance, Invest, Claim)
 
 - [ ] **임팩트 시각화**
    - [ ] 지도 통합
