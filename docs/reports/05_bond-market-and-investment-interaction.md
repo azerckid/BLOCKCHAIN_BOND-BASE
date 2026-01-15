@@ -6,14 +6,14 @@
 - **작업 번호**: 05
 - **작업명**: Bond Market & Investment Interaction
 - **일자**: 2026-01-15
-- **상태**: 진행 중 (In Progress)
+- **상태**: 완료 (Completed)
 
 ## 2. 주요 목표 (Key Objectives)
-- [ ] **Market Explorer**: 채권 목록을 검색, 필터링(카테고리, 수익률, 지역 등)할 수 있는 고도화된 마켓 페이지 구현.
-- [ ] **Investment Workflow**: 'Invest Now' 클릭 시 투자 금액을 입력하고 확정하는 **Investment Drawer/Modal** 구현.
-- [ ] **Interaction Feedback**: 투자 실행 시 로딩 애니메이션 및 성공/실패 토스트 알림 연동 (Sonner).
-- [ ] **Real-time Revalidation**: 투자 완료 후 대시보드의 자본 현황 및 채권 잔액이 즉시 업데이트되는 데이터 흐름 구축.
-- [ ] **Mock Transaction Engine**: 백엔드 Action을 통해 가상의 투자 데이터를 DB에 기록하고 처리하는 로직 준비.
+- [x] **Market Explorer**: 채권 목록을 검색, 필터링(카테고리, 수익률, 지역 등)할 수 있는 고도화된 마켓 페이지 구현.
+- [x] **Investment Workflow**: 'Invest Now' 클릭 시 투자 금액을 입력하고 확정하는 **Investment Drawer/Modal** 구현.
+- [x] **Interaction Feedback**: 투자 실행 시 로딩 애니메이션 및 성공/실패 토스트 알림 연동 (Sonner).
+- [x] **Real-time Revalidation**: 투자 완료 후 대시보드의 자본 현황 및 채권 잔액이 즉시 업데이트되는 데이터 흐름 구축.
+- [x] **Mock Transaction Engine**: 백엔드 Action을 통해 가상의 투자 데이터를 DB에 기록하고 처리하는 로직 준비.
 
 ## 3. 상세 단계 (Implementation Steps)
 
