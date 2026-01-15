@@ -19,18 +19,18 @@ describe("LiquidityPool", function () {
 
         // Deploy Mock USDC
         const MockUSDCFactory = await ethers.getContractFactory("MockUSDC");
-        usdcToken = await MockUSDCFactory.deploy();
+        usdcToken = await MockUSDCFactory.deploy() as unknown as MockUSDC;
 
         // Deploy BondToken
         const BondTokenFactory = await ethers.getContractFactory("BondToken");
-        bondToken = await BondTokenFactory.deploy();
+        bondToken = await BondTokenFactory.deploy() as unknown as BondToken;
 
         // Deploy LiquidityPool
         const LiquidityPoolFactory = await ethers.getContractFactory("LiquidityPool");
         liquidityPool = await LiquidityPoolFactory.deploy(
             await usdcToken.getAddress(),
             await bondToken.getAddress()
-        );
+        ) as unknown as LiquidityPool;
 
         // Grant MINTER_ROLE to LiquidityPool
         const MINTER_ROLE = await bondToken.MINTER_ROLE();

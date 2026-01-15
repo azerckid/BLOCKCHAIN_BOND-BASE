@@ -16,7 +16,7 @@ describe("BondToken", function () {
     beforeEach(async function () {
         [owner, addr1, addr2] = await ethers.getSigners();
         const BondTokenFactory = await ethers.getContractFactory("BondToken");
-        bondToken = await BondTokenFactory.deploy();
+        bondToken = await BondTokenFactory.deploy() as unknown as BondToken;
 
         MINTER_ROLE = await bondToken.MINTER_ROLE();
         URI_SETTER_ROLE = await bondToken.URI_SETTER_ROLE();
