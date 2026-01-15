@@ -10,6 +10,12 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+build
+.react-router
+.cache
+.env
+.env.local
+.env.*.local
 # Local Net/DB
 *.db
 *.db-journal
