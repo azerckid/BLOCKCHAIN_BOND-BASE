@@ -6,14 +6,14 @@
 - **작업 번호**: 08
 - **작업명**: Settings & User Profile UI
 - **일자**: 2026-01-15
-- **상태**: 진행 전 (To Do)
+- **상태**: 완료 (Completed)
 
 ## 2. 주요 목표 (Key Objectives)
-- [ ] **Tabbed Layout**: 프로필, 계정, 외관(Appearance) 등 설정을 카테고리화하여 탭 레이아웃으로 구현.
-- [ ] **Profile Management**: 사용자 아바타, 이름, 이메일 주소를 확인하고 편집할 수 있는 폼 구현.
-- [ ] **Wallet Connection Status**: 현재 연결된 지갑 주소와 네트워크 상태를 표시하고 관리하는 섹션 추가.
-- [ ] **Appearance Settings**: 다크 모드/라이트 모드 전환 등 UI 테마 설정 기능 구현.
-- [ ] **Notification Preferences**: 이메일 및 푸시 알림 수신 여부를 토글할 수 있는 UI 구현.
+- [x] **Tabbed Layout**: 프로필, 계정, 외관(Appearance) 등 설정을 카테고리화하여 탭 레이아웃으로 구현.
+- [x] **Profile Management**: 사용자 아바타, 이름, 이메일 주소를 확인하고 편집할 수 있는 폼 구현.
+- [x] **Wallet Connection Status**: 현재 연결된 지갑 주소와 네트워크 상태를 표시하고 관리하는 섹션 추가.
+- [x] **Appearance Settings**: 다크 모드/라이트 모드 전환 등 UI 테마 설정 기능 구현.
+- [x] **Notification Preferences**: 이메일 및 푸시 알림 수신 여부를 토글할 수 있는 UI 구현.
 
 ## 3. 상세 단계 (Implementation Steps)
 
