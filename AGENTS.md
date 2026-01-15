@@ -109,6 +109,9 @@ BuildCTC is a Real World Assets (RWA) Yield Protocol built on Creditcoin 2.0 tha
 - Follow shadcn/ui design system for UI consistency
 - Use **Zod** for client-side validation
 - Use **Luxon** for all date and time operations
+- **Style Conventions**:
+  - Tailwind CSS v4의 `@custom-variant` 등 새로운 문법을 사용함.
+  - 에디터 경고 방지를 위해 `.vscode/settings.json`의 `css.lint.unknownAtRules` 설정을 `ignore`로 유지함.
 - **React Router v7 Patterns**:
   - Strictly follow **loader** and **action** patterns for data fetching and mutations.
   - Use `Route.LoaderArgs` and `Route.ActionArgs` for type-safe parameter handling.
