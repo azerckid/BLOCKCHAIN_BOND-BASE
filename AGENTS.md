@@ -47,7 +47,8 @@ BuildCTC is a Real World Assets (RWA) Yield Protocol built on Creditcoin 2.0 tha
 - Start database studio: `npx drizzle-kit studio`
 
 ### Frontend
-- Install dependencies: `npm install` (in `frontend/` directory)
+- Initialize project (shadcn preset): `npx shadcn@latest create --preset "https://ui.shadcn.com/init?base=base&style=nova&baseColor=neutral&theme=neutral&iconLibrary=hugeicons&font=inter&menuAccent=subtle&menuColor=default&radius=default&template=vite" --template vite`
+- Install dependencies: `npm install`
 - Start development server: `npm run dev`
 - Build production bundle: `npm run build`
 
