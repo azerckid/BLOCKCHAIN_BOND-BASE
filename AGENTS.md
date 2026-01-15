@@ -114,7 +114,7 @@ BuildCTC is a Real World Assets (RWA) Yield Protocol built on Creditcoin 2.0 tha
   - 에디터 경고 방지를 위해 `.vscode/settings.json`의 `css.lint.unknownAtRules` 설정을 `ignore`로 유지함.
 - **React Router v7 Patterns**:
   - Strictly follow **loader** and **action** patterns for data fetching and mutations.
-  - Use `Route.LoaderArgs` and `Route.ActionArgs` for type-safe parameter handling.
+  - Use `LoaderFunctionArgs` and `ActionFunctionArgs` from `react-router` for type-safe parameter handling.
   - Implement proper type definitions for `useLoaderData` and `useActionData`.
 - Use **Toast notifications** (Sonner) for user feedback:
   - Success: Investment, withdrawal, yield claim, etc.
