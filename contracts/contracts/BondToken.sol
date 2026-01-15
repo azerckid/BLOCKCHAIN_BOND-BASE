@@ -2,19 +2,26 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 
 /**
  * @title BondToken
  * @dev ERC1155 token representing fractional ownership of loan bonds.
  */
-contract BondToken is ERC1155, Ownable, ERC1155Supply {
+contract BondToken is ERC1155, AccessControl, ERC1155Supply {
     
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant URI_SETTER_ROLE = keccak256("URI_SETTER_ROLE");
+
     // Mapping for token URIs
     mapping(uint256 => string) private _tokenURIs;
 
-    constructor() ERC1155("") Ownable(msg.sender) {}
+    constructor() ERC1155("") {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(MINTER_ROLE, msg.sender);
+        _grantRole(URI_SETTER_ROLE, msg.sender);
+    }
 
     /**
      * @dev See {IERC1155MetadataURI-uri}.
@@ -36,18 +43,18 @@ contract BondToken is ERC1155, Ownable, ERC1155Supply {
     /**
      * @dev Sets a specific URI for a given token ID.
      */
-    function setTokenURI(uint256 id, string memory newuri) public onlyOwner {
+    function setTokenURI(uint256 id, string memory newuri) public onlyRole(URI_SETTER_ROLE) {
         _tokenURIs[id] = newuri;
         emit URI(newuri, id);
     }
 
-    function setURI(string memory newuri) public onlyOwner {
+    function setURI(string memory newuri) public onlyRole(URI_SETTER_ROLE) {
         _setURI(newuri);
     }
 
     function mint(address account, uint256 id, uint256 amount, string memory tokenUri, bytes memory data)
         public
-        onlyOwner
+        onlyRole(MINTER_ROLE)
     {
         _mint(account, id, amount, data);
         if (bytes(tokenUri).length > 0) {
@@ -58,7 +65,7 @@ contract BondToken is ERC1155, Ownable, ERC1155Supply {
 
     function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
         public
-        onlyOwner
+        onlyRole(MINTER_ROLE)
     {
         _mintBatch(to, ids, amounts, data);
     }
@@ -70,5 +77,14 @@ contract BondToken is ERC1155, Ownable, ERC1155Supply {
         override(ERC1155, ERC1155Supply)
     {
         super._update(from, to, ids, values);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC1155, AccessControl)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
     }
 }

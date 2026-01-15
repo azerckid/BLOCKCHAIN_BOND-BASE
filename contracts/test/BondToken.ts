@@ -9,15 +9,25 @@ describe("BondToken", function () {
     let addr1: SignerWithAddress;
     let addr2: SignerWithAddress;
 
+    let MINTER_ROLE: string;
+    let URI_SETTER_ROLE: string;
+    let DEFAULT_ADMIN_ROLE: string;
+
     beforeEach(async function () {
         [owner, addr1, addr2] = await ethers.getSigners();
         const BondTokenFactory = await ethers.getContractFactory("BondToken");
         bondToken = await BondTokenFactory.deploy();
+
+        MINTER_ROLE = await bondToken.MINTER_ROLE();
+        URI_SETTER_ROLE = await bondToken.URI_SETTER_ROLE();
+        DEFAULT_ADMIN_ROLE = await bondToken.DEFAULT_ADMIN_ROLE();
     });
 
     describe("Deployment", function () {
-        it("Should set the right owner", async function () {
-            expect(await bondToken.owner()).to.equal(owner.address);
+        it("Should grant roles to deployer", async function () {
+            expect(await bondToken.hasRole(DEFAULT_ADMIN_ROLE, owner.address)).to.be.true;
+            expect(await bondToken.hasRole(MINTER_ROLE, owner.address)).to.be.true;
+            expect(await bondToken.hasRole(URI_SETTER_ROLE, owner.address)).to.be.true;
         });
     });
 
@@ -26,17 +36,17 @@ describe("BondToken", function () {
         const AMOUNT = 1000;
         const TOKEN_URI = "https://example.com/bond/1";
 
-        it("Should allow owner to mint tokens with URI", async function () {
+        it("Should allow minter to mint tokens with URI", async function () {
             await bondToken.mint(addr1.address, TOKEN_ID, AMOUNT, TOKEN_URI, "0x");
 
             expect(await bondToken.balanceOf(addr1.address, TOKEN_ID)).to.equal(AMOUNT);
             expect(await bondToken.uri(TOKEN_ID)).to.equal(TOKEN_URI);
         });
 
-        it("Should fail if non-owner tries to mint", async function () {
+        it("Should fail if non-minter tries to mint", async function () {
             await expect(
                 bondToken.connect(addr1).mint(addr2.address, TOKEN_ID, AMOUNT, TOKEN_URI, "0x")
-            ).to.be.revertedWithCustomError(bondToken, "OwnableUnauthorizedAccount");
+            ).to.be.revertedWithCustomError(bondToken, "AccessControlUnauthorizedAccount");
         });
 
         it("Should track total supply correctly", async function () {
@@ -57,11 +67,18 @@ describe("BondToken", function () {
             expect(await bondToken.uri(TOKEN_ID)).to.equal(BASE_URI);
         });
 
-        it("Should allow owner to update token URI", async function () {
+        it("Should allow uri setter to update token URI", async function () {
             const NEW_URI = "ipfs://QmBondMetadata";
             await bondToken.mint(addr1.address, TOKEN_ID, 1, "", "0x");
             await bondToken.setTokenURI(TOKEN_ID, NEW_URI);
             expect(await bondToken.uri(TOKEN_ID)).to.equal(NEW_URI);
+        });
+
+        it("Should fail if non-setter tries to set URI", async function () {
+            const NEW_URI = "ipfs://QmBondMetadata";
+            await expect(
+                bondToken.connect(addr1).setTokenURI(TOKEN_ID, NEW_URI)
+            ).to.be.revertedWithCustomError(bondToken, "AccessControlUnauthorizedAccount");
         });
     });
 });
