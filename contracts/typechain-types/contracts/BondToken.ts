@@ -37,6 +37,7 @@ export interface BondTokenInterface extends Interface {
       | "safeBatchTransferFrom"
       | "safeTransferFrom"
       | "setApprovalForAll"
+      | "setTokenURI"
       | "setURI"
       | "supportsInterface"
       | "totalSupply()"
@@ -72,7 +73,7 @@ export interface BondTokenInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "mint",
-    values: [AddressLike, BigNumberish, BigNumberish, BytesLike]
+    values: [AddressLike, BigNumberish, BigNumberish, string, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "mintBatch",
@@ -100,6 +101,10 @@ export interface BondTokenInterface extends Interface {
   encodeFunctionData(
     functionFragment: "setApprovalForAll",
     values: [AddressLike, boolean]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setTokenURI",
+    values: [BigNumberish, string]
   ): string;
   encodeFunctionData(functionFragment: "setURI", values: [string]): string;
   encodeFunctionData(
@@ -147,6 +152,10 @@ export interface BondTokenInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setApprovalForAll",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setTokenURI",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setURI", data: BytesLike): Result;
@@ -341,6 +350,7 @@ export interface BondToken extends BaseContract {
       account: AddressLike,
       id: BigNumberish,
       amount: BigNumberish,
+      tokenUri: string,
       data: BytesLike
     ],
     [void],
@@ -392,6 +402,12 @@ export interface BondToken extends BaseContract {
     "nonpayable"
   >;
 
+  setTokenURI: TypedContractMethod<
+    [id: BigNumberish, newuri: string],
+    [void],
+    "nonpayable"
+  >;
+
   setURI: TypedContractMethod<[newuri: string], [void], "nonpayable">;
 
   supportsInterface: TypedContractMethod<
@@ -414,7 +430,7 @@ export interface BondToken extends BaseContract {
     "nonpayable"
   >;
 
-  uri: TypedContractMethod<[arg0: BigNumberish], [string], "view">;
+  uri: TypedContractMethod<[id: BigNumberish], [string], "view">;
 
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
@@ -451,6 +467,7 @@ export interface BondToken extends BaseContract {
       account: AddressLike,
       id: BigNumberish,
       amount: BigNumberish,
+      tokenUri: string,
       data: BytesLike
     ],
     [void],
@@ -508,6 +525,13 @@ export interface BondToken extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "setTokenURI"
+  ): TypedContractMethod<
+    [id: BigNumberish, newuri: string],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "setURI"
   ): TypedContractMethod<[newuri: string], [void], "nonpayable">;
   getFunction(
@@ -524,7 +548,7 @@ export interface BondToken extends BaseContract {
   ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "uri"
-  ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
+  ): TypedContractMethod<[id: BigNumberish], [string], "view">;
 
   getEvent(
     key: "ApprovalForAll"
