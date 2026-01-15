@@ -1,3 +1,4 @@
+import * as React from "react";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { AllocationChart } from "@/components/portfolio/allocation-chart";
 import { PerformanceChart } from "@/components/portfolio/performance-chart";
@@ -8,8 +9,42 @@ import {
     ChartBreakoutCircleIcon,
     Analytics01Icon
 } from "@hugeicons/core-free-icons";
+import { useAccount, useReadContract } from "wagmi";
+import { formatUnits } from "viem";
+import { CONTRACTS } from "@/config/contracts";
+import { MOCK_BONDS } from "@/routes/bonds";
+import type { BondProps } from "@/components/bonds/bond-card";
 
 export default function PortfolioPage() {
+    const { address } = useAccount();
+
+    const bondIds = MOCK_BONDS.map((b: BondProps) => BigInt(b.id));
+    const accounts = MOCK_BONDS.map(() => address as `0x${string}`);
+
+    const { data: balances } = useReadContract({
+        address: CONTRACTS.BondToken.address as `0x${string}`,
+        abi: CONTRACTS.BondToken.abi,
+        functionName: "balanceOfBatch",
+        args: address ? [accounts, bondIds] : undefined,
+        query: { enabled: !!address, refetchInterval: 5000 }
+    });
+
+    const [isMounted, setIsMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    const totalValueLocked = React.useMemo(() => {
+        if (!balances) return 0;
+        const currentBalances = balances as readonly bigint[];
+        return currentBalances.reduce((acc, balance) => {
+            return acc + Number(formatUnits(balance, 18));
+        }, 0);
+    }, [balances]);
+
+    if (!isMounted) return null;
+
     return (
         <DashboardLayout>
             <div className="space-y-10">
@@ -23,14 +58,14 @@ export default function PortfolioPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <StatItem
                         title="Total Value Locked"
-                        value="$25,650"
+                        value={totalValueLocked > 0 ? `$${totalValueLocked.toLocaleString()}` : "$0"}
                         icon={CoinsIcon}
-                        trend={{ value: 12.5, isUp: true }}
-                        className="bg-neutral-900 text-white"
+                        trend={totalValueLocked > 0 ? { value: 12.5, isUp: true } : undefined}
+                        vibrant
                     />
                     <StatItem
                         title="Cumulative Yield"
-                        value="$479.55"
+                        value="Not Integrated"
                         icon={ChartBreakoutCircleIcon}
                         vibrant
                     />

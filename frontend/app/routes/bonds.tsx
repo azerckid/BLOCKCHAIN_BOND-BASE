@@ -25,7 +25,7 @@ export async function action({ request }: ActionFunctionArgs) {
     return { success: true, amount, bondId };
 }
 
-const MOCK_BONDS: BondProps[] = [
+export const MOCK_BONDS: BondProps[] = [
     {
         id: "1",
         title: "SME Working Capital - Bangkok",
