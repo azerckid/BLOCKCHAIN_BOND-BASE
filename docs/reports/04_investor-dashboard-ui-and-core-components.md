@@ -6,13 +6,14 @@
 - **작업 번호**: 04
 - **작업명**: Investor Dashboard UI and Core Components
 - **일자**: 2026-01-15
-- **상태**: 진행 중 (In Progress)
+- **상태**: 완료 (Completed)
+- **완료 일자**: 2026-01-15
 
 ## 2. 주요 목표 (Key Objectives)
-- [ ] **Core Layout**: 사이드바, 헤더, 메인 컨텐츠 영역이 포함된 대시보드 레이아웃 구축.
-- [ ] **Bond Components**: 채권 정보를 표시하는 `BondCard` 및 리스트 컴포넌트 구현.
-- [ ] **Portfolio UI**: 투자 현황(총 투자금액, 예상 수익 등)을 요약 표시하는 통계 대시보드 UI.
-- [ ] **Design System**: 프리미엄 테마(Nova 스타일)에 맞춘 다크/라이트 모드 지원 및 색상 토큰 최적화.
+- [x] **Core Layout**: 사이드바, 헤더, 메인 컨텐츠 영역이 포함된 대시보드 레이아웃 구축.
+- [x] **Bond Components**: 채권 정보를 표시하는 `BondCard` 및 리스트 컴포넌트 구현.
+- [x] **Portfolio UI**: 투자 현황(총 투자금액, 예상 수익 등)을 요약 표시하는 통계 대시보드 UI.
+- [x] **Design System**: 프리미엄 테마(Nova 스타일)에 맞춘 다크/라이트 모드 지원 및 색상 토큰 최적화.
 
 ## 3. 상세 단계 (Implementation Steps)
 
