@@ -6,14 +6,14 @@
 - **작업 번호**: 06
 - **작업명**: Portfolio Analytics & Portfolio Page
 - **일자**: 2026-01-15
-- **상태**: 진행 전 (To Do)
+- **상태**: 완료 (Completed)
 
 ## 2. 주요 목표 (Key Objectives)
-- [ ] **Portfolio Overview**: 현재 총 자산 가치, 누적 수익금, 평균 연수익률(APR)을 요약하여 상단에 배치.
-- [ ] **Asset Allocation Chart**: 섹터별(부동산, 농업 등) 투자 비중을 보여주는 Donut/Pie 차트 구현.
-- [ ] **Yield Performance Graph**: 월별 수익 발생 추이를 보여주는 Line/Bar 차트 구현.
-- [ ] **Investment List**: 내가 투자한 개별 채권들의 상태(Active, Repaid)와 성과를 보여주는 상세 테이블/리스트 구현.
-- [ ] **Interactive Analytics**: 특정 기간 또는 섹터를 선택했을 때 데이터가 필터링되는 인터랙티브 기능 추가.
+- [x] **Portfolio Overview**: 현재 총 자산 가치, 누적 수익금, 평균 연수익률(APR)을 요약하여 상단에 배치.
+- [x] **Asset Allocation Chart**: 섹터별(부동산, 농업 등) 투자 비중을 보여주는 Donut/Pie 차트 구현.
+- [x] **Yield Performance Graph**: 월별 수익 발생 추이를 보여주는 Line/Bar 차트 구현.
+- [x] **Investment List**: 내가 투자한 개별 채권들의 상태(Active, Repaid)와 성과를 보여주는 상세 테이블/리스트 구현.
+- [x] **Interactive Analytics**: 특정 기간 또는 섹터를 선택했을 때 데이터가 필터링되는 인터랙티브 기능 추가.
 
 ## 3. 상세 단계 (Implementation Steps)
 
