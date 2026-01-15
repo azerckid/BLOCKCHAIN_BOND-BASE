@@ -10,8 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useFetcher, type ActionFunctionArgs } from "react-router";
-import { toast } from "sonner";
+import { type ActionFunctionArgs } from "react-router";
 
 export async function action({ request }: ActionFunctionArgs) {
     const formData = await request.formData();

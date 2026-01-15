@@ -8,7 +8,6 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
 
-import type { Route } from "./+types/root";
 import "./index.css";
 import { config } from "./config/wagmi";
 

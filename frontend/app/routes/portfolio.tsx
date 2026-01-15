@@ -5,7 +5,7 @@ import { PerformanceChart } from "@/components/portfolio/performance-chart";
 import { InvestmentList } from "@/components/portfolio/investment-list";
 import { StatItem } from "@/components/portfolio/stat-summary";
 import {
-    CoinsIcon,
+    Coins01Icon,
     ChartBreakoutCircleIcon,
     Analytics01Icon
 } from "@hugeicons/core-free-icons";
@@ -59,7 +59,7 @@ export default function PortfolioPage() {
                     <StatItem
                         title="Total Value Locked"
                         value={totalValueLocked > 0 ? `$${totalValueLocked.toLocaleString()}` : "$0"}
-                        icon={CoinsIcon}
+                        icon={Coins01Icon}
                         trend={totalValueLocked > 0 ? { value: 12.5, isUp: true } : undefined}
                         vibrant
                     />
