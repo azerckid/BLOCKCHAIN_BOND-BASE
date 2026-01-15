@@ -27,6 +27,10 @@ BuildCTC is a Real World Assets (RWA) Yield Protocol built on Creditcoin 2.0 tha
 - **Regulatory Compliance**: Must comply with Thai financial regulations and cross-border capital movement regulations
 - **Token Model**: ERC-1155 fractional tokens for flexible asset division and trading
 
+## Communication Rules
+- **[No Emojis]** 사용자와의 모든 채팅 대화에서 이모지(Emoji) 및 이모티콘(Emoticon) 사용을 전면 금지합니다.
+- **[Documentation-First Implementation]** If the USER requests a task or technical implementation that is not defined in the existing documentation, you must first clarify that it is outside the current scope and ask if the documentation should be updated before proceeding with the implementation. (문서에 정의되지 않은 작업을 수행하기 전, 반드시 문서 업데이트 여부를 먼저 확인하십시오.)
+
 ## Setup Commands
 
 ### Smart Contracts
@@ -39,8 +43,8 @@ BuildCTC is a Real World Assets (RWA) Yield Protocol built on Creditcoin 2.0 tha
 ### Backend
 - Install dependencies: `npm install` (in `backend/` directory)
 - Start development server: `npm run dev`
-- Run database migrations: `npm run migrate` or `npx prisma migrate dev`
-- Start database studio: `npx prisma studio`
+- Run database migrations: `npm run db:push` or `npx drizzle-kit push`
+- Start database studio: `npx drizzle-kit studio`
 
 ### Frontend
 - Install dependencies: `npm install` (in `frontend/` directory)
@@ -59,8 +63,8 @@ BuildCTC is a Real World Assets (RWA) Yield Protocol built on Creditcoin 2.0 tha
 ### Backend
 - **Runtime**: Node.js 18+ or Python 3.13+
 - **Framework**: Express.js/Fastify (Node.js) or FastAPI (Python)
-- **Database**: PostgreSQL (Supabase recommended)
-- **ORM**: Prisma/TypeORM (Node.js) or SQLAlchemy (Python)
+- **Database**: Turso (SQLite)
+- **ORM**: Drizzle ORM
 - **Validation**: Zod (TypeScript) or Pydantic (Python)
 - **Authentication**: JWT or OAuth2
 
@@ -76,7 +80,7 @@ BuildCTC is a Real World Assets (RWA) Yield Protocol built on Creditcoin 2.0 tha
 ### Infrastructure
 - **Oracle**: Creditcoin Universal Oracle
 - **Cross-Chain**: Creditcoin Gateway (Ethereum, Polygon, etc.)
-- **Hosting**: Vercel (frontend), AWS/Railway (backend), Supabase (database)
+- **Hosting**: Vercel (frontend), AWS/Railway (backend), Turso (database)
 
 ## Code Style & Conventions
 
