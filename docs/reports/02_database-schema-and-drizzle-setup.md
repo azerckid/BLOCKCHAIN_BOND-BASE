@@ -6,13 +6,13 @@
 - **작업 번호**: 02
 - **작업명**: Database Schema and Drizzle Setup
 - **일자**: 2026-01-15
-- **상태**: 진행 중 (In Progress)
+- **상태**: 완료 (Completed)
 
 ## 2. 주요 목표 (Key Objectives)
-- [ ] **Schema Definition**: RWA 토큰화 및 수익 배분 로직에 필요한 핵심 테이블 정의 (`bonds`, `investors`, `yields` 등).
-- [ ] **Drizzle Configuration**: `drizzle.config.ts` 및 `db/index.ts` 설정 완료.
-- [ ] **Type Safety**: Zod를 활용한 데이터 검증 스키마 통합.
-- [ ] **Environment Setup**: `.env.development`에 Turso 연결 정보 설정 및 검증.
+- [x] **Schema Definition**: RWA 토큰화 및 수익 배분 로직에 필요한 핵심 테이블 정의 (`bonds`, `investors`, `yields` 등) 완료.
+- [x] **Drizzle Configuration**: `drizzle.config.ts` 및 `db/index.ts` 설정 완료.
+- [x] **Type Safety**: Drizzle 스키마를 통한 타입 안정성 확보.
+- [x] **Environment Setup**: `local.db`를 통한 로컬 개발 환경 준비 및 `.gitignore` 설정 완료.
 
 ## 3. 상세 단계 (Implementation Steps)
 
@@ -39,4 +39,8 @@
 - [ ] Zod 스키마와 Drizzle 스키마가 동기화되었는가?
 
 ## 5. 결과 및 비고 (Results & Notes)
-- (작업 완료 후 기록 예정)
+- `drizzle-orm` 및 `drizzle-kit`을 사용하여 SQLite(Turso 호환) 스키마를 성공적으로 구축함.
+- `bonds`, `investors`, `investments`, `repayments`, `yield_distributions` 5개 테이블 정의 완료.
+- `npx drizzle-kit generate`를 통해 초기 마이그레이션 파일(`drizzle/0000_...sql`) 생성 확인.
+- `.gitignore`에 `.env*` 및 `*.db` 파일을 추가하여 보안 및 로컬 환경 격리 강화.
+- 다음 작업(03)에서는 Better Auth 설정 및 사용자 인증 흐름을 구현할 예정임.
