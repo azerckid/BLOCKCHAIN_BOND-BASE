@@ -79,21 +79,20 @@ BuildCTC/
 - **프레임워크**: 
   - Node.js: Express.js 또는 Fastify
   - Python: FastAPI
-- **데이터베이스**: PostgreSQL (Supabase 고려)
-- **ORM**: 
-  - Node.js: Prisma 또는 TypeORM
-  - Python: SQLAlchemy
-- **인증**: JWT 또는 OAuth2
-- **검증**: Zod (TypeScript) 또는 Pydantic (Python)
+- **데이터베이스**: Turso (SQLite)
+- **ORM**: Drizzle ORM
+- **인증**: Better Auth
+- **검증**: Zod (TypeScript)
 
 ### 2.3 프론트엔드
-- **프레임워크**: React 18+ (Next.js 고려)
+- **프레임워크**: React 18+ (React Router v7 Framework)
 - **상태 관리**: Zustand 또는 Redux Toolkit
 - **스타일링**: Tailwind CSS
 - **UI 컴포넌트**: shadcn/ui
 - **차트**: Recharts 또는 Chart.js
 - **지도**: Google Maps API 또는 Mapbox
 - **지갑 연동**: ethers.js 또는 viem
+- **날짜/시간**: Luxon
 
 ### 2.4 인프라
 - **블록체인**: Creditcoin 2.0 (EVM 호환)
@@ -102,7 +101,7 @@ BuildCTC/
 - **호스팅**: 
   - 백엔드: Vercel, AWS, 또는 Railway
   - 프론트엔드: Vercel 또는 Netlify
-  - 데이터베이스: Supabase 또는 AWS RDS
+  - 데이터베이스: Turso
 
 ## 3. 스마트 컨트랙트 설계
 
