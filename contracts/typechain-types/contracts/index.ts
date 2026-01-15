@@ -2,3 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { BondToken } from "./BondToken";
+export type { LiquidityPool } from "./LiquidityPool";
+export type { MockUSDC } from "./MockUSDC";
+export type { YieldDistributor } from "./YieldDistributor";

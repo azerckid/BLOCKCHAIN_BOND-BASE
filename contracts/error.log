@@ -1,0 +1,35 @@
+WARNING: You are currently using Node.js v25.2.1, which is not supported by Hardhat. This can lead to unexpected behavior. See https://v2.hardhat.org/nodejs-versions
+
+
+An unexpected error occurred:
+
+Error: Cannot find module '/Users/namhyeongseog/Desktop/TODO/BLOCKCHAIN/BuildCTC/contracts/contracts/test/YieldDistributor.ts'
+Require stack:
+- /Users/namhyeongseog/Desktop/TODO/BLOCKCHAIN/BuildCTC/contracts/node_modules/mocha/lib/mocha.js
+- /Users/namhyeongseog/Desktop/TODO/BLOCKCHAIN/BuildCTC/contracts/node_modules/mocha/index.js
+- /Users/namhyeongseog/Desktop/TODO/BLOCKCHAIN/BuildCTC/contracts/node_modules/hardhat/builtin-tasks/test.js
+- /Users/namhyeongseog/Desktop/TODO/BLOCKCHAIN/BuildCTC/contracts/node_modules/hardhat/internal/core/tasks/builtin-tasks.js
+- /Users/namhyeongseog/Desktop/TODO/BLOCKCHAIN/BuildCTC/contracts/node_modules/hardhat/internal/core/config/config-loading.js
+- /Users/namhyeongseog/Desktop/TODO/BLOCKCHAIN/BuildCTC/contracts/node_modules/hardhat/internal/cli/cli.js
+- /Users/namhyeongseog/Desktop/TODO/BLOCKCHAIN/BuildCTC/contracts/node_modules/hardhat/internal/cli/bootstrap.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1420:15)
+    at Module._resolveFilename.sharedData.moduleResolveFilenameHook.installedValue [as _resolveFilename] (/Users/namhyeongseog/Desktop/TODO/BLOCKCHAIN/BuildCTC/contracts/node_modules/@cspotcode/source-map-support/source-map-support.js:811:30)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1058:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1063:22)
+    at Module._load (node:internal/modules/cjs/loader:1226:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.require (node:internal/modules/cjs/loader:1503:12)
+    at require (node:internal/modules/helpers:152:16)
+    at /Users/namhyeongseog/Desktop/TODO/BLOCKCHAIN/BuildCTC/contracts/node_modules/mocha/lib/mocha.js:416:36 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/namhyeongseog/Desktop/TODO/BLOCKCHAIN/BuildCTC/contracts/node_modules/mocha/lib/mocha.js',
+    '/Users/namhyeongseog/Desktop/TODO/BLOCKCHAIN/BuildCTC/contracts/node_modules/mocha/index.js',
+    '/Users/namhyeongseog/Desktop/TODO/BLOCKCHAIN/BuildCTC/contracts/node_modules/hardhat/builtin-tasks/test.js',
+    '/Users/namhyeongseog/Desktop/TODO/BLOCKCHAIN/BuildCTC/contracts/node_modules/hardhat/internal/core/tasks/builtin-tasks.js',
+    '/Users/namhyeongseog/Desktop/TODO/BLOCKCHAIN/BuildCTC/contracts/node_modules/hardhat/internal/core/config/config-loading.js',
+    '/Users/namhyeongseog/Desktop/TODO/BLOCKCHAIN/BuildCTC/contracts/node_modules/hardhat/internal/cli/cli.js',
+    '/Users/namhyeongseog/Desktop/TODO/BLOCKCHAIN/BuildCTC/contracts/node_modules/hardhat/internal/cli/bootstrap.js'
+  ]
+}

@@ -2,3 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export { BondToken__factory } from "./BondToken__factory";
+export { LiquidityPool__factory } from "./LiquidityPool__factory";
+export { MockUSDC__factory } from "./MockUSDC__factory";
+export { YieldDistributor__factory } from "./YieldDistributor__factory";
