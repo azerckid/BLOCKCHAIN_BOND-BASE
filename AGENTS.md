@@ -66,16 +66,17 @@ BuildCTC is a Real World Assets (RWA) Yield Protocol built on Creditcoin 2.0 tha
 - **Database**: Turso (SQLite)
 - **ORM**: Drizzle ORM
 - **Validation**: Zod (TypeScript) or Pydantic (Python)
-- **Authentication**: JWT or OAuth2
+- **Authentication**: Better Auth
 
 ### Frontend
-- **Framework**: React 18+ (Next.js recommended)
+- **Framework**: React 18+ (React Router v7 Framework)
 - **State Management**: Zustand or Redux Toolkit
 - **Styling**: Tailwind CSS
 - **UI Components**: shadcn/ui
 - **Charts**: Recharts or Chart.js
 - **Maps**: Google Maps API or Mapbox (for impact visualization)
 - **Wallet Integration**: ethers.js or viem
+- **Date/Time**: Luxon
 
 ### Infrastructure
 - **Oracle**: Creditcoin Universal Oracle
@@ -106,6 +107,11 @@ BuildCTC is a Real World Assets (RWA) Yield Protocol built on Creditcoin 2.0 tha
 - Stick to functional components and React Hooks
 - Follow shadcn/ui design system for UI consistency
 - Use **Zod** for client-side validation
+- Use **Luxon** for all date and time operations
+- **React Router v7 Patterns**:
+  - Strictly follow **loader** and **action** patterns for data fetching and mutations.
+  - Use `Route.LoaderArgs` and `Route.ActionArgs` for type-safe parameter handling.
+  - Implement proper type definitions for `useLoaderData` and `useActionData`.
 - Use **Toast notifications** (Sonner) for user feedback:
   - Success: Investment, withdrawal, yield claim, etc.
   - Error: Transaction failures, validation errors, API errors

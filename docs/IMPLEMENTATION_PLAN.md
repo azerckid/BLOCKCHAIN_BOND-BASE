@@ -93,6 +93,7 @@ BuildCTC/
 - **지도**: Google Maps API 또는 Mapbox
 - **지갑 연동**: ethers.js 또는 viem
 - **날짜/시간**: Luxon
+- **프레임워크 패턴**: React Router v7 loader/action 기반 데이터 처리
 
 ### 2.4 인프라
 - **블록체인**: Creditcoin 2.0 (EVM 호환)
