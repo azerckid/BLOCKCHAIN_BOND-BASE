@@ -8,436 +8,176 @@ BuildCTC/
 │   ├── BondToken.sol            # ERC-1155 채권 토큰화 컨트랙트
 │   ├── LiquidityPool.sol        # 유동성 풀 관리 컨트랙트
 │   ├── YieldDistributor.sol     # 수익 배분 로직 컨트랙트
-│   ├── ReservePool.sol          # 리저브 풀 관리 컨트랙트
-│   ├── OracleAdapter.sol        # Creditcoin Universal Oracle 연동
+│   ├── ReservePool.sol          # 리저브 풀 관리 컨트랙트 (예정)
+│   ├── OracleAdapter.sol        # Creditcoin Universal Oracle 연동 (예정)
 │   ├── interfaces/              # 인터페이스 정의
 │   └── libraries/               # 라이브러리 (SafeMath 등)
-├── backend/                     # 백엔드 서비스
+├── backend/                     # 백엔드 서비스 (Smart Contract 중심 구조로 대체 가능성 있음)
 │   ├── api/                     # REST API 엔드포인트
 │   │   ├── routes/
-│   │   │   ├── bonds.ts         # 채권 관련 API
-│   │   │   ├── pool.ts          # 유동성 풀 API
-│   │   │   ├── yield.ts         # 수익 배분 API
-│   │   │   └── oracle.ts        # 오라클 연동 API
-│   │   └── middleware/          # 인증, 검증 등
+│   │   └── middleware/
 │   ├── services/                # 비즈니스 로직
-│   │   ├── tokenization/        # 토큰화 서비스
-│   │   ├── yield/               # 수익 계산 및 배분
-│   │   ├── oracle/              # 오라클 데이터 처리
-│   │   └── risk/                # 리스크 관리
-│   ├── database/                # 데이터베이스
-│   │   ├── schema/              # DB 스키마
-│   │   ├── migrations/          # 마이그레이션
-│   │   └── models/              # 데이터 모델
 │   └── config/                  # 설정 파일
 ├── frontend/                    # 프론트엔드 애플리케이션
-│   ├── dashboard/               # 투자자 대시보드
-│   │   ├── components/
-│   │   │   ├── BondCard.tsx     # 채권 카드 컴포넌트
-│   │   │   ├── PoolStats.tsx    # 풀 통계
-│   │   │   ├── YieldChart.tsx   # 수익 차트
-│   │   │   └── ImpactMap.tsx    # 소셜 임팩트 지도
-│   │   └── pages/
-│   │       ├── Invest.tsx       # 투자 페이지
-│   │       ├── Portfolio.tsx    # 포트폴리오
-│   │       └── Impact.tsx       # 임팩트 대시보드
-│   ├── admin/                   # 관리자 패널
-│   └── shared/                  # 공통 컴포넌트
-├── gateway/                     # 크로스체인 Gateway 연동
-│   ├── ethereum/                # 이더리움 브릿지
-│   ├── polygon/                 # 폴리곤 브릿지
-│   └── adapters/                # Gateway 어댑터
+│   ├── app/                     # React Router v7 App Directory
+│   │   ├── routes/              # 페이지 라우트
+│   │   │   ├── _index.tsx       # 홈 (대시보드)
+│   │   │   ├── bonds.tsx        # 채권 마켓
+│   │   │   ├── portfolio.tsx    # 포트폴리오
+│   │   │   └── settings.tsx     # 설정
+│   │   ├── components/          # UI 컴포넌트
+│   │   │   ├── bonds/           # 채권 관련
+│   │   │   ├── portfolio/       # 포트폴리오 차트 등
+│   │   │   └── settings/        # 설정 폼
+│   │   ├── config/              # 설정 (contracts.ts 등)
+│   │   └── lib/                 # 유틸리티
+│   └── public/
 ├── scripts/                     # 유틸리티 스크립트
 │   ├── deploy.ts                # 배포 스크립트
-│   ├── seed.ts                  # 테스트 데이터 생성
-│   └── oracle-sync.ts           # 오라클 동기화
-├── tests/                       # 테스트
-│   ├── contracts/               # 컨트랙트 테스트
-│   ├── backend/                 # 백엔드 테스트
-│   └── integration/             # 통합 테스트
+│   └── deploy_all.ts            # 전체 배포 스크립트
 └── docs/                        # 문서
     ├── core/                    # 핵심 설계 문서
-    ├── features/                # 기능별 문서
-    ├── roadmap/                 # 로드맵
-    └── guides/                  # 개발 가이드
+    ├── reports/                 # 진행 상황 리포트
+    └── roadmap/                 # 로드맵
 ```
 
-## 2. 기술 스택
+## 2. 기술 스택 (Updated)
 
 ### 2.1 스마트 컨트랙트
-- **언어**: Solidity ^0.8.20
-- **프레임워크**: Hardhat 또는 Foundry
-- **테스트**: Hardhat Test 또는 Forge
-- **배포**: Hardhat Deploy 또는 스크립트
+- **언어**: Solidity ^0.8.20 (EVM Version: `paris`)
+- **프레임워크**: Hardhat
+- **테스트**: Hardhat Test (Mocha/Chai)
+- **배포**: Hardhat Scripts
+- **네트워크**: Creditcoin Testnet (Chain ID: 102031) (EVM 호환)
 - **표준**: 
-  - ERC-1155 (Multi Token Standard)
-  - ERC-20 (USDC 등 스테이블코인)
-  - OpenZeppelin Contracts
+  - ERC-1155 (BondToken)
+  - ERC-20 (MockUSDC)
+  - OpenZeppelin AccessControl, ReentrancyGuard
 
-### 2.2 백엔드
-- **런타임**: Node.js 18+ 또는 Python 3.13+
-- **프레임워크**: 
-  - Node.js: Express.js 또는 Fastify
-  - Python: FastAPI
-- **데이터베이스**: Turso (SQLite)
+### 2.2 백엔드 (Optional/Hybrid)
+- **런타임**: Node.js 18+
+- **데이터베이스**: Turso (SQLite) - 사용자 프로필 등 오프체인 데이터
 - **ORM**: Drizzle ORM
-- **인증**: Better Auth
-- **검증**: Zod (TypeScript)
+- **인증**: Better Auth (Cookie Session) + Wallet Auth (SIWE 예정)
 
 ### 2.3 프론트엔드
-- **프레임워크**: React 18+ (React Router v7 Framework)
-- **상태 관리**: Zustand 또는 Redux Toolkit
-- **스타일링**: Tailwind CSS
-- **UI 컴포넌트**: shadcn/ui
-- **차트**: Recharts 또는 Chart.js
-- **지도**: Google Maps API 또는 Mapbox
-- **지갑 연동**: ethers.js 또는 viem
+- **프레임워크**: React Router v7 (Vite)
+- **상태 관리**: @tanstack/react-query (Server State), Local State
+- **스타일링**: Tailwind CSS v3.4, shadcn/ui
+- **Web3 연동**: 
+  - **wagmi**: React Hooks for Ethereum
+  - **viem**: Low-level Interface
+- **차트**: Recharts
+- **지도**: Google Maps API (예정)
 - **날짜/시간**: Luxon
-- **프레임워크 패턴**: React Router v7 loader/action 기반 데이터 처리
 
-### 2.4 인프라
-- **블록체인**: Creditcoin 2.0 (EVM 호환)
-- **오라클**: Creditcoin Universal Oracle
-- **Gateway**: Creditcoin Gateway
-- **호스팅**: 
-  - 백엔드: Vercel, AWS, 또는 Railway
-  - 프론트엔드: Vercel 또는 Netlify
-  - 데이터베이스: Turso
+## 3. 스마트 컨트랙트 설계 (Current Status)
 
-## 3. 스마트 컨트랙트 설계
+### 3.1 BondToken.sol (Deployed)
+- **Address**: `frontend/app/config/contracts.ts` 참조
+- **기능**: ERC-1155 기반, `RoleBased` AccessControl, 동적 URI 설정.
 
-### 3.1 BondToken.sol (ERC-1155)
-```solidity
-// 주요 기능:
-// - 채권 토큰 발행 (mint)
-// - 분할 토큰 전송 (transfer)
-// - 메타데이터 관리 (URI)
-// - 소각 (burn)
-// - 총 공급량 조회
-```
+### 3.2 LiquidityPool.sol (Deployed)
+- **Address**: `frontend/app/config/contracts.ts` 참조
+- **기능**: USDC 예치(Deposit), 채권 구매(Invest), 관리자 인출.
 
-**주요 함수**:
-- `mintBond(address to, uint256 bondId, uint256 amount, bytes calldata data)`: 채권 토큰 발행
-- `getBondInfo(uint256 bondId)`: 채권 정보 조회
-- `updateBondStatus(uint256 bondId, BondStatus status)`: 채권 상태 업데이트
+### 3.3 YieldDistributor.sol (Deployed)
+- **Address**: `frontend/app/config/contracts.ts` 참조
+- **기능**: Synthetix 스타일 `RewardPerToken` 알고리즘 기반 수익 배분.
 
-### 3.2 LiquidityPool.sol
-```solidity
-// 주요 기능:
-// - USDC 예치 (deposit)
-// - USDC 인출 (withdraw)
-// - 채권 구매 (buyBond)
-// - 채권 판매 (sellBond)
-// - 유동성 풀 통계 조회
-```
+### 3.4 MockUSDC.sol (Deployed)
+- **Address**: `frontend/app/config/contracts.ts` 참조
+- **기능**: 테스트용 ERC-20 토큰 (Faucet 기능 포함).
 
-**주요 함수**:
-- `deposit(uint256 amount)`: USDC 예치
-- `withdraw(uint256 amount)`: USDC 인출
-- `buyBond(uint256 bondId, uint256 amount)`: 채권 구매
-- `getPoolBalance()`: 풀 잔액 조회
-- `getAvailableBonds()`: 구매 가능한 채권 목록
+## 4. 프론트엔드 구현 상태
+- **대시보드**: `/` (기본 레이아웃 및 요약 정보)
+- **채권 마켓**: `/bonds` (필터링, 검색, 모달을 통한 투자 UX)
+- **포트폴리오**: `/portfolio` (자산 현황 차트, 투자 리스트)
+- **설정**: `/settings` (프로필, 지갑 관리 UI)
 
-### 3.3 YieldDistributor.sol
-```solidity
-// 주요 기능:
-// - 오라클로부터 상환 데이터 수신
-// - 투자자별 수익 계산
-// - USDC로 수익 배분
-// - 자동 재투자 옵션
-```
+## 8. 개발 단계별 계획 (Progress Tracker)
 
-**주요 함수**:
-- `distributeYield(uint256 bondId, uint256 repaymentAmount)`: 수익 배분
-- `calculateYield(uint256 bondId, address investor)`: 개별 수익 계산
-- `claimYield(uint256 bondId)`: 수익 청구
-- `setAutoReinvest(address investor, bool enabled)`: 자동 재투자 설정
+### Phase 1: 기초 인프라 (완료)
+- [x] **프로젝트 설정**
+   - [x] Hardhat 프로젝트 초기화 (`evmVersion: paris` 설정)
+   - [x] React Router v7 프론트엔드 스캐폴딩
+   - [x] Tailwind CSS & shadcn/ui 설정
+   - [x] 문서 구조화 (`docs/`)
 
-### 3.4 ReservePool.sol
-```solidity
-// 주요 기능:
-// - 리저브 풀 자금 관리
-// - 디폴트 손실 보상
-// - 최소 유지 비율 관리
-```
+- [x] **스마트 컨트랙트 기본 구조**
+   - [x] BondToken.sol 구현 (ERC-1155)
+   - [x] MockUSDC.sol 구현 (ERC-20)
+   - [x] 단위 테스트 작성 (BondToken)
 
-**주요 함수**:
-- `depositReserve(uint256 amount)`: 리저브 풀 예치
-- `withdrawReserve(uint256 amount)`: 리저브 풀 인출 (제한적)
-- `coverLoss(uint256 bondId, uint256 lossAmount)`: 손실 보상
-- `getReserveRatio()`: 리저브 비율 조회
+- [x] **로컬 개발 환경 & 배포**
+   - [x] Hardhat 로컬 네트워크 테스트
+   - [x] Creditcoin Testnet 배포 스크립트 작성 (`deploy_all.ts`)
+   - [x] Testnet 배포 완료 및 주소 확보
 
-### 3.5 OracleAdapter.sol
-```solidity
-// 주요 기능:
-// - Creditcoin Universal Oracle 연동
-// - 상환 데이터 검증
-// - 이벤트 발생
-```
+### Phase 2: 핵심 기능 (진행 중)
+- [x] **유동성 풀 구현**
+   - [x] LiquidityPool.sol 완성
+   - [x] 예치/인출 로직 구현
+   - [x] 채권 구매(Invest) 연동 (`purchaseBond`)
+   - [x] AccessControl 권한 설정 (Mininter Role)
 
-**주요 함수**:
-- `requestRepaymentData(uint256 bondId)`: 상환 데이터 요청
-- `fulfillRepaymentData(uint256 bondId, uint256 amount)`: 오라클 콜백
-- `verifyOracleData(bytes32 requestId)`: 데이터 검증
+- [x] **수익 배분 시스템**
+   - [x] YieldDistributor.sol 구현
+   - [x] `rewardPerToken` 기반 수익 계산 로직
+   - [x] Staking(예치) 및 Claim(수령) 로직
+   - [x] 단위 테스트 통과
 
-## 4. 백엔드 서비스 설계
+- [ ] **오라클 연동** (다음 마일스톤)
+   - [ ] OracleAdapter.sol 구현
+   - [ ] 백엔드 오라클 서비스 구성
+   - [ ] Creditcoin Universal Oracle 연동
 
-### 4.1 토큰화 서비스 (tokenization/)
-- **기능**:
-  - 실물 대출 채권 데이터 수집
-  - 채권 메타데이터 생성
-  - 스마트 컨트랙트 토큰 발행 트리거
-  - 토큰 상태 동기화
+### Phase 3: 리스크 관리 (예정)
+- [ ] **리저브 풀**
+   - [ ] ReservePool.sol 구현
+   - [ ] 손실 보상 로직
 
-### 4.2 수익 서비스 (yield/)
-- **기능**:
-  - 오라클 데이터 수신 및 처리
-  - 투자자별 수익 계산
-  - 배분 스케줄링
-  - 재투자 로직 처리
+- [ ] **디폴트 처리**
+   - [ ] 디폴트 감지 시스템
+   - [ ] 투자자 알림
 
-### 4.3 오라클 서비스 (oracle/)
-- **기능**:
-  - Creditcoin Universal Oracle 연동
-  - 상환 데이터 폴링
-  - 데이터 검증 및 변환
-  - 스마트 컨트랙트 트랜잭션 트리거
+### Phase 4: UI/UX (부분 완료)
+- [x] **투자자 대시보드**
+   - [x] 기본 레이아웃 (Sidebar, Header)
+   - [x] 채권 목록 및 상세 모달 (Bond Market)
+   - [x] 포트폴리오 페이지 (Chart, List)
+   - [x] 설정 페이지 (Profile, Wallet UI)
 
-### 4.4 리스크 관리 서비스 (risk/)
-- **기능**:
-  - 디폴트 감지
-  - 리저브 풀 관리
-  - 손실 분산 계산
-  - 신용 점수 업데이트
+- [ ] **Web3 연동** (현재 진행 단계)
+   - [ ] `wagmi` / `viem` 설정
+   - [ ] 지갑 연결 (Connect Wallet) 기능 구현
+   - [ ] 컨트랙트 데이터 바인딩 (Balance, Invest, Claim)
 
-## 5. 데이터베이스 스키마
+- [ ] **임팩트 시각화**
+   - [ ] 지도 통합
+   - [ ] ESG 지표 시각화
 
-### 5.1 주요 테이블
+### Phase 5 ~ 6 (이후 계획)
+- [ ] Gateway 통합 (Cross-chain)
+- [ ] 보안 감사 및 최적화
+- [ ] 메인넷 배포 준비
 
-**bonds** (채권)
-- id (UUID)
-- bond_id (uint256, on-chain)
-- borrower_info (JSON)
-- region (string)
-- business_type (string)
-- loan_amount (decimal)
-- interest_rate (decimal)
-- maturity_date (timestamp)
-- credit_score (integer)
-- status (enum)
-- created_at, updated_at
+## 9. 보안 및 배포 전략 (Refined)
 
-**investors** (투자자)
-- id (UUID)
-- wallet_address (string, unique)
-- kyc_status (enum)
-- total_invested (decimal)
-- total_yield (decimal)
-- auto_reinvest (boolean)
-- created_at, updated_at
+### 9.1 배포 현황
+- **Network**: Creditcoin Testnet
+- **Deployed Contracts**:
+  - MockUSDC, BondToken, LiquidityPool, YieldDistributor
+- **Configuration**:
+  - Frontend: `frontend/app/config/contracts.ts`에 주소 및 ABI 관리
 
-**investments** (투자 내역)
-- id (UUID)
-- investor_id (UUID, FK)
-- bond_id (UUID, FK)
-- token_amount (decimal)
-- usdc_amount (decimal)
-- transaction_hash (string)
-- created_at
+### 9.2 향후 보안 계획
+- [ ] `dotenv`를 통한 환경 변수 관리 강화 (진행 중)
+- [ ] 배포 전 `slither` 등을 이용한 정적 분석 수행
+- [ ] 주요 권한(Admin Role) 관리자 지갑 분리
 
-**yield_distributions** (수익 배분)
-- id (UUID)
-- bond_id (UUID, FK)
-- investor_id (UUID, FK)
-- yield_amount (decimal)
-- distribution_date (timestamp)
-- transaction_hash (string)
-- created_at
-
-**repayments** (상환 내역)
-- id (UUID)
-- bond_id (UUID, FK)
-- repayment_amount (decimal)
-- repayment_date (timestamp)
-- oracle_request_id (string)
-- transaction_hash (string)
-- created_at
-
-**reserve_pool** (리저브 풀)
-- id (UUID)
-- total_reserve (decimal)
-- minimum_ratio (decimal)
-- last_updated (timestamp)
-
-## 6. API 엔드포인트 설계
-
-### 6.1 채권 API (/api/bonds)
-- `GET /api/bonds`: 채권 목록 조회
-- `GET /api/bonds/:id`: 채권 상세 정보
-- `GET /api/bonds/:id/investors`: 채권 투자자 목록
-- `GET /api/bonds/:id/repayments`: 상환 이력
-
-### 6.2 유동성 풀 API (/api/pool)
-- `GET /api/pool/stats`: 풀 통계
-- `GET /api/pool/balance`: 풀 잔액
-- `POST /api/pool/deposit`: 예치 요청
-- `POST /api/pool/withdraw`: 인출 요청
-
-### 6.3 수익 API (/api/yield)
-- `GET /api/yield/portfolio`: 포트폴리오 수익
-- `GET /api/yield/history`: 수익 이력
-- `POST /api/yield/claim`: 수익 청구
-- `POST /api/yield/reinvest`: 재투자 설정
-
-### 6.4 오라클 API (/api/oracle)
-- `POST /api/oracle/request`: 오라클 데이터 요청
-- `GET /api/oracle/status/:requestId`: 요청 상태 조회
-
-## 7. 프론트엔드 페이지 설계
-
-### 7.1 투자자 대시보드
-- **홈**: 전체 통계, 최신 채권, 수익 요약
-- **투자**: 채권 목록, 필터링, 상세 정보, 투자 실행
-- **포트폴리오**: 보유 채권, 수익 현황, 차트
-- **임팩트**: 지역별 분포, 사업 유형, ESG 지표
-
-### 7.2 관리자 패널
-- **채권 관리**: 채권 등록, 상태 업데이트
-- **유동성 풀 관리**: 풀 모니터링, 설정
-- **수익 배분**: 배분 실행, 이력 조회
-- **리스크 관리**: 디폴트 처리, 리저브 풀 관리
-
-## 8. 개발 단계별 계획
-
-### Phase 1: 기초 인프라 (4-6주)
-1. **프로젝트 설정**
-   - Hardhat/Foundry 프로젝트 초기화
-   - 백엔드 프로젝트 설정
-   - 프론트엔드 프로젝트 설정
-   - 데이터베이스 스키마 설계
-
-2. **스마트 컨트랙트 기본 구조**
-   - BondToken.sol 구현
-   - 기본 인터페이스 정의
-   - 단위 테스트 작성
-
-3. **로컬 개발 환경**
-   - Hardhat 네트워크 설정
-   - 데이터베이스 마이그레이션
-   - 기본 API 엔드포인트
-
-### Phase 2: 핵심 기능 (6-8주)
-1. **유동성 풀 구현**
-   - LiquidityPool.sol 완성
-   - 예치/인출 로직
-   - 채권 구매/판매 로직
-
-2. **수익 배분 시스템**
-   - YieldDistributor.sol 구현
-   - 수익 계산 로직
-   - 배분 스케줄링
-
-3. **오라클 연동**
-   - OracleAdapter.sol 구현
-   - 백엔드 오라클 서비스
-   - 데이터 동기화
-
-### Phase 3: 리스크 관리 (4-6주)
-1. **리저브 풀**
-   - ReservePool.sol 구현
-   - 손실 보상 로직
-   - 비율 관리
-
-2. **디폴트 처리**
-   - 디폴트 감지 시스템
-   - 손실 분산 로직
-   - 투자자 알림
-
-### Phase 4: UI/UX (6-8주)
-1. **투자자 대시보드**
-   - 기본 레이아웃
-   - 채권 목록 및 상세
-   - 포트폴리오 페이지
-
-2. **임팩트 시각화**
-   - 지도 통합
-   - 차트 및 그래프
-   - ESG 지표
-
-3. **관리자 패널**
-   - 채권 관리 UI
-   - 풀 모니터링
-   - 수익 배분 관리
-
-### Phase 5: Gateway 통합 (4-6주)
-1. **크로스체인 브릿지**
-   - 이더리움 Gateway 연동
-   - 폴리곤 Gateway 연동
-   - 자산 전송 테스트
-
-### Phase 6: 테스트 및 보안 (4-6주)
-1. **통합 테스트**
-   - 전체 플로우 테스트
-   - 스트레스 테스트
-   - 보안 감사
-
-2. **최적화**
-   - 가스 최적화
-   - 성능 튜닝
-   - UI/UX 개선
-
-## 9. 보안 고려사항
-
-### 9.1 스마트 컨트랙트 보안
-- OpenZeppelin Contracts 사용
-- 재진입 공격 방지 (ReentrancyGuard)
-- 오버플로우 방지 (SafeMath)
-- 접근 제어 (Ownable, AccessControl)
-- 외부 감사 (Audit) 필수
-
-### 9.2 오라클 보안
-- 다중 오라클 검증
-- 데이터 신뢰도 점수
-- 이상치 감지
-
-### 9.3 백엔드 보안
-- API 인증 (JWT)
-- Rate Limiting
-- 입력 검증 (Zod/Pydantic)
-- SQL Injection 방지
-
-## 10. 배포 전략
-
-### 10.1 테스트넷 배포
-- Creditcoin 테스트넷
-- 로컬 테스트
-- 통합 테스트
-
-### 10.2 메인넷 배포
-- 단계적 롤아웃
-- 멀티시그 지갑
-- 업그레이드 가능한 컨트랙트 (Proxy Pattern)
-
-## 11. 모니터링 및 유지보수
-
-### 11.1 모니터링
-- 블록체인 이벤트 모니터링
-- API 성능 모니터링
-- 오류 추적 (Sentry 등)
-
-### 11.2 알림
-- 디폴트 알림
-- 리저브 풀 임계값 알림
-- 시스템 오류 알림
-
-## 12. 문서화
-
-### 12.1 기술 문서
-- API 문서 (OpenAPI/Swagger)
-- 컨트랙트 ABI 및 인터페이스
-- 아키텍처 다이어그램
-
-### 12.2 사용자 문서
-- 투자자 가이드
-- 관리자 매뉴얼
-- FAQ
+## 10. 문서화
+- [x] 구현 계획서 (`IMPLEMENTATION_PLAN.md`)
+- [x] 단계별 리포트 (`docs/reports/`)
+- [ ] API 문서 (백엔드 구축 시)
+- [ ] 사용자 가이드 (최종 릴리스 시)
