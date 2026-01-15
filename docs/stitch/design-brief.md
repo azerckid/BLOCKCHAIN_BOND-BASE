@@ -3,7 +3,7 @@
 ## 1. 프로젝트 개요 (Project Overview)
 - **프로젝트명**: BuildCTC (RWA Yield Protocol)
 - **핵심 가치**: 신흥 시장(태국 등)의 실물 대출 채권을 토큰화하여 투자자에게 안정적인 수익(Yield)을 제공하고, 소상공인에게는 금융 접근성을 제공하는 RWA(Real World Assets) 프로토콜.
-- **기반 기술**: NEAR Protocol (EVM 호환성 및 체인 추상화 활용)
+- **기반 기술**: Creditcoin 2.0 (EVM Compatible) 및 Creditcoin Gateway 활용.
 
 ## 2. 디자인 목표 (Design Goals)
 - **신뢰성 (Reliability)**: 실물 금융 자산을 다루는 서비스로서 견고하고 전문적인 금융 UI 제공.
@@ -25,7 +25,7 @@
 ### 4.2 투자 대시보드 (Investment Dashboard)
 - **채권 리스팅**: 현재 투자 가능한 대출 채권 목록 (신용 등급, 이자율, 만기일 등 필터링 포함).
 - **채권 상세**: 채권의 구체적인 명세, 대출자 사업 유형, 지역 정보, Creditcoin 기반 상환 데이터 링크.
-- **투자 실행 UI**: 원하는 수량 구매 및 NEAR 지갑/FastAuth 연동 프로세스.
+- **투자 실행 UI**: 원하는 수량 구매 및 EVM 기반 지갑(MetaMask 등) 연동 프로세스.
 
 ### 4.3 포트폴리오 및 수익 관리 (Portfolio & Yield)
 - 내 총 투자 금액, 보유 채권 목록, 누적 수익금 요약.
@@ -36,9 +36,9 @@
 - **지도 시각화**: 태국 등 현지 소상공인에게 자금이 전달된 위치 표시 (Heatmap 또는 Cluster).
 - **ESG 지표**: 지원 사업 유형 분포(F&B, 서비스 등), 신규 고용 창출 효과 등 시각 차트.
 
-### 4.5 지갑 온보딩 (Wallet & Onboarding)
-- NEAR FastAuth (이메일 로그인) 기반의 간편 지갑 생성 UI.
-- 기존 브라우저 지갑(MyNearWallet 등) 연결 옵션 제공.
+### 4.5 지갑 연동 및 온보딩 (Wallet & Onboarding)
+- **EVM 지갑 연동**: MetaMask, WalletConnect 등을 통한 간편한 지갑 연결.
+- **크로스체인 투자**: Creditcoin Gateway를 활용하여 타 체인(Ethereum, Polygon 등) 자산으로 참여하는 UX 가이드.
 
 ## 5. 디자인 가이드라인 (Tone & Manner)
 - **컬러 팔레트**: 신뢰를 주는 딥 네이비 또는 다크 그린 계열 + 블록체인의 역동성을 나타내는 비비드한 블루/퍼플 포인트.
