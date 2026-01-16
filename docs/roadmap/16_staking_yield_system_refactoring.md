@@ -53,8 +53,19 @@
 6. **트랜잭션 거절 대응**: 사용자가 1차 승인 후 2차 스테이킹 실행을 거절했을 때, UI가 '승인 완료' 상태를 유지하되 다시 시도할 수 있는 복구 경로 제공.
 7. **멀티 본드 어드민 제어**: `AccessControl`을 통해 각 채권별로 수익 배분 권한을 다르게 설정할 수 있는 유연한 권한 구조 설계.
 
-## 7. 진행 순서
-1. **[컨트랙트 v2]**: 통합 관리 기능 개발 및 테스트넷 재배포.
-2. **[설정]**: `contracts.ts` 업데이트 및 기존 ID와의 매핑 확인.
-3. **[어드민]**: 초기화 버그 수정 및 배분 채권 ID 선택 기능 추가.
-4. **[포트폴리오]**: 전 본드 대상 이자 조회 루틴 및 자동 흐름 적용.
+## 7. 현재 진행 상황 (Status Update - 2026.01.16)
+
+### Phase 1: 스마트 컨트랙트 리팩토링 (완료 ✅)
+- [x] **BondToken v2**: `onBalanceChange` 훅을 통한 정산소 실시간 연동 완료.
+- [x] **YieldDistributor v2**: Multi-bond support, Holding-based yield calculation, `reinvest` (USDC->Bond Auto-Swap) logic implemented.
+- [x] **배포**: Creditcoin Testnet에 V2 통합 시스템 배포 및 초기화 완료.
+
+### Phase 2: 프론트엔드 연동 및 이자 가시성 확보 (완료 ✅)
+- [x] **Contract Config**: 신규 V2 주소 및 ABI 갱신 완료.
+- [x] **Admin Page**: 본드 ID별 수익 배분 지원 및 보유량 리딩 반영 완료.
+- [x] **Portfolio**: 실시간 이자 카운터($0.000000 단위) 및 `REINVEST` 버튼 연동 완료.
+
+### Phase 3: Final Verification & Enhancement (In Progress)
+- [x] **Integration Test**: `YieldDistributorV2.test.ts` passed covering purchase, yield, transfer, claim, and reinvest cycles.
+- [ ] Actual Transaction Verification on Testnet (Manual).
+- [ ] Concurrency Stress Test.

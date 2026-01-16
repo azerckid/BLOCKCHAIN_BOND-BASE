@@ -17,17 +17,14 @@ import { toast } from "sonner";
 
 // Component for individual row to handle its own hooks
 function InvestmentRow({ inv, address }: { inv: any, address: `0x${string}` }) {
-    // Check if this bond supports yield distribution (Currently only ID 1)
-    const isYieldSupported = inv.id === "1";
-
     // 1. Read Earned Yield
     const { data: earnedAmount, refetch: refetchEarned } = useReadContract({
         address: CONTRACTS.YieldDistributor.address as `0x${string}`,
         abi: CONTRACTS.YieldDistributor.abi,
         functionName: "earned",
-        args: [address],
+        args: [address, BigInt(inv.id)],
         query: {
-            enabled: isYieldSupported && !!address,
+            enabled: !!address,
             refetchInterval: 5000,
         }
     });
@@ -35,37 +32,21 @@ function InvestmentRow({ inv, address }: { inv: any, address: `0x${string}` }) {
     const formattedYield = earnedAmount ? formatUnits(earnedAmount as bigint, 18) : "0";
     const hasYield = earnedAmount && (earnedAmount as bigint) > 0n;
 
-    // 2. Read Staked Balance
-    const { data: stakedBalance, refetch: refetchStaked } = useReadContract({
+    // 2. Read User Rewards State 
+    const { data: userRewardState } = useReadContract({
         address: CONTRACTS.YieldDistributor.address as `0x${string}`,
         abi: CONTRACTS.YieldDistributor.abi,
-        functionName: "stakingBalances",
-        args: [address],
-        query: { enabled: isYieldSupported && !!address, refetchInterval: 5000 }
+        functionName: "userRewards",
+        args: [BigInt(inv.id), address],
     });
 
-    // 3. Check Approval for Staking
-    const { data: isApproved, refetch: refetchApproval } = useReadContract({
-        address: CONTRACTS.BondToken.address as `0x${string}`,
-        abi: CONTRACTS.BondToken.abi,
-        functionName: "isApprovedForAll",
-        args: address ? [address, CONTRACTS.YieldDistributor.address as `0x${string}`] : undefined,
-        query: { enabled: isYieldSupported && !!address }
-    });
-
-    // 4. Write Claim Yield
+    // 3. Write Functions
     const { data: claimHash, isPending: isClaimPending, writeContract: writeClaimContract } = useWriteContract();
+    const { writeContract: reinvestYield, data: reinvestHash, isPending: isReinvesting } = useWriteContract();
 
-    // 5. Staking/Withdraw Logic
-    const { writeContract: stakeBond, data: stakeHash, isPending: isStaking } = useWriteContract();
-    const { writeContract: withdrawBond, data: withdrawHash, isPending: isWithdrawing } = useWriteContract();
-    const { writeContract: setApproval, data: approveHash, isPending: isApproving } = useWriteContract();
-
-    // 6. Success Handlers
+    // 4. Success Handlers
     const { isLoading: isConfirmingClaim, isSuccess: isClaimSuccess } = useWaitForTransactionReceipt({ hash: claimHash });
-    const { isSuccess: updateStakeSuccess } = useWaitForTransactionReceipt({ hash: stakeHash });
-    const { isSuccess: updateWithdrawSuccess } = useWaitForTransactionReceipt({ hash: withdrawHash });
-    const { isSuccess: updateApproveSuccess } = useWaitForTransactionReceipt({ hash: approveHash });
+    const { isSuccess: updateReinvestSuccess } = useWaitForTransactionReceipt({ hash: reinvestHash });
 
     React.useEffect(() => {
         if (isClaimSuccess) {
@@ -75,63 +56,31 @@ function InvestmentRow({ inv, address }: { inv: any, address: `0x${string}` }) {
     }, [isClaimSuccess, refetchEarned]);
 
     React.useEffect(() => {
-        if (updateApproveSuccess) {
-            toast.success("Access approved! Now starting to stake your assets...");
-            // Automatically trigger stake after approval success
-            stakeBond({
-                address: CONTRACTS.YieldDistributor.address as `0x${string}`,
-                abi: CONTRACTS.YieldDistributor.abi,
-                functionName: "stake",
-                args: [inv.balance],
-            });
-            refetchApproval();
-        }
-        if (updateStakeSuccess || updateWithdrawSuccess) {
-            toast.success("Assets moved to Yield Engine!");
+        if (updateReinvestSuccess) {
+            toast.success("Yield reinvested into principal!");
             refetchEarned();
-            refetchStaked();
         }
-    }, [updateStakeSuccess, updateWithdrawSuccess, updateApproveSuccess, refetchEarned, refetchStaked, refetchApproval, inv.balance, stakeBond]);
+    }, [updateReinvestSuccess, refetchEarned]);
 
     const handleClaim = () => {
-        if (!isYieldSupported) return;
         writeClaimContract({
             address: CONTRACTS.YieldDistributor.address as `0x${string}`,
             abi: CONTRACTS.YieldDistributor.abi,
             functionName: "claimYield",
+            args: [BigInt(inv.id)],
         });
     };
 
-    const handleStake = () => {
-        if (!isYieldSupported) return;
-        if (!isApproved) {
-            setApproval({
-                address: CONTRACTS.BondToken.address as `0x${string}`,
-                abi: CONTRACTS.BondToken.abi,
-                functionName: "setApprovalForAll",
-                args: [CONTRACTS.YieldDistributor.address as `0x${string}`, true],
-            });
-            return;
-        }
-        stakeBond({
+    const handleReinvest = () => {
+        reinvestYield({
             address: CONTRACTS.YieldDistributor.address as `0x${string}`,
             abi: CONTRACTS.YieldDistributor.abi,
-            functionName: "stake",
-            args: [inv.balance], // Stake the balance currently in the wallet
+            functionName: "reinvest",
+            args: [BigInt(inv.id)],
         });
     };
 
-    const handleWithdraw = () => {
-        if (!isYieldSupported) return;
-        withdrawBond({
-            address: CONTRACTS.YieldDistributor.address as `0x${string}`,
-            abi: CONTRACTS.YieldDistributor.abi,
-            functionName: "withdraw",
-            args: [stakedBalance as bigint], // Withdraw the entire staked amount
-        });
-    };
-
-    const totalInvested = (inv.balance || 0n) + (stakedBalance as bigint || 0n);
+    const totalInvested = inv.balance || 0n;
     const formattedTotalInvested = formatUnits(totalInvested, 18);
 
     return (
@@ -151,83 +100,56 @@ function InvestmentRow({ inv, address }: { inv: any, address: `0x${string}` }) {
             </div>
 
             <div className="flex items-center justify-between xl:justify-end gap-6 md:gap-10">
-                {/* Yield Engine Information */}
+                {/* Yield Information */}
                 <div className="flex flex-col items-end gap-1.5 min-w-[140px]">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Yield Engine</p>
-                    {isYieldSupported ? (
-                        <div className="flex items-center gap-3 bg-neutral-50 p-2 rounded-xl border border-neutral-100 w-full">
-                            <div className="flex flex-col">
-                                <span className="text-[9px] font-black text-neutral-400 uppercase leading-none">Accrued</span>
-                                <span className={`text-sm font-black ${hasYield ? 'text-green-600' : 'text-neutral-400'}`}>
-                                    {hasYield ? `$${Number(formattedYield).toFixed(4)}` : "$0.0000"}
-                                </span>
-                            </div>
-                            {hasYield ? (
-                                <Button
-                                    size="sm"
-                                    variant="secondary"
-                                    className="h-8 px-3 text-[10px] font-black bg-white hover:bg-neutral-100 text-neutral-900 border border-neutral-200"
-                                    disabled={isClaimPending || isConfirmingClaim}
-                                    onClick={handleClaim}
-                                >
-                                    {isClaimPending || isConfirmingClaim ? "..." : "CLAIM"}
-                                </Button>
-                            ) : (
-                                <div className="text-[9px] font-bold text-neutral-400 leading-tight border-l border-neutral-200 pl-2">
-                                    {(stakedBalance as bigint > 0n) ? "STAKED & EARNING" : "NOT STAKED"} <br />
-                                    <span className="text-[8px] opacity-70">{(stakedBalance as bigint > 0n) ? "WAITING FOR ADMIN" : "STAKE TO START"}</span>
-                                </div>
-                            )}
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 font-black">Profit & Yield</p>
+                    <div className="flex items-center gap-3 bg-neutral-50 p-2 rounded-xl border border-neutral-100 w-full group transition-all hover:bg-white hover:shadow-sm">
+                        <div className="flex flex-col">
+                            <span className="text-[9px] font-black text-neutral-400 uppercase leading-none">Accrued Profit</span>
+                            <span className={`text-sm font-black transition-colors ${hasYield ? 'text-green-600' : 'text-neutral-400'}`}>
+                                {hasYield ? `$${(Number(formattedYield)).toFixed(6)}` : "$0.000000"}
+                            </span>
                         </div>
-                    ) : (
-                        <p className="text-xs font-bold text-neutral-400">Not Integrated</p>
-                    )}
+                        {hasYield && (
+                            <Button
+                                size="sm"
+                                variant="secondary"
+                                className="h-8 px-3 text-[10px] font-black bg-white hover:bg-neutral-100 text-neutral-900 border border-neutral-200"
+                                disabled={isClaimPending || isConfirmingClaim}
+                                onClick={handleClaim}
+                            >
+                                {isClaimPending || isConfirmingClaim ? "..." : "CLAIM"}
+                            </Button>
+                        )}
+                    </div>
                 </div>
 
-                {/* Staking Controls */}
-                <div className="flex flex-col items-end gap-1.5 min-w-[120px]">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 px-1">Staking Status</p>
-                    {isYieldSupported ? (
-                        <div className="flex gap-1.5">
-                            {(inv.balance > 0n) && (
-                                <Button
-                                    size="sm"
-                                    onClick={handleStake}
-                                    disabled={isStaking || isApproving}
-                                    className="h-8 px-3 text-[10px] font-black bg-neutral-900 text-white"
-                                >
-                                    {isApproving ? "APPROVING..." : isStaking ? "STAKING..." : !isApproved ? "APPROVE & STAKE" : "STAKE"}
-                                </Button>
-                            )}
-                            {(stakedBalance as bigint > 0n) && (
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={handleWithdraw}
-                                    disabled={isWithdrawing}
-                                    className="h-8 px-3 text-[10px] font-black border-neutral-200"
-                                >
-                                    {isWithdrawing ? "..." : "UNSTAKE"}
-                                </Button>
-                            )}
-                            {(!inv.balance && !stakedBalance) && (
-                                <span className="text-xs font-bold text-neutral-300 italic px-2">No assets</span>
-                            )}
+                {/* Status & Options */}
+                <div className="flex flex-col items-end gap-1.5 min-w-[150px]">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 font-black px-1">Engine Status</p>
+                    <div className="flex gap-2">
+                        {hasYield && (
+                            <Button
+                                size="sm"
+                                onClick={handleReinvest}
+                                disabled={isReinvesting}
+                                className="h-8 px-3 text-[10px] font-black bg-neutral-900 text-white rounded-xl shadow-lg shadow-neutral-200 hover:scale-105 transition-transform"
+                            >
+                                {isReinvesting ? "..." : "REINVEST"}
+                            </Button>
+                        )}
+                        <div className="flex flex-col items-end justify-center px-1">
+                            <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100 border-none font-black text-[9px] py-1 rounded-md">
+                                HOLDING ACTIVE
+                            </Badge>
                         </div>
-                    ) : (
-                        <p className="text-xs font-bold text-neutral-300 italic px-2">N/A</p>
-                    )}
+                    </div>
                 </div>
+            </div>
 
-                <div className="text-right hidden md:block">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Term</p>
-                    <p className="text-sm font-bold text-neutral-900">{inv.term}</p>
-                </div>
-                <div className="hidden sm:block">
-                    <Badge className="bg-green-500 hover:bg-green-600 border-none">
-                        Active
-                    </Badge>
-                </div>
+            <div className="text-right hidden md:block">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Term</p>
+                <p className="text-sm font-bold text-neutral-900">{inv.term}</p>
             </div>
         </div>
     );
@@ -236,12 +158,9 @@ function InvestmentRow({ inv, address }: { inv: any, address: `0x${string}` }) {
 export function InvestmentList() {
     const { address } = useAccount();
 
-    // Prepare arrays for batch call
-    // MOCK_BONDS ids are "1", "2"... convert to BigInt for contract call
     const bondIds = MOCK_BONDS.map((b: BondProps) => BigInt(b.id));
     const accounts = MOCK_BONDS.map(() => address as `0x${string}`);
 
-    // Fetch balances for all bonds at once
     const { data: balances, isLoading } = useReadContract({
         address: CONTRACTS.BondToken.address as `0x${string}`,
         abi: CONTRACTS.BondToken.abi,
@@ -253,18 +172,15 @@ export function InvestmentList() {
         }
     });
 
-    // Valid investments filter
     const myInvestments = MOCK_BONDS.map((bond: BondProps, index: number) => {
         const currentBalances = balances as readonly bigint[] | undefined;
         const walletBalance = currentBalances ? currentBalances[index] : 0n;
-        // In this prototype, we'll need to manually fetch staked balance for the row
-        // but for total TVL we show the sum
         return {
             ...bond,
-            balance: walletBalance, // This is what's in the wallet
+            balance: walletBalance,
             formattedBalance: walletBalance ? formatUnits(walletBalance, 18) : "0",
         };
-    }).filter((inv) => inv.balance > 0n || inv.id === "1"); // Keep ID 1 visible for staking check
+    }).filter((inv) => inv.balance > 0n);
 
     if (isLoading) {
         return <div className="p-8 text-center text-neutral-400 animate-pulse">Loading investments...</div>;

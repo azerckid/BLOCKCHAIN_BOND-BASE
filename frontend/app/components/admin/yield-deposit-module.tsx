@@ -16,9 +16,14 @@ import {
     Wallet02Icon
 } from "@hugeicons/core-free-icons";
 
+import { MOCK_BONDS } from "@/routes/bonds";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+
 export function YieldDepositModule() {
     const { address } = useAccount();
     const [amount, setAmount] = React.useState("");
+    const [bondId, setBondId] = React.useState("1");
     const [step, setStep] = React.useState<"idle" | "approving" | "depositing" | "success">("idle");
     const [txHash, setTxHash] = React.useState<`0x${string}` | undefined>();
 
@@ -46,12 +51,15 @@ export function YieldDepositModule() {
         args: address ? [address] : undefined,
     });
 
-    // 3. Check total staked (To prevent deposit if no one is staked)
-    const { data: totalStaked } = useReadContract({
+    // 3. Check total holdings
+    const { data: bondInfo } = useReadContract({
         address: CONTRACTS.YieldDistributor.address as `0x${string}`,
         abi: CONTRACTS.YieldDistributor.abi,
-        functionName: "totalStaked",
+        functionName: "bonds",
+        args: [BigInt(bondId)],
     });
+
+    const totalHoldings = bondInfo ? (bondInfo as any)[1] : undefined;
 
     // 3. Transactions
     const { writeContractAsync: approve } = useWriteContract();
@@ -72,7 +80,7 @@ export function YieldDepositModule() {
             } else if (step === "depositing") {
                 setStep("success");
                 setTxHash(undefined);
-                setAmount(""); // Clear to empty string for true initial state
+                setAmount("");
             }
         }
     }, [isWaitingForTx, txHash, step, refetchAllowance, refetchBalance]);
@@ -100,7 +108,7 @@ export function YieldDepositModule() {
                 address: CONTRACTS.YieldDistributor.address as `0x${string}`,
                 abi: CONTRACTS.YieldDistributor.abi,
                 functionName: "depositYield",
-                args: [amountInWei],
+                args: [BigInt(bondId), amountInWei],
             });
             setTxHash(hash);
         } catch (error) {
@@ -119,7 +127,7 @@ export function YieldDepositModule() {
     const needsApprove = !isAmountZero && allowance !== undefined && (allowance as bigint) < amountInWei;
     const isProcessing = step !== "idle" && step !== "success";
     const insufficientBalance = !isAmountZero && usdcBalance !== undefined && (usdcBalance as bigint) < amountInWei;
-    const noTokensStaked = totalStaked !== undefined && (totalStaked as bigint) === BigInt(0);
+    const noTokensStaked = totalHoldings !== undefined && (totalHoldings as bigint) === BigInt(0);
 
     return (
         <Card className="border-neutral-200 shadow-xl shadow-neutral-100 overflow-hidden rounded-3xl">
@@ -138,6 +146,23 @@ export function YieldDepositModule() {
             </CardHeader>
 
             <CardContent className="p-8 space-y-8">
+                {/* Bond Selection */}
+                <div className="space-y-4">
+                    <Label className="text-sm font-black text-neutral-900 uppercase tracking-widest">Target Bond</Label>
+                    <Select value={bondId} onValueChange={(val) => val && setBondId(val)} disabled={isProcessing}>
+                        <SelectTrigger className="w-full h-12 rounded-xl bg-neutral-50 border-neutral-200 font-bold">
+                            <SelectValue placeholder="Select a bond" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {MOCK_BONDS.map((bond) => (
+                                <SelectItem key={bond.id} value={bond.id} className="font-medium">
+                                    <span className="font-bold mr-2">#{bond.id}</span> {bond.title}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+
                 {/* Balance Info */}
                 <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-100">
@@ -250,17 +275,25 @@ export function YieldDepositModule() {
                             </Button>
                         )}
 
+                        <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-100">
+                            <div className="text-sm font-medium text-neutral-500 mb-1">Total Base Holdings</div>
+                            <div className="text-2xl font-bold text-neutral-900 tracking-tight">
+                                {totalHoldings !== undefined ? formatUnits(totalHoldings as bigint, 18) : "0"} <span className="text-sm font-medium text-neutral-400">CTC</span>
+                            </div>
+                            <div className="text-[11px] text-neutral-400 mt-1">Found in active wallets</div>
+                        </div>
+
                         <div className={`flex gap-3 p-4 rounded-2xl border transition-colors ${noTokensStaked ? 'bg-red-50 border-red-100' : 'bg-amber-50 border-amber-100'}`}>
                             <HugeiconsIcon icon={Alert01Icon} size={20} className={noTokensStaked ? "text-red-600 shrink-0 mt-0.5" : "text-amber-600 shrink-0 mt-0.5"} />
                             <div className="space-y-1">
                                 {noTokensStaked && (
                                     <p className="text-[11px] font-black text-red-800 uppercase tracking-tight">
-                                        Critcal: No users have staked their bonds yet.
+                                        Critcal: No users are holding these bonds yet.
                                     </p>
                                 )}
                                 <p className={`text-[11px] font-bold leading-normal ${noTokensStaked ? 'text-red-700' : 'text-amber-800'}`}>
                                     {noTokensStaked
-                                        ? "You cannot deposit yield when there are no stakers. Please ask users to 'Stake' their bonds first in their Portfolio."
+                                        ? "You cannot deposit yield when there are no holders. Please wait for users to purchase bonds first."
                                         : "This action will immediately update the yield index for all bondholders. Once confirmed, funds are transferred from your wallet to the contract."}
                                 </p>
                             </div>

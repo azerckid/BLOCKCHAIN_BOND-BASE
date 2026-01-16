@@ -4,157 +4,171 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "./BondToken.sol";
 
 /**
- * @title YieldDistributor
- * @dev Distributes yield (USDC) to BondToken holders using a reward-per-token algorithm.
- * Currently supports distribution for a specific Bond ID (e.g. ID 1).
+ * @title Integrated Yield Distributor (v2)
+ * @dev Manages yield distribution for multiple bonds automatically based on wallet holdings.
+ * Concept: "Holding = Yield". No manual staking required for reward calculation.
  */
 contract YieldDistributor is AccessControl, ReentrancyGuard {
-
     bytes32 public constant DISTRIBUTOR_ROLE = keccak256("DISTRIBUTOR_ROLE");
     uint256 public constant PRECISION_FACTOR = 1e18;
 
-    IERC20 public usdcToken;
-    BondToken public bondToken;
+    IERC20 public immutable usdcToken;
+    address public bondToken; // Set after deployment to allow circular dependency handling
 
-    // Target Bond ID regarding this distribution logic
-    // In production, this might be a mapping(uint256 => AssetInfo)
-    uint256 public targetBondId;
+    struct BondInfo {
+        uint256 rewardPerTokenStored;
+        uint256 totalHoldings; // Tracked via hooks from BondToken
+        bool isRegistered;
+    }
 
-    // Reward per token accumulation
-    uint256 public rewardPerTokenStored;
-    
-    // User info
-    mapping(address => uint256) public userRewardPerTokenPaid;
-    mapping(address => uint256) public rewards;
+    struct UserReward {
+        uint256 rewardPerTokenPaid;
+        uint256 rewards;
+    }
 
-    event YieldDeposited(uint256 amount, uint256 newRewardPerToken);
-    event YieldClaimed(address indexed user, uint256 amount);
+    address public liquidityPool;
 
-    constructor(address _usdcToken, address _bondToken, uint256 _targetBondId) {
+    function setLiquidityPool(address _pool) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        liquidityPool = _pool;
+    }
+
+    // Mapping: BondId => BondInfo
+    mapping(uint256 => BondInfo) public bonds;
+    // Mapping: BondId => UserAddress => UserReward
+    mapping(uint256 => mapping(address => UserReward)) public userRewards;
+
+    event BondRegistered(uint256 indexed bondId);
+    event YieldDeposited(uint256 indexed bondId, uint256 amount);
+    event YieldClaimed(address indexed user, uint256 indexed bondId, uint256 amount);
+    event Reinvested(address indexed user, uint256 indexed bondId, uint256 amount);
+
+    constructor(address _usdcToken) {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(DISTRIBUTOR_ROLE, msg.sender);
-
         usdcToken = IERC20(_usdcToken);
-        bondToken = BondToken(_bondToken);
-        targetBondId = _targetBondId;
+    }
+
+    function setBondToken(address _bondToken) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        bondToken = _bondToken;
+    }
+
+    function registerBond(uint256 bondId) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(!bonds[bondId].isRegistered, "Already registered");
+        bonds[bondId].isRegistered = true;
+        emit BondRegistered(bondId);
     }
 
     /**
-     * @dev Updates the reward state for a specific account.
-     * This must be called before any modification of balance (if implementing staking) 
-     * or before claiming reward. 
-     * Since BondToken is not staked but held, we assume 'balanceOf' is the stake.
-     * NOTE: This simplified version assumes BondToken balance doesn't change frequently OR
-     * we are using a staking pool model.
-     * 
-     * CRITICAL: For a standard ERC1155 where tokens transfer freely, 
-     * accurate tracking requires hooking into the transfer function (like checkpoints).
-     * However, for this simplified prototype, we assume users "Stake" or we use the current balance 
-     * assuming no transfers happened between deposits. 
-     * 
-     * To make this robust without staking, we would need to implement `_updateReward` 
-     * calls inside BondToken's `_update` hook.
-     * 
-     * FOR THIS TASK: We will implement a `Staking` like interface or assume static balances for simplicity,
-     * OR simply use the current balance for calculation which is only accurate if balance was constant.
-     * 
-     * Let's refactor: A true compliant system needs a Staking contract where you deposit BondTokens.
-     * We will allow users to "Stake" their BondTokens here to earn yield.
+     * @dev HOOK: Called by BondToken whenever a balance changes (mint, burn, transfer).
+     * This ensures rewards are checkpointed BEFORE the balance changes.
      */
-    
-    // Staking balances
-    mapping(address => uint256) public stakingBalances;
-    uint256 public totalStaked;
+    function onBalanceChange(address account, uint256 bondId, uint256 oldBalance, uint256 newBalance) external {
+        require(msg.sender == bondToken, "Only BondToken can call hooks");
+        if (!bonds[bondId].isRegistered) return;
 
-    modifier updateReward(address account) {
-        rewardPerTokenStored = rewardPerToken();
-        if (account != address(0)) {
-            rewards[account] = earned(account);
-            userRewardPerTokenPaid[account] = rewardPerTokenStored;
-        }
-        _;
+        _updateUserReward(account, bondId, oldBalance);
+        
+        // Update total global holdings for this bond
+        bonds[bondId].totalHoldings = bonds[bondId].totalHoldings - oldBalance + newBalance;
     }
 
-    function rewardPerToken() public view returns (uint256) {
-        if (totalStaked == 0) {
-            return rewardPerTokenStored;
-        }
-        // Since this function is view, we can't capture 'funding' events in real-time between blocks easily 
-        // without timestamps. But here we update rewardPerTokenStored explicitly on 'depositYield'.
-        // So checking the stored value is enough because it is updated immediately on deposit.
-        return rewardPerTokenStored;
+    function _updateUserReward(address account, uint256 bondId, uint256 currentBalance) internal {
+        BondInfo storage bond = bonds[bondId];
+        UserReward storage user = userRewards[bondId][account];
+
+        user.rewards = _earned(account, bondId, currentBalance);
+        user.rewardPerTokenPaid = bond.rewardPerTokenStored;
     }
 
-    function earned(address account) public view returns (uint256) {
-        return
-            (stakingBalances[account] * (rewardPerToken() - userRewardPerTokenPaid[account])) / 
-            PRECISION_FACTOR +
-            rewards[account];
+    function rewardPerToken(uint256 bondId) public view returns (uint256) {
+        return bonds[bondId].rewardPerTokenStored;
+    }
+
+    function earned(address account, uint256 bondId) public view returns (uint256) {
+        // External view uses current real-time balance
+        // We need an interface that provides current balance from BondToken
+        // For simplicity in this v2, we assume the frontend sends the balance OR we call BondToken.
+        return _earned(account, bondId, IERC1155View(bondToken).balanceOf(account, bondId));
+    }
+
+    function _earned(address account, uint256 bondId, uint256 balance) internal view returns (uint256) {
+        BondInfo storage bond = bonds[bondId];
+        UserReward storage user = userRewards[bondId][account];
+
+        return (balance * (bond.rewardPerTokenStored - user.rewardPerTokenPaid)) / PRECISION_FACTOR + user.rewards;
     }
 
     /**
-     * @dev Stake BondTokens to start earning yield.
+     * @dev Admin deposits USDC as yield for a specific bond.
      */
-    function stake(uint256 amount) external nonReentrant updateReward(msg.sender) {
-        require(amount > 0, "Cannot stake 0");
-        
-        // Transfer BondTokens from user to this contract
-        bondToken.safeTransferFrom(msg.sender, address(this), targetBondId, amount, "");
-        
-        totalStaked += amount;
-        stakingBalances[msg.sender] += amount;
-    }
-
-    /**
-     * @dev Withdraw staked BondTokens.
-     */
-    function withdraw(uint256 amount) external nonReentrant updateReward(msg.sender) {
-        require(amount > 0, "Cannot withdraw 0");
-        require(stakingBalances[msg.sender] >= amount, "Insufficient staked balance");
-        
-        totalStaked -= amount;
-        stakingBalances[msg.sender] -= amount;
-        
-        bondToken.safeTransferFrom(address(this), msg.sender, targetBondId, amount, "");
-    }
-
-    /**
-     * @dev Admin deposits USDC as yield.
-     */
-    function depositYield(uint256 amount) external nonReentrant onlyRole(DISTRIBUTOR_ROLE) {
+    function depositYield(uint256 bondId, uint256 amount) external nonReentrant onlyRole(DISTRIBUTOR_ROLE) {
+        require(bonds[bondId].isRegistered, "Bond not registered");
         require(amount > 0, "Amount must be > 0");
-        require(totalStaked > 0, "No tokens staked");
+        require(bonds[bondId].totalHoldings > 0, "No holders to distribute to");
 
         bool success = usdcToken.transferFrom(msg.sender, address(this), amount);
         require(success, "USDC transfer failed");
 
-        // Increase reward per token
-        rewardPerTokenStored = rewardPerTokenStored + (amount * PRECISION_FACTOR) / totalStaked;
-        emit YieldDeposited(amount, rewardPerTokenStored);
+        // Increase reward per token index
+        bonds[bondId].rewardPerTokenStored += (amount * PRECISION_FACTOR) / bonds[bondId].totalHoldings;
+        emit YieldDeposited(bondId, amount);
     }
 
     /**
-     * @dev Claim accumulated yield.
+     * @dev User claims their accrued yield for a specific bond.
      */
-    function claimYield() external nonReentrant updateReward(msg.sender) {
-        uint256 reward = rewards[msg.sender];
-        if (reward > 0) {
-            rewards[msg.sender] = 0;
-            bool success = usdcToken.transfer(msg.sender, reward);
-            require(success, "Yield transfer failed");
-            emit YieldClaimed(msg.sender, reward);
-        }
+    function claimYield(uint256 bondId) external nonReentrant {
+        _checkpoint(msg.sender, bondId);
+
+        uint256 reward = userRewards[bondId][msg.sender].rewards;
+        require(reward > 0, "No yield to claim");
+
+        userRewards[bondId][msg.sender].rewards = 0;
+        bool success = usdcToken.transfer(msg.sender, reward);
+        require(success, "Yield transfer failed");
+
+        emit YieldClaimed(msg.sender, bondId, reward);
     }
 
-    // Required for receiving ERC1155 tokens
-    function onERC1155Received(address, address, uint256, uint256, bytes memory) public virtual returns (bytes4) {
-        return this.onERC1155Received.selector;
+    /**
+     * @dev Reinvests accrued yield into more BondTokens.
+     * Logic: Claims USDC reward internally -> Sends USDC to LiquidityPool -> Mints new BondTokens to user.
+     */
+    function reinvest(uint256 bondId) external nonReentrant {
+        require(liquidityPool != address(0), "LiquidityPool not set");
+        
+        _checkpoint(msg.sender, bondId);
+
+        uint256 reward = userRewards[bondId][msg.sender].rewards;
+        require(reward > 0, "No yield to reinvest");
+
+        // 1. Reset rewards
+        userRewards[bondId][msg.sender].rewards = 0;
+
+        // 2. Move backed USDC to LiquidityPool (System Capital)
+        bool success = usdcToken.transfer(liquidityPool, reward);
+        require(success, "USDC transfer to LP failed");
+
+        // 3. Mint new BondTokens to user (Compound Growth)
+        // Assuming 1 USDC = 1 BondToken ratio (Pegged)
+        IBondToken(bondToken).mint(msg.sender, bondId, reward, "", "");
+
+        emit Reinvested(msg.sender, bondId, reward);
     }
 
-    function onERC1155BatchReceived(address, address, uint256[] memory, uint256[] memory, bytes memory) public virtual returns (bytes4) {
-        return this.onERC1155BatchReceived.selector;
+    // Helper to update state
+    function _checkpoint(address account, uint256 bondId) internal {
+        uint256 currentBalance = IERC1155View(bondToken).balanceOf(account, bondId);
+        _updateUserReward(account, bondId, currentBalance);
     }
+}
+
+interface IERC1155View {
+    function balanceOf(address account, uint256 id) external view returns (uint256);
+}
+
+interface IBondToken is IERC1155View {
+    function mint(address account, uint256 id, uint256 amount, string memory tokenUri, bytes memory data) external;
 }

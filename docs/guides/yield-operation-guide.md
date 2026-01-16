@@ -10,9 +10,9 @@
 
 *   **네트워크 이름**: Creditcoin Testnet
 *   **RPC URL**: `https://rpc.testnet.creditcoin.network`
-*   **체인 ID**: `10203040`
+*   **체인 ID**: `102031`
 *   **통화 기호**: `CTC`
-*   **블록 익스플로러**: [https://explorer.testnet.creditcoin.network/](https://explorer.testnet.creditcoin.network/)
+*   **블록 익스플로러**: [https://creditcoin-testnet.blockscout.com/](https://creditcoin-testnet.blockscout.com/)
 
 ---
 
@@ -22,8 +22,8 @@
 
 | 항목 | 주소 (복사해서 사용) | 역할 |
 | :--- | :--- | :--- |
-| **수익금 토큰 (MockUSDC)** | `0x2f60d3a6ef498321592AcE03705DA6aC456E8174` | 관리자가 보유한 수익금 화폐 |
-| **입금처 (YieldDistributor)** | `0x039beE3DEa519345305Cb0E697B964F7005431d6` | **수익금을 보낼 금고 주소** |
+| **수익금 토큰 (MockUSDC)** | `0x97A41Ff77f70e9328A20b62b393F8Fb0E7e49364` | 관리자가 보유한 수익금 화폐 |
+| **입금처 (YieldDistributor)** | `0xEbBa8Cec7Dee65bE9263e6378b33EC6D6Dba1308` | **수익금을 보낼 금고 주소** |
 
 ---
 
@@ -40,10 +40,10 @@
 ### [1단계] 수익금 금고 사용 승인 (Approve)
 금고가 관리자 지갑에서 돈을 가져갈 수 있게 허락하는 단계입니다.
 
-1. **대상**: [MockUSDC 컨트랙트 바로가기](https://explorer.testnet.creditcoin.network/address/0x2f60d3a6ef498321592AcE03705DA6aC456E8174?tab=write_contract)
+1. **대상**: [MockUSDC 컨트랙트 바로가기](https://creditcoin-testnet.blockscout.com/address/0x97A41Ff77f70e9328A20b62b393F8Fb0E7e49364?tab=write_contract)
 2. **함수**: `approve` 선택
 3. **입력란**:
-    *   `spender (address)`: `0x039beE3DEa519345305Cb0E697B964F7005431d6` (금고 주소)
+    *   `spender (address)`: `0xEbBa8Cec7Dee65bE9263e6378b33EC6D6Dba1308` (금고 주소)
     *   `value (uint256)`: 배분할 총액 (주의: 뒤에 **0을 18개** 붙여야 합니다.)
         *   *예시: 1,000 USDC 배분 시 -> `1000000000000000000000` 입력*
 4. **실행**: 'Write' 버튼 클릭 후 지갑에서 승인
@@ -53,9 +53,10 @@
 ### [2단계] 수익금 실제 배분 (Deposit)
 금고에 돈을 넣고 투자자들에게 배분 명령을 내리는 단계입니다.
 
-1. **대상**: [YieldDistributor 컨트랙트 바로가기](https://explorer.testnet.creditcoin.network/address/0x039beE3DEa519345305Cb0E697B964F7005431d6?tab=write_contract)
+1. **대상**: [YieldDistributor 컨트랙트 바로가기](https://creditcoin-testnet.blockscout.com/address/0xEbBa8Cec7Dee65bE9263e6378b33EC6D6Dba1308?tab=write_contract)
 2. **함수**: `depositYield` 선택
 3. **입력란**:
+    *   `bondId (uint256)`: 배분할 채권의 ID (예: `1`)
     *   `amount (uint256)`: 1단계에서 입력했던 **숫자와 정확히 동일하게** 입력
         *   *예시: `1000000000000000000000`*
 4. **실행**: 'Write' 버튼 클릭 후 지갑에서 승인
@@ -88,6 +89,6 @@
 
 ## 5. 주의 사항 및 팁
 
-*   **Staking 필수**: 투자자는 단순히 채권을 지갑에 들고만 있어서는 안 되며, 반드시 `YieldDistributor`의 `stake` 함수를 통해 채권을 맡긴 상태여야 이자가 쌓입니다.
+*   **Holding Only (Holding = Yield)**: V2 업데이트로 인해 투자자는 별도로 채권을 맡길(Stake) 필요가 없습니다. 지갑에 채권(BondToken)을 **보유하고만 있어도** 즉시 이자 대상에 포함됩니다.
 *   **가스비 효율**: 투자자가 매 블록마다 수익을 수령하는 것이 아니라, 관리자가 한 번에 많은 수익을 입금하고 투자자가 원할 때 한 번에 수령(Claim)하는 `Pull Pattern`을 사용하여 네트워크 비용을 절약합니다.
 *   **운영 주기**: 매일, 매주 또는 매월 등 정기적인 운영 주기에 맞춰 수익을 입금하는 것을 권장합니다.

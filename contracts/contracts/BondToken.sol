@@ -5,14 +5,20 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 
+interface IYieldDistributor {
+    function onBalanceChange(address account, uint256 bondId, uint256 oldBalance, uint256 newBalance) external;
+}
+
 /**
- * @title BondToken
- * @dev ERC1155 token representing fractional ownership of loan bonds.
+ * @title BondToken (v2)
+ * @dev Linked to the YieldDistributor to ensure real-time yield tracking based on holdings.
  */
 contract BondToken is ERC1155, AccessControl, ERC1155Supply {
     
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant URI_SETTER_ROLE = keccak256("URI_SETTER_ROLE");
+
+    address public yieldDistributor;
 
     // Mapping for token URIs
     mapping(uint256 => string) private _tokenURIs;
@@ -23,33 +29,19 @@ contract BondToken is ERC1155, AccessControl, ERC1155Supply {
         _grantRole(URI_SETTER_ROLE, msg.sender);
     }
 
-    /**
-     * @dev See {IERC1155MetadataURI-uri}.
-     * 
-     * This implementation returns the specific URI for a given token ID if it has been set, 
-     * otherwise it returns the base URI.
-     */
+    function setYieldDistributor(address _distributor) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        yieldDistributor = _distributor;
+    }
+
     function uri(uint256 id) public view override returns (string memory) {
         string memory tokenURI = _tokenURIs[id];
-        
-        // If there is a specific token URI, return it
-        if (bytes(tokenURI).length > 0) {
-            return tokenURI;
-        }
-        
+        if (bytes(tokenURI).length > 0) return tokenURI;
         return super.uri(id);
     }
 
-    /**
-     * @dev Sets a specific URI for a given token ID.
-     */
     function setTokenURI(uint256 id, string memory newuri) public onlyRole(URI_SETTER_ROLE) {
         _tokenURIs[id] = newuri;
         emit URI(newuri, id);
-    }
-
-    function setURI(string memory newuri) public onlyRole(URI_SETTER_ROLE) {
-        _setURI(newuri);
     }
 
     function mint(address account, uint256 id, uint256 amount, string memory tokenUri, bytes memory data)
@@ -63,19 +55,32 @@ contract BondToken is ERC1155, AccessControl, ERC1155Supply {
         }
     }
 
-    function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
-        public
-        onlyRole(MINTER_ROLE)
-    {
-        _mintBatch(to, ids, amounts, data);
-    }
-
-    // The following functions are overrides required by Solidity.
-
+    /**
+     * @dev Hook override to notify YieldDistributor of balance changes.
+     * This ensures yield is checkpointed BEFORE the balance actually changes on-chain.
+     */
     function _update(address from, address to, uint256[] memory ids, uint256[] memory values)
         internal
         override(ERC1155, ERC1155Supply)
     {
+        if (yieldDistributor != address(0)) {
+            for (uint256 i = 0; i < ids.length; i++) {
+                uint256 id = ids[i];
+                uint256 value = values[i];
+
+                // Notifiy for sender (if not minting)
+                if (from != address(0)) {
+                    uint256 oldBal = balanceOf(from, id);
+                    IYieldDistributor(yieldDistributor).onBalanceChange(from, id, oldBal, oldBal - value);
+                }
+
+                // Notify for receiver (if not burning)
+                if (to != address(0)) {
+                    uint256 oldBal = balanceOf(to, id);
+                    IYieldDistributor(yieldDistributor).onBalanceChange(to, id, oldBal, oldBal + value);
+                }
+            }
+        }
         super._update(from, to, ids, values);
     }
 
