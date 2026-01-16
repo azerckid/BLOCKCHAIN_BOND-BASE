@@ -27,8 +27,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
             content: m.content || m.parts?.map((p: any) => p.text).join("\n") || ""
         }));
 
-        // Dynamically load all relevant knowledge from the docs directory
-        const docsDir = path.join(process.cwd(), "../docs");
+        // Dynamically load all relevant knowledge from the public/docs directory
+        // In Remix/React Router v7, process.cwd() is the project root (frontend/)
+        const docsDir = path.join(process.cwd(), "public/docs");
         const ignoreDirs = ["archive"];
 
         const getAllFiles = (dir: string, fileList: string[] = []) => {
