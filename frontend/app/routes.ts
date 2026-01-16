@@ -5,5 +5,6 @@ export default [
     route("bonds", "routes/bonds.tsx"),
     route("portfolio", "routes/portfolio.tsx"),
     route("settings", "routes/settings.tsx"),
+    route("admin", "routes/admin.tsx"),
     route("api/auth/*", "routes/auth.ts"),
 ] satisfies RouteConfig;

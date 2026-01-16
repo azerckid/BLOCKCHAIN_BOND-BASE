@@ -66,8 +66,8 @@ contract YieldDistributor is AccessControl, ReentrancyGuard {
      */
     
     // Staking balances
-    mapping(address => uint256) private _stakingBalances;
-    uint256 private _totalSupply;
+    mapping(address => uint256) public stakingBalances;
+    uint256 public totalStaked;
 
     modifier updateReward(address account) {
         rewardPerTokenStored = rewardPerToken();
@@ -79,7 +79,7 @@ contract YieldDistributor is AccessControl, ReentrancyGuard {
     }
 
     function rewardPerToken() public view returns (uint256) {
-        if (_totalSupply == 0) {
+        if (totalStaked == 0) {
             return rewardPerTokenStored;
         }
         // Since this function is view, we can't capture 'funding' events in real-time between blocks easily 
@@ -90,7 +90,7 @@ contract YieldDistributor is AccessControl, ReentrancyGuard {
 
     function earned(address account) public view returns (uint256) {
         return
-            (_stakingBalances[account] * (rewardPerToken() - userRewardPerTokenPaid[account])) / 
+            (stakingBalances[account] * (rewardPerToken() - userRewardPerTokenPaid[account])) / 
             PRECISION_FACTOR +
             rewards[account];
     }
@@ -104,8 +104,8 @@ contract YieldDistributor is AccessControl, ReentrancyGuard {
         // Transfer BondTokens from user to this contract
         bondToken.safeTransferFrom(msg.sender, address(this), targetBondId, amount, "");
         
-        _totalSupply += amount;
-        _stakingBalances[msg.sender] += amount;
+        totalStaked += amount;
+        stakingBalances[msg.sender] += amount;
     }
 
     /**
@@ -113,10 +113,10 @@ contract YieldDistributor is AccessControl, ReentrancyGuard {
      */
     function withdraw(uint256 amount) external nonReentrant updateReward(msg.sender) {
         require(amount > 0, "Cannot withdraw 0");
-        require(_stakingBalances[msg.sender] >= amount, "Insufficient staked balance");
+        require(stakingBalances[msg.sender] >= amount, "Insufficient staked balance");
         
-        _totalSupply -= amount;
-        _stakingBalances[msg.sender] -= amount;
+        totalStaked -= amount;
+        stakingBalances[msg.sender] -= amount;
         
         bondToken.safeTransferFrom(address(this), msg.sender, targetBondId, amount, "");
     }
@@ -126,13 +126,13 @@ contract YieldDistributor is AccessControl, ReentrancyGuard {
      */
     function depositYield(uint256 amount) external nonReentrant onlyRole(DISTRIBUTOR_ROLE) {
         require(amount > 0, "Amount must be > 0");
-        require(_totalSupply > 0, "No tokens staked");
+        require(totalStaked > 0, "No tokens staked");
 
         bool success = usdcToken.transferFrom(msg.sender, address(this), amount);
         require(success, "USDC transfer failed");
 
         // Increase reward per token
-        rewardPerTokenStored = rewardPerTokenStored + (amount * PRECISION_FACTOR) / _totalSupply;
+        rewardPerTokenStored = rewardPerTokenStored + (amount * PRECISION_FACTOR) / totalStaked;
         emit YieldDeposited(amount, rewardPerTokenStored);
     }
 

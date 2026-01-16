@@ -1,4 +1,5 @@
 import * as React from "react";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { AllocationChart } from "@/components/portfolio/allocation-chart";
 import { PerformanceChart } from "@/components/portfolio/performance-chart";
@@ -9,11 +10,14 @@ import {
     ChartBreakoutCircleIcon,
     Analytics01Icon
 } from "@hugeicons/core-free-icons";
-import { useAccount, useReadContract } from "wagmi";
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { formatUnits } from "viem";
 import { CONTRACTS } from "@/config/contracts";
 import { MOCK_BONDS } from "@/routes/bonds";
 import type { BondProps } from "@/components/bonds/bond-card";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { Loading03Icon, Tick01Icon } from "@hugeicons/core-free-icons";
 
 export default function PortfolioPage() {
     const { address } = useAccount();
@@ -28,6 +32,35 @@ export default function PortfolioPage() {
         args: address ? [accounts, bondIds] : undefined,
         query: { enabled: !!address, refetchInterval: 5000 }
     });
+
+    // Fetch earned yield
+    const { data: earnedYield, refetch: refetchEarned } = useReadContract({
+        address: CONTRACTS.YieldDistributor.address as `0x${string}`,
+        abi: CONTRACTS.YieldDistributor.abi,
+        functionName: "earned",
+        args: address ? [address] : undefined,
+        query: { enabled: !!address, refetchInterval: 5000 }
+    });
+
+    // Claim Logic
+    const { writeContract: claimYield, data: claimHash, isPending: isClaiming } = useWriteContract();
+    const { isLoading: isWaitingForClaim, isSuccess: isClaimSuccess } = useWaitForTransactionReceipt({ hash: claimHash });
+
+    React.useEffect(() => {
+        if (isClaimSuccess) {
+            toast.success("Yield claimed successfully!");
+            refetchEarned();
+        }
+    }, [isClaimSuccess]);
+
+    const handleClaim = () => {
+        if (!address) return;
+        claimYield({
+            address: CONTRACTS.YieldDistributor.address as `0x${string}`,
+            abi: CONTRACTS.YieldDistributor.abi,
+            functionName: "claimYield",
+        });
+    };
 
     const [isMounted, setIsMounted] = React.useState(false);
 
@@ -63,12 +96,31 @@ export default function PortfolioPage() {
                         trend={totalValueLocked > 0 ? { value: 12.5, isUp: true } : undefined}
                         vibrant
                     />
-                    <StatItem
-                        title="Cumulative Yield"
-                        value="Not Integrated"
-                        icon={ChartBreakoutCircleIcon}
-                        vibrant
-                    />
+                    <div className="relative group">
+                        <StatItem
+                            title="Cumulative Yield"
+                            value={earnedYield ? `$${Number(formatUnits(earnedYield as bigint, 18)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}` : "$0.00"}
+                            icon={ChartBreakoutCircleIcon}
+                            description="Live accrued interest from Bond ID #1"
+                            vibrant
+                        />
+                        {!!earnedYield && (earnedYield as bigint) > 0n && (
+                            <div className="absolute top-4 right-4">
+                                <Button
+                                    onClick={handleClaim}
+                                    disabled={isClaiming || isWaitingForClaim}
+                                    className="bg-green-500 hover:bg-green-600 text-white font-black text-[10px] h-7 px-3 rounded-lg flex items-center gap-1.5 shadow-lg shadow-green-900/20 border border-green-400/30"
+                                >
+                                    {(isClaiming || isWaitingForClaim) ? (
+                                        <HugeiconsIcon icon={Loading03Icon} className="animate-spin" size={12} />
+                                    ) : (
+                                        <HugeiconsIcon icon={Tick01Icon} size={12} />
+                                    )}
+                                    CLAIM
+                                </Button>
+                            </div>
+                        )}
+                    </div>
                     <StatItem
                         title="Avg. Portfolio APR"
                         value="13.4%"

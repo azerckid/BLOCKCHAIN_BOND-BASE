@@ -25,6 +25,11 @@ export function WalletSection() {
     const { disconnect } = useDisconnect();
     const chainId = useChainId();
     const { switchChain } = useSwitchChain();
+    const [isMounted, setIsMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     // Faucet Logic
     const { writeContract: writeMint, data: mintHash, isPending: isMinting, error: mintError } = useWriteContract();
@@ -76,6 +81,8 @@ export function WalletSection() {
             toast.error(`Mint failed: ${mintError.message}`);
         }
     }, [isMintSuccess, mintError]);
+
+    if (!isMounted) return null;
 
     return (
         <div className="space-y-6 max-w-2xl">

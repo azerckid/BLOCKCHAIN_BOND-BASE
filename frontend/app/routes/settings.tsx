@@ -23,21 +23,21 @@ export default function SettingsPage() {
                     <TabsList className="bg-neutral-100/50 p-1 h-auto rounded-2xl inline-flex gap-1 border border-neutral-200/60">
                         <TabsTrigger
                             value="profile"
-                            className="rounded-xl px-4 py-2 text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm text-neutral-500 gap-2 h-9"
+                            className="rounded-xl px-4 py-2 text-sm font-bold data-active:bg-white data-active:text-neutral-900 data-active:shadow-sm text-neutral-500 gap-2 h-9"
                         >
                             <HugeiconsIcon icon={UserCircleIcon} size={16} />
                             Profile
                         </TabsTrigger>
                         <TabsTrigger
                             value="wallet"
-                            className="rounded-xl px-4 py-2 text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm text-neutral-500 gap-2 h-9"
+                            className="rounded-xl px-4 py-2 text-sm font-bold data-active:bg-white data-active:text-neutral-900 data-active:shadow-sm text-neutral-500 gap-2 h-9"
                         >
                             <HugeiconsIcon icon={Wallet02Icon} size={16} />
                             Wallet
                         </TabsTrigger>
                         <TabsTrigger
                             value="appearance"
-                            className="rounded-xl px-4 py-2 text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm text-neutral-500 gap-2 h-9"
+                            className="rounded-xl px-4 py-2 text-sm font-bold data-active:bg-white data-active:text-neutral-900 data-active:shadow-sm text-neutral-500 gap-2 h-9"
                         >
                             <HugeiconsIcon icon={Settings01Icon} size={16} />
                             Appearance
