@@ -27,42 +27,55 @@ export const action = async ({ request }: ActionFunctionArgs) => {
             content: m.content || m.parts?.map((p: any) => p.text).join("\n") || ""
         }));
 
-        // Load guides for context
-        const guidePath1 = path.join(process.cwd(), "../docs/guides/user-testing-guide.md");
-        const guidePath2 = path.join(process.cwd(), "../docs/guides/yield-operation-guide.md");
+        // Dynamically load all relevant knowledge from the docs directory
+        const docsDir = path.join(process.cwd(), "../docs");
+        const ignoreDirs = ["archive"];
+
+        const getAllFiles = (dir: string, fileList: string[] = []) => {
+            const files = fs.readdirSync(dir);
+            files.forEach(file => {
+                const filePath = path.join(dir, file);
+                if (fs.statSync(filePath).isDirectory()) {
+                    if (!ignoreDirs.includes(file)) {
+                        getAllFiles(filePath, fileList);
+                    }
+                } else if (file.endsWith(".md")) {
+                    fileList.push(filePath);
+                }
+            });
+            return fileList;
+        };
 
         let context = "";
         try {
-            const guide1 = fs.existsSync(guidePath1) ? fs.readFileSync(guidePath1, "utf-8") : "";
-            const guide2 = fs.existsSync(guidePath2) ? fs.readFileSync(guidePath2, "utf-8") : "";
-
-            context = `
-        [User Testing Guide]
-        ${guide1}
-
-        [Yield Operation Guide]
-        ${guide2}
-        `;
+            const allDocPaths = getAllFiles(docsDir);
+            context = allDocPaths.map(filePath => {
+                const content = fs.readFileSync(filePath, "utf-8");
+                const relativeName = path.relative(docsDir, filePath);
+                return `\n--- SOURCE: ${relativeName} ---\n${content}\n`;
+            }).join("\n");
         } catch (error) {
-            console.error("Failed to load guide docs:", error);
-            context = "Guide documents are currently unavailable.";
+            console.error("Failed to load knowledge base:", error);
+            context = "Knowledge base documents are partially unavailable.";
         }
 
         const systemPrompt = `
-      You are the AI Guide Assistant for BondBase, an RWA (Real World Asset) investment platform.
-      Your goal is to help users understand how to use the platform, specifically focusing on:
-      1. Wallet setup and network configuration (Creditcoin Testnet).
-      2. Getting testnet tokens (CTC via faucet) and investment funds (MockUSDC).
-      3. The investment process (Bond Market -> Invest).
-      4. Understanding the yield system (Hold to Earn, Reinvest/Auto-Compounding).
-
-      Use the following documentation context to answer user questions accurately.
-      If the answer is not in the context, politely say you don't know and advise checking the official docs or asking an admin.
-      Do not hallucinate features that are not mentioned.
+      You are the "BondBase AI Concierge", a sophisticated assistant for an RWA (Real World Asset) investment platform on Creditcoin.
       
-      Format your response in Markdown.
+      Your personality: Professional, encouraging, and deeply technical yet accessible.
+      
+      Your knowledge base is strictly limited to the provided context. When answering:
+      1. Use specific technical details (Contract addresses, Chain IDs, Token standards like ERC-1155) found in the docs.
+      2. If asked about "How to invest", explain the flow from Faucet -> Bond Market -> Invest.
+      3. If asked about yields, explain "Hold to Earn" and "Reinvest" (Compounding) mechanics.
+      4. If user asks in Korean, answer in Korean.
+      
+      CRITICAL:
+      - If the information is not in the context, clearly state that you don't have that specific data but suggest where they might look (e.g., "official discord" or "block explorer").
+      - Do not hallucinate numbers or addresses.
+      - Use Markdown for beautiful formatting (tables, lists, bold text).
 
-      Context:
+      Context from BondBase Master Documents:
       ${context}
       `;
 
@@ -76,8 +89,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
             model: modelInstance,
             system: systemPrompt,
             messages,
-            // experimental_transform: smoothStream() enables the "powerful control" over streaming speed,
-            // allowing us to provide a better UX by smoothing out the chunk delivery.
+            // experimental_transform: smoothStream() provides the character-by-character typing feel
             experimental_transform: smoothStream({ delayInMs: 20 }),
         });
 

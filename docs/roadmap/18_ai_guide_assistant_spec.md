@@ -49,18 +49,22 @@ OPENAI_API_KEY=sk-...
 GOOGLE_GENERATIVE_AI_API_KEY=AIzaSy...
 ```
 
-#### B. 데이터 주입 전략 (Context Injection)
-벡터 DB(RAG) 대신, 관리 중인 마크다운 문서(`docs/guides/*.md`)의 내용을 텍스트로 추출하여 **System Prompt**에 직접 주입합니다. 문서 양이 적으므로(Token limit 내) 이 방식이 가장 효율적이고 정확합니다.
+#### B. 데이터 주입 전략 (Context Injection Strategy)
+벡터 DB(RAG)를 통한 부분 검색 방식 대신, **Direct Context Injection (Full-Text Injection)** 방식을 채택합니다. 마크다운 문서(`docs/**/*.md`)의 전체 내용을 실시간으로 추출하여 **System Prompt**에 직접 주입합니다.
 
-*   **Source 1**: `user-testing-guide.md` (테스트넷 설정, Faucet)
-*   **Source 2**: `yield-operation-guide.md` (수익 배분 운영)
-*   **System Prompt 예시**:
-    > "너는 BondBase의 AI 가이드야. 아래의 [문서 내용]을 기반으로 사용자의 질문에 친절하게 답변해. 문서에 없는 내용은 모른다고 답하고 지어내지 마."
+*   **동기식 재귀 탐색 (Recursive Scan)**: API 요청 시마다 `docs/` 디렉토리를 재귀적으로 탐색하여 최신 가이드, 아키텍처, 로드맵 문서를 실시간으로 수집합니다. (단, `archive/` 디렉토리는 제외)
+*   **Context Injection의 이점**:
+    *   **정확도 극대화**: AI가 문서의 파편화된 조각이 아닌 전체 맥락(Context)을 파악하여 답변하므로 오답률이 현저히 낮습니다.
+    *   **실시간 반영**: 별도의 벡터 데이터 가공(Embedding)이나 DB 동기화 없이, 관리자가 마크다운 파일을 수정하는 즉시 AI의 지식에 반영됩니다.
+    *   **효율성**: 현재 프로젝트 규모(수십 개 문서 이내)에서는 최신 LLM(Gemini 2.0, GPT-4o)의 광대한 Context Window를 활용하는 것이 인프라 복잡도를 줄이는 가장 스마트한 선택입니다.
+
+*   **System Prompt 구성**:
+    > "너는 BondBase의 AI Concierge야. 아래 제공된 [Master Documents] 내용을 기반으로 기술적 세부사항(컨트랙트 주소, 체인 ID 등)을 인용하여 답변해. 문서에 없는 내용은 모른다고 답하고 지어내지 마."
 
 #### C. 모델 선택 (Model Selection)
-*   **Default**: OpenAI `gpt-4o` (높은 정확도)
-*   **Alternative**: Google `gemini-1.5-flash` (빠른 속도, 무료 티어 활용 가능)
-*   개발 단계에서는 두 모델을 모두 연결해두고, 필요에 따라 스위칭하거나 비용 효율적인 모델을 선택합니다.
+*   **Default**: Google `gemini-2.0-flash-exp` (최신 Long Context 모델, 빠른 응답 속도 및 높은 한국어 처리 능력)
+*   **Alternative**: OpenAI `gpt-4o` (복잡한 기술적 추론 시 활용)
+*   **Streaming Control**: Vercel AI SDK의 `smoothStream()` 및 `experimental_transform`을 사용하여 한 글자씩 부드럽게 나타나는 타이핑 효과를 구현합니다.
 
 ---
 
