@@ -13,7 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 
 const ModelSelect = ({ value, onChange }: { value: string, onChange: (v: string) => void }) => (
-    <div className="flex items-center gap-2 mb-4 p-2 bg-neutral-100/50 border border-neutral-200/50 rounded-xl w-fit">
+    <div className="flex items-center gap-2 p-2 bg-neutral-100/50 border border-neutral-200/50 rounded-xl w-fit">
         <Settings size={14} className="text-neutral-500" />
         <span className="text-[10px] uppercase tracking-wider font-bold text-neutral-400">Model</span>
         <select
@@ -94,7 +94,7 @@ export default function AiGuidePage() {
                             size="icon"
                             onClick={() => setMessages([])}
                             disabled={messages.length === 0}
-                            className="rounded-xl border-neutral-200 text-neutral-500 hover:text-neutral-900 transition-all active:scale-95"
+                            className="h-10 w-10 rounded-xl border-neutral-200 text-neutral-500 hover:text-neutral-900 transition-all active:scale-95 shrink-0"
                         >
                             <RotateCcw size={18} />
                         </Button>
@@ -110,7 +110,7 @@ export default function AiGuidePage() {
                     {/* Messages Container */}
                     <div
                         ref={scrollRef}
-                        className="flex-1 overflow-y-auto p-8 space-y-8 scroll-smooth"
+                        className="flex-1 overflow-y-auto px-8 py-6 space-y-6 scroll-smooth"
                     >
                         {messages.length === 0 && (
                             <div className="h-full flex flex-col items-center justify-center text-center space-y-12 py-10">
@@ -174,7 +174,7 @@ export default function AiGuidePage() {
 
                                 {/* Bubble */}
                                 <div className={cn(
-                                    "p-6 rounded-[2rem] text-sm leading-relaxed shadow-sm",
+                                    "px-6 py-4 rounded-[2rem] text-sm leading-relaxed shadow-sm",
                                     m.role === "user"
                                         ? "bg-neutral-900 text-white rounded-tr-sm font-medium"
                                         : "bg-neutral-50 text-neutral-800 rounded-tl-sm border border-neutral-100 font-medium"
@@ -206,24 +206,24 @@ export default function AiGuidePage() {
                                 <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-blue-200">
                                     <Bot size={20} />
                                 </div>
-                                <div className="p-5 rounded-[1.5rem] bg-neutral-50 rounded-tl-sm border border-neutral-100 flex items-center gap-2">
-                                    <span className="w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                                    <span className="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                                    <span className="w-3 h-3 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                                <div className="px-5 py-3 rounded-[1.5rem] bg-neutral-50 rounded-tl-sm border border-neutral-100 flex items-center gap-2">
+                                    <span className="w-2.5 h-2.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                                    <span className="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                                    <span className="w-2.5 h-2.5 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                                 </div>
                             </div>
                         )}
                     </div>
 
                     {/* Input Area */}
-                    <div className="p-6 bg-white border-t border-neutral-100/50 backdrop-blur-sm">
+                    <div className="px-6 py-4 bg-white border-t border-neutral-100/50 backdrop-blur-sm">
                         <form onSubmit={onCustomSubmit} className="flex gap-3 items-center">
                             <div className="flex-1 relative group">
                                 <input
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
                                     placeholder="Ask about investment, yields, or technical setup..."
-                                    className="w-full bg-neutral-50 border border-neutral-100 rounded-3xl pl-6 pr-14 h-16 focus:outline-none focus:ring-4 focus:ring-neutral-900/5 focus:bg-white focus:border-neutral-900 transition-all font-bold text-neutral-800 placeholder:text-neutral-400 shadow-inner"
+                                    className="w-full bg-neutral-50 border border-neutral-100 rounded-3xl pl-6 pr-14 h-14 focus:outline-none focus:ring-4 focus:ring-neutral-900/5 focus:bg-white focus:border-neutral-900 transition-all font-bold text-neutral-800 placeholder:text-neutral-400 shadow-inner"
                                 />
                                 <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-neutral-300 opacity-0 group-focus-within:opacity-100 transition-opacity uppercase tracking-widest hidden sm:block">
                                     Press Enter
@@ -232,9 +232,9 @@ export default function AiGuidePage() {
                             <Button
                                 type="submit"
                                 disabled={isLoading || !input.trim()}
-                                className="h-16 w-16 rounded-3xl p-0 flex items-center justify-center bg-neutral-900 hover:bg-neutral-800 hover:scale-105 active:scale-95 shadow-2xl shadow-neutral-200 transition-all shrink-0 group/send"
+                                className="h-14 w-14 rounded-3xl p-0 flex items-center justify-center bg-neutral-900 hover:bg-neutral-800 hover:scale-105 active:scale-95 shadow-2xl shadow-neutral-200 transition-all shrink-0 group/send"
                             >
-                                <Send size={28} className="text-white group-hover/send:translate-x-0.5 group-hover/send:-translate-y-0.5 transition-transform" />
+                                <Send size={24} className="text-white group-hover/send:translate-x-0.5 group-hover/send:-translate-y-0.5 transition-transform" />
                             </Button>
                         </form>
                     </div>
