@@ -30,7 +30,7 @@ function InvestmentRow({ inv, address }: { inv: any, address: `0x${string}` }) {
     });
 
     const formattedYield = earnedAmount ? formatUnits(earnedAmount as bigint, 18) : "0";
-    const hasYield = earnedAmount && (earnedAmount as bigint) > 0n;
+    const hasYield = earnedAmount ? (earnedAmount as bigint) > 0n : false;
 
     // 2. Read User Rewards State 
     const { data: userRewardState } = useReadContract({

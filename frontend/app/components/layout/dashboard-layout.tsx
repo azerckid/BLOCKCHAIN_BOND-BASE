@@ -8,7 +8,8 @@ import {
     Settings02Icon,
     Logout01Icon,
     Notification01Icon,
-    Menu01Icon
+    Menu01Icon,
+    Comment01Icon
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -49,6 +50,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         { to: "/", icon: Home01Icon, label: "Dashboard" },
         { to: "/bonds", icon: Database01Icon, label: "Bond Market" },
         { to: "/portfolio", icon: Wallet01Icon, label: "My Portfolio" },
+        { to: "/ai-guide", icon: Comment01Icon, label: "AI Guide" },
         { to: "/settings", icon: Settings02Icon, label: "Settings" },
     ];
 
@@ -75,7 +77,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         <div className="w-8 h-8 bg-neutral-900 rounded-lg flex items-center justify-center">
                             <div className="w-4 h-4 bg-white rounded-sm rotate-45" />
                         </div>
-                        <span className="text-xl font-bold tracking-tight text-neutral-900">BuildCTC</span>
+                        <span className="text-xl font-bold tracking-tight text-neutral-900">BondBase</span>
                     </Link>
                 </div>
 

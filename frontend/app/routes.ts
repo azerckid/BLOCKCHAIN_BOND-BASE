@@ -6,5 +6,7 @@ export default [
     route("portfolio", "routes/portfolio.tsx"),
     route("settings", "routes/settings.tsx"),
     route("admin", "routes/admin.tsx"),
+    route("ai-guide", "routes/ai-guide.tsx"),
     route("api/auth/*", "routes/auth.ts"),
+    route("api/chat", "routes/api.chat.ts"),
 ] satisfies RouteConfig;

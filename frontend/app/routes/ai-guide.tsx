@@ -67,13 +67,36 @@ export default function AiGuidePage() {
                         className="flex-1 overflow-y-auto p-6 space-y-6"
                     >
                         {messages.length === 0 && (
-                            <div className="h-full flex flex-col items-center justify-center text-center opacity-50 space-y-4">
-                                <div className="w-16 h-16 bg-neutral-100 rounded-2xl flex items-center justify-center">
-                                    <Bot size={32} className="text-neutral-400" />
+                            <div className="h-full flex flex-col items-center justify-center text-center opacity-100 space-y-8 px-4">
+                                <div className="flex flex-col items-center space-y-4">
+                                    <div className="w-16 h-16 bg-neutral-100 rounded-2xl flex items-center justify-center">
+                                        <Bot size={32} className="text-neutral-400" />
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold text-lg text-neutral-900">BondBase AI Assistant</p>
+                                        <p className="text-sm text-neutral-500 max-w-sm mx-auto mt-1">
+                                            I can help you with wallet setup, getting testnet tokens, and understanding our yield system.
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="font-medium text-lg">How can I help you today?</p>
-                                    <p className="text-sm">Try asking about "How to invest" or "What is Hold-to-Earn?"</p>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg">
+                                    {[
+                                        { label: "💳 Get Testnet Tokens", text: "How do I get testnet CTC and MockUSDC?" },
+                                        { label: "💰 How to Invest", text: "Explain the bond investment process." },
+                                        { label: "📈 Yield System", text: "How does the Hold-to-Earn yield system work?" },
+                                        { label: "⚙️ Wallet Setup", text: "Guide me through wallet setup." },
+                                    ].map((action, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => sendMessage({ role: 'user', content: action.text } as any, { body: { model } })}
+                                            className="flex items-center gap-3 p-4 bg-white border border-neutral-200 hover:border-neutral-900 hover:shadow-sm rounded-xl text-left transition-all duration-200 group"
+                                        >
+                                            <span className="text-sm font-medium text-neutral-700 group-hover:text-neutral-900">
+                                                {action.label}
+                                            </span>
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
                         )}

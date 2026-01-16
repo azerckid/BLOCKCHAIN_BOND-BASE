@@ -11,7 +11,7 @@ import {
 
 export function meta() {
     return [
-        { title: "Dashboard | BuildCTC - RWA Yield Protocol" },
+        { title: "Dashboard | BondBase - RWA Yield Protocol" },
         { name: "description", content: "Manage your RWA investments and portfolio" },
     ];
 }
