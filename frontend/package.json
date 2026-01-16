@@ -4,10 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "react-router build",
+    "dev": "node scripts/generate-knowledge.cjs && vite",
+    "build": "node scripts/generate-knowledge.cjs && react-router build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate-knowledge": "node scripts/generate-knowledge.cjs"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.10",

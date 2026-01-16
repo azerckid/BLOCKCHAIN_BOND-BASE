@@ -2,8 +2,8 @@ import { type ActionFunctionArgs } from "react-router";
 import { streamText, smoothStream } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import fs from "fs";
-import path from "path";
+
+import knowledgeBase from "../lib/knowledge.json";
 
 // Explicitly configure Google provider if needed to map GEMINI_API_KEY
 const googleProvider = createGoogleGenerativeAI({
@@ -27,38 +27,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
             content: m.content || m.parts?.map((p: any) => p.text).join("\n") || ""
         }));
 
-        // Dynamically load all relevant knowledge from the public/docs directory
-        // In Remix/React Router v7, process.cwd() is the project root (frontend/)
-        const docsDir = path.join(process.cwd(), "public/docs");
-        const ignoreDirs = ["archive"];
-
-        const getAllFiles = (dir: string, fileList: string[] = []) => {
-            const files = fs.readdirSync(dir);
-            files.forEach(file => {
-                const filePath = path.join(dir, file);
-                if (fs.statSync(filePath).isDirectory()) {
-                    if (!ignoreDirs.includes(file)) {
-                        getAllFiles(filePath, fileList);
-                    }
-                } else if (file.endsWith(".md")) {
-                    fileList.push(filePath);
-                }
-            });
-            return fileList;
-        };
-
-        let context = "";
-        try {
-            const allDocPaths = getAllFiles(docsDir);
-            context = allDocPaths.map(filePath => {
-                const content = fs.readFileSync(filePath, "utf-8");
-                const relativeName = path.relative(docsDir, filePath);
-                return `\n--- SOURCE: ${relativeName} ---\n${content}\n`;
-            }).join("\n");
-        } catch (error) {
-            console.error("Failed to load knowledge base:", error);
-            context = "Knowledge base documents are partially unavailable.";
-        }
+        // Use pre-bundled knowledge from JSON (generated during build)
+        const context = (knowledgeBase as any[]).map(item => {
+            return `\n--- SOURCE: ${item.source} ---\n${item.content}\n`;
+        }).join("\n");
 
         const systemPrompt = `
       You are the "BondBase AI Concierge", a sophisticated assistant for an RWA (Real World Asset) investment platform on Creditcoin.
