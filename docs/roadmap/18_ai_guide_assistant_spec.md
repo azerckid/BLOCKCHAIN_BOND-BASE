@@ -50,13 +50,16 @@ GOOGLE_GENERATIVE_AI_API_KEY=AIzaSy...
 ```
 
 #### B. 데이터 주입 전략 (Context Injection Strategy)
-벡터 DB(RAG)를 통한 부분 검색 방식 대신, **Direct Context Injection (Full-Text Injection)** 방식을 채택합니다. 마크다운 문서(`docs/**/*.md`)의 전체 내용을 실시간으로 추출하여 **System Prompt**에 직접 주입합니다.
+벡터 DB(RAG)를 통한 부분 검색 방식 대신, **Direct Context Injection (Full-Text Injection)** 방식을 채택합니다. 마크다운 문서(`docs/**/*.md`)의 전체 내용을 추출하여 **System Prompt**에 직접 주입합니다.
 
-*   **동기식 재귀 탐색 (Recursive Scan)**: API 요청 시마다 `docs/` 디렉토리를 재귀적으로 탐색하여 최신 가이드, 아키텍처, 로드맵 문서를 실시간으로 수집합니다. (단, `archive/` 디렉토리는 제외)
+*   **빌드 타임 통합 (Build-time Knowledge Bundling)**: 배포 환경(Vercel 서버리스 등)의 파일 시스템 접근 제한 문제를 해결하기 위해, 빌드 시점에 모든 지식을 통합합니다.
+    *   **자동화 스크립트**: `frontend/scripts/generate-knowledge.cjs`가 `docs/` 내의 모든 마크다운을 스캔하여 하나의 `knowledge.json`으로 합칩니다.
+    *   **프로세스 내재화**: `package.json`의 빌드 명령에 스크립트를 통합하여, 배포 전 항상 최신 문서를 코드로 변환(Bundling)하도록 자동화했습니다.
 *   **Context Injection의 이점**:
     *   **정확도 극대화**: AI가 문서의 파편화된 조각이 아닌 전체 맥락(Context)을 파악하여 답변하므로 오답률이 현저히 낮습니다.
-    *   **실시간 반영**: 별도의 벡터 데이터 가공(Embedding)이나 DB 동기화 없이, 관리자가 마크다운 파일을 수정하는 즉시 AI의 지식에 반영됩니다.
-    *   **효율성**: 현재 프로젝트 규모(수십 개 문서 이내)에서는 최신 LLM(Gemini 2.0, GPT-4o)의 광대한 Context Window를 활용하는 것이 인프라 복잡도를 줄이는 가장 스마트한 선택입니다.
+    *   **배포 안정성**: 서버리스 환경의 파일 경로 인식 및 권한 문제로부터 100% 설계적 자유를 확보하며 로컬과 실서버 간 데이터 일관성을 보장합니다.
+    *   **실시간 반영**: 별도의 벡터 데이터 가공(Embedding)이나 DB 동기화 없이, 빌드 프로세스만으로 최신 지식이 AI의 '코드 몸체'에 즉시 반영됩니다.
+    *   **효율성**: 현재 프로젝트 규모에서는 최신 LLM의 광대한 Context Window를 활용하는 것이 인프라 복잡도를 줄이는 가장 스마트한 선택입니다.
 
 *   **System Prompt 구성**:
     > "너는 BondBase의 AI Concierge야. 아래 제공된 [Master Documents] 내용을 기반으로 기술적 세부사항(컨트랙트 주소, 체인 ID 등)을 인용하여 답변해. 문서에 없는 내용은 모른다고 답하고 지어내지 마."
