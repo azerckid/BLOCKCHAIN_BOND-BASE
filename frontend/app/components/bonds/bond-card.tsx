@@ -23,6 +23,7 @@ export interface BondProps {
     location: string;
     totalAmount: string;
     remainingAmount: string;
+    loanAmount: number;
     status: "active" | "funded" | "pending";
     category: string;
 }

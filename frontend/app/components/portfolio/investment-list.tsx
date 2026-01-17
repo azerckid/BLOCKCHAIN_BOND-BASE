@@ -2,8 +2,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-    Clock01Icon
+    Clock01Icon,
+    Shield01Icon,
+    ArrowRight01Icon,
+    ActivityIcon,
+    Link01Icon,
+    LockIcon
 } from "@hugeicons/core-free-icons";
+import { Progress } from "@/components/ui/progress";
 
 import * as React from "react";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
@@ -40,7 +46,18 @@ function InvestmentRow({ inv, address }: { inv: any, address: `0x${string}` }) {
         args: [BigInt(inv.id), address],
     });
 
-    // 3. Write Functions
+    // 3. Read Asset Performance from Oracle
+    const { data: assetPerformance } = useReadContract({
+        address: CONTRACTS.OracleAdapter.address as `0x${string}`,
+        abi: CONTRACTS.OracleAdapter.abi,
+        functionName: "getAssetPerformance",
+        args: [BigInt(inv.id)],
+        query: {
+            refetchInterval: 10000,
+        }
+    });
+
+    // 4. Write Functions
     const { data: claimHash, isPending: isClaimPending, writeContract: writeClaimContract } = useWriteContract();
     const { writeContract: reinvestYield, data: reinvestHash, isPending: isReinvesting } = useWriteContract();
 
@@ -100,6 +117,33 @@ function InvestmentRow({ inv, address }: { inv: any, address: `0x${string}` }) {
             </div>
 
             <div className="flex items-center justify-between xl:justify-end gap-6 md:gap-10">
+                {/* Oracle Performance Section */}
+                <div className="hidden lg:flex flex-col gap-2 min-w-[200px]">
+                    <div className="flex items-center justify-between px-1">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Principal Repaid</p>
+                        <span className="text-[10px] font-black text-indigo-600">
+                            {assetPerformance ? Math.min(100, Math.round((Number(formatUnits((assetPerformance as any).principalPaid, 18)) / inv.loanAmount) * 100)) : 0}%
+                        </span>
+                    </div>
+                    <Progress
+                        value={assetPerformance ? (Number(formatUnits((assetPerformance as any).principalPaid, 18)) / inv.loanAmount) * 100 : 0}
+                        className="h-1.5 bg-neutral-100 rounded-full [&>div]:bg-indigo-500"
+                    />
+                    <div className="flex items-center justify-between px-1 text-[9px] font-bold">
+                        <span className="text-neutral-400 italic">Oracle Verified</span>
+                        {(assetPerformance as any)?.verifyProof && (
+                            <a
+                                href={(assetPerformance as any).verifyProof.startsWith('http') ? (assetPerformance as any).verifyProof : `https://gateway.ipfs.io/ipfs/${(assetPerformance as any).verifyProof.replace('ipfs://', '')}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-indigo-600 flex items-center gap-0.5 hover:underline"
+                            >
+                                PROOF <HugeiconsIcon icon={Link01Icon} size={8} />
+                            </a>
+                        )}
+                    </div>
+                </div>
+
                 {/* Yield Information */}
                 <div className="flex flex-col items-end gap-1.5 min-w-[140px]">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 font-black">Profit & Yield</p>
@@ -139,9 +183,19 @@ function InvestmentRow({ inv, address }: { inv: any, address: `0x${string}` }) {
                             </Button>
                         )}
                         <div className="flex flex-col items-end justify-center px-1">
-                            <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100 border-none font-black text-[9px] py-1 rounded-md">
-                                HOLDING ACTIVE
-                            </Badge>
+                            {assetPerformance && (assetPerformance as any).status === 2 ? (
+                                <Badge variant="destructive" className="bg-red-100 text-red-700 hover:bg-red-100 border-none font-black text-[9px] py-1 rounded-md">
+                                    ASSET DEFAULTED
+                                </Badge>
+                            ) : assetPerformance && (assetPerformance as any).status === 1 ? (
+                                <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none font-black text-[9px] py-1 rounded-md">
+                                    COMPLETELY REPAID
+                                </Badge>
+                            ) : (
+                                <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100 border-none font-black text-[9px] py-1 rounded-md">
+                                    HOLDING ACTIVE
+                                </Badge>
+                            )}
                         </div>
                     </div>
                 </div>
