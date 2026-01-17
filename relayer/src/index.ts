@@ -91,7 +91,7 @@ async function main() {
 
                     // 5. Execute Update
                     const perfData = {
-                        timestamp: Math.floor(Date.now() / 1000),
+                        timestamp: Math.floor(Date.now() / 1000) - 60, // Subtract 60s to avoid 'Future timestamp' error
                         principalPaid: ethers.parseUnits(extData.principalPaid.toString(), 18),
                         interestPaid: extInterest,
                         status: extData.status,

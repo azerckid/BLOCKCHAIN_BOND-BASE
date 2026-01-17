@@ -169,7 +169,7 @@ export const CONTRACTS = {
         ] as Abi
     },
     OracleAdapter: {
-        address: "0x4F4D9a44b364A039976bC6a134a78c1Df1c7D50E",
+        address: "0xE666695145795D8D83C3b373eDd579bDD59994A6",
         abi: [
             { "inputs": [{ "internalType": "address", "name": "_yieldDistributor", "type": "address" }, { "internalType": "address", "name": "_usdcToken", "type": "address" }], "stateMutability": "nonpayable", "type": "constructor" },
             { "inputs": [], "name": "AccessControlBadConfirmation", "type": "error" },

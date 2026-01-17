@@ -69,10 +69,10 @@ export default function ImpactPage() {
     });
 
     const impactData = impact ? {
-        carbon: Number((impact as any)[0]),
-        jobs: Number((impact as any)[1]),
-        sme: Number((impact as any)[2]),
-        url: (impact as any)[3]
+        carbon: Number((impact as any).carbonReduced || (impact as any)[0] || 0),
+        jobs: Number((impact as any).jobsCreated || (impact as any)[1] || 0),
+        sme: Number((impact as any).smeSupported || (impact as any)[2] || 0),
+        url: (impact as any).reportUrl || (impact as any)[3] || ""
     } : { carbon: 0, jobs: 0, sme: 0, url: "" };
 
     const chartData = [
@@ -107,12 +107,12 @@ export default function ImpactPage() {
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {STAT_CARDS.map((stat, i) => (
-                        <div key={i} className="bg-white border border-neutral-100 p-6 rounded-[2rem] shadow-sm hover:shadow-xl transition-all group flex items-start justify-between">
+                        <div key={i} className="bg-white border border-neutral-100 p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all group flex items-start justify-between">
                             <div className="space-y-2">
                                 <p className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">{stat.label}</p>
                                 <p className="text-3xl font-black text-neutral-900">{stat.value}</p>
                             </div>
-                            <div className={`w-12 h-12 rounded-2xl ${stat.bg} flex items-center justify-center transition-transform group-hover:scale-110 group-hover:rotate-6`}>
+                            <div className={`w-12 h-12 rounded-xl ${stat.bg} flex items-center justify-center transition-transform group-hover:scale-110 group-hover:rotate-6`}>
                                 <HugeiconsIcon icon={stat.icon} size={24} className={stat.color} />
                             </div>
                         </div>
@@ -123,7 +123,7 @@ export default function ImpactPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
                     {/* Left: Interactive Map */}
                     <div className="lg:col-span-3 space-y-6">
-                        <div className="bg-neutral-900 rounded-[3.5rem] p-4 min-h-[600px] relative overflow-hidden shadow-2xl shadow-neutral-200 border-8 border-neutral-800">
+                        <div className="bg-neutral-900 rounded-[1.75rem] p-4 min-h-[600px] relative overflow-hidden shadow-2xl shadow-neutral-200 border-8 border-neutral-800">
                             <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
                                 <div className="absolute inset-0">
                                     <Map
@@ -162,7 +162,7 @@ export default function ImpactPage() {
                             </APIProvider>
 
                             {/* Overlay Controls */}
-                            <div className="absolute top-6 left-6 z-10 bg-neutral-900/80 backdrop-blur-xl p-4 rounded-3xl border border-white/10 shadow-2xl">
+                            <div className="absolute top-6 left-6 z-10 bg-neutral-900/80 backdrop-blur-xl p-4 rounded-2xl border border-white/10 shadow-2xl">
                                 <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
                                         <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -179,9 +179,9 @@ export default function ImpactPage() {
                                             setActiveBond(bond);
                                             setInfoWindowShown(bond.id);
                                         }}
-                                        className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase transition-all backdrop-blur-xl border ${activeBond.id === bond.id
-                                                ? 'bg-white text-neutral-900 border-white shadow-xl scale-105'
-                                                : 'bg-neutral-800/60 text-neutral-400 border-white/5 hover:border-white/20'
+                                        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all backdrop-blur-xl border ${activeBond.id === bond.id
+                                            ? 'bg-white text-neutral-900 border-white shadow-xl scale-105'
+                                            : 'bg-neutral-800/60 text-neutral-400 border-white/5 hover:border-white/20'
                                             }`}
                                     >
                                         {bond.location.split(',')[0]}
@@ -194,7 +194,7 @@ export default function ImpactPage() {
                     {/* Right: Detailed Metrics & Charts */}
                     <div className="lg:col-span-2 space-y-8">
                         {/* Selector Info */}
-                        <div className="bg-white border border-neutral-100 rounded-[2.5rem] p-8 shadow-sm space-y-6">
+                        <div className="bg-white border border-neutral-100 rounded-[1.25rem] p-8 shadow-sm space-y-6">
                             <div className="space-y-1">
                                 <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 border-none font-black text-[10px] uppercase">{activeBond.category}</Badge>
                                 <h2 className="text-2xl font-black text-neutral-900 leading-tight">{activeBond.title}</h2>
@@ -242,7 +242,7 @@ export default function ImpactPage() {
                         </div>
 
                         {/* Additional Insight */}
-                        <div className="bg-indigo-600 rounded-[2.5rem] p-8 text-white space-y-4 shadow-xl shadow-indigo-100 relative overflow-hidden group">
+                        <div className="bg-indigo-600 rounded-[1.25rem] p-8 text-white space-y-4 shadow-xl shadow-indigo-100 relative overflow-hidden group">
                             <div className="absolute -top-4 -right-4 w-32 h-32 bg-indigo-500 rounded-full blur-3xl opacity-50 transition-all group-hover:scale-150" />
                             <div className="relative z-10 space-y-4">
                                 <HugeiconsIcon icon={Chart01Icon} size={32} />

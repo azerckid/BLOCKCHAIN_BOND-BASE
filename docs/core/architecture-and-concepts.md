@@ -38,6 +38,14 @@ BuildCTC 생태계는 다음 4개의 컨트랙트가 유기적으로 상호작�
     *   **Claim**: 투자자가 자신의 `BondToken` 보유량을 증명하면, 지분에 비례한 수익금을 계산하여 지급.
     *   **Auto-Calculation**: Synthetix의 `RewardPerToken` 알고리즘을 사용하여 초 단위 수익 분배 가능.
 
+### 🔮 E. OracleAdapter.sol (데이터 허브, Data Hub)
+*   **Role**: 실물 자산의 **성과 및 ESG 데이터를 체인에 연결**하는 교량입니다.
+*   **Description**: 외부 핀테크 파트너의 운영 데이터(수익금, 탄소 절감량 등)를 블록체인 노드로 전달받아 기록하는 스마트 오라클 어댑터입니다.
+*   **Key Functions**:
+    *   **Sync Performance**: 실제 채무 이행 상태(원금/이자 상환액)를 정기적으로 업데이트.
+    *   **ESG Tracking**: 탄소 절감량, 일자리 창출 등 비재무적 성과 지표 관리.
+    *   **Proof Reference**: IPFS 등 외부 저장소의 증빙 자료(Report) 링크를 온체인에 영구 기록.
+
 ---
 
 ## 3. 프론트엔드 연동 기술 (Frontend Web3 Stack)
@@ -60,3 +68,24 @@ BuildCTC 생태계는 다음 4개의 컨트랙트가 유기적으로 상호작�
 2.  **Engine(Viem)**: 블록체인 노드(RPC)와 직접 통신하여 데이터를 가져옴.
 3.  **Controller(Wagmi)**: 가져온 데이터를 React 컴포넌트가 쓰기 편한 상태(State)로 변환하고 캐싱함.
 4.  **Frontend(UI)**: 사용자가 버튼을 누르면 Wagmi를 통해 지갑 서명을 요청하고 트랜잭션을 발생시킴.
+
+---
+
+## 4. 임팩트 투명성 (Impact Transparency Concepts)
+
+BuildCTC는 단순한 수익 창출을 넘어, 투자가 실제로 어떤 긍정적인 영향을 미치는지 증명하는 **'Impact-First'** 금융을 지향합니다.
+
+### 🌱 ESG 성과 지표 (ESG Metrics)
+운영 파트너로부터 수집된 데이터를 오라클을 통해 블록체인에 기록하며, 다음의 핵심 지표를 추적합니다:
+*   **Environment**: 탄소 배출 저감량 (kg) 등 기후 변화 대응 성과.
+*   **Social**: 고용 창출 수, 지원된 중소기업(SME) 수 등 지역 사회 기여도.
+*   **Governance**: 운용 보고서(Report URL) 투명 공개 및 스마트 컨트랙트 기반의 정산 증명.
+
+### 🗺️ 지리적 시각화 (Geospatial Visualization)
+투자 상품의 실제 위치 정보를 Google Maps와 연동하여 실체성을 부여합니다. 이를 통해 투자자는 자신의 자산이 전 세계 어디에서 실물 경제를 움직이고 있는지 직관적으로 탐색할 수 있습니다.
+
+### 🔗 데이터 신뢰 체인 (Data Trust Chain)
+1. **Fintech Source**: 현지 운영사의 실제 대출 및 운영 데이터 발생.
+2. **Relayer Bot**: 주기적으로 소스 데이터를 검증하고 블록체인에 전송.
+3. **OracleAdapter**: 데이터의 불변성을 보장하며 누구나 조회 가능하도록 온체인 기록.
+4. **Impact Dashboard**: 투자자에게 그래프와 지도를 통해 검증된 임팩트 성과 시각화.
