@@ -127,9 +127,16 @@ BuildCTC/
    - [x] Staking(예치) 및 Claim(수령) 로직
    - [x] 단위 테스트 통과
 
+- [x] **프론트엔드-블록체인 연동** (부분 완료, 버그 수정 필요)
+   - [x] `purchaseBond` 함수 호출 구현 ✅
+   - [x] `claimYield`, `reinvest` 함수 호출 구현 ✅
+   - [x] `balanceOfBatch` 데이터 조회 구현 ✅
+   - [ ] `portfolio.tsx` 버그 수정 (bondId 파라미터 누락) ⚠️
+
 - [ ] **오라클 연동** (다음 마일스톤)
-   - [ ] OracleAdapter.sol 구현
-   - [ ] 백엔드 오라클 서비스 구성
+   - [ ] Phase 1: MockOracle.sol 구현
+   - [ ] Phase 2: OracleAdapter.sol 구현
+   - [ ] Phase 3: 백엔드 오라클 서비스 구성
    - [ ] Creditcoin Universal Oracle 연동
 
 ### Phase 3: 리스크 관리 (예정)
@@ -148,10 +155,12 @@ BuildCTC/
    - [x] 포트폴리오 페이지 (Chart, List)
    - [x] 설정 페이지 (Profile, Wallet UI)
 
-- [x] **Web3 연동** (완료)
+- [x] **Web3 연동** (완료, 일부 버그 존재)
    - [x] `wagmi` / `viem` 설정
    - [x] 지갑 연결 (Connect Wallet) 기능 구현
    - [x] 컨트랙트 데이터 바인딩 (Balance, Invest, Claim)
+   - [x] `purchaseBond`, `claimYield`, `reinvest` 실제 호출 구현
+   - [ ] `portfolio.tsx` 버그 수정 필요 (Section 9.2 참조)
 
 - [ ] **임팩트 시각화**
    - [ ] 지도 통합
@@ -162,22 +171,95 @@ BuildCTC/
 - [ ] 보안 감사 및 최적화
 - [ ] 메인넷 배포 준비
 
-## 9. 보안 및 배포 전략 (Refined)
+## 9. 현재 프로젝트 상태 및 알려진 이슈 (Latest Review: 2026-01-16)
 
-### 9.1 배포 현황
+> **참고**: 전체 검토 내용은 `docs/reports/18_project_review_report.md`를 참조하세요.
+
+### 9.1 현재 진행 상태 요약
+
+#### 완료된 주요 기능 ✅
+- [x] 스마트 컨트랙트 개발 및 배포 (Creditcoin Testnet)
+  - MockUSDC, BondToken (v2), LiquidityPool, YieldDistributor (v2)
+- [x] 프론트엔드 기본 구조 및 UI 컴포넌트
+- [x] Web3 연동 (`wagmi`/`viem`) - 지갑 연결, 컨트랙트 호출 구현
+- [x] 데이터베이스 스키마 설계 (Drizzle ORM)
+
+#### 진행 중 🚧
+- [ ] 프론트엔드-블록체인 연동 (부분 완료, 버그 수정 필요)
+- [ ] 오라클 연동 (설계 완료, 구현 대기)
+- [ ] 백엔드 API 개발 (미시작)
+
+#### 미시작 ❌
+- [ ] 리저브 풀 구현
+- [ ] Gateway 통합 (크로스체인)
+- [ ] KYC/AML 시스템
+- [ ] 보안 감사
+
+### 9.2 알려진 버그 및 이슈
+
+#### Critical (즉시 수정 필요) ⚠️
+1. **프론트엔드 버그**
+   - `portfolio.tsx`의 `earned` 함수 호출 시 `bondId` 파라미터 누락
+     - 컨트랙트 시그니처: `earned(address account, uint256 bondId)`
+     - 현재: `args: [address]`만 전달
+   - `portfolio.tsx`의 `claimYield` 호출 시 `bondId` 파라미터 누락
+     - 컨트랙트 시그니처: `claimYield(uint256 bondId)`
+     - 현재: `args` 없이 호출
+
+#### High Priority
+2. **테스트 스크립트 미설정**
+   - `contracts/package.json`에 `"test": "hardhat test"` 스크립트 추가 필요
+
+3. **환경 변수 보안 검증**
+   - `.env*` 파일이 Git에 커밋되지 않았는지 확인 필요
+   - `git log --all --full-history -- "*.env*"` 명령어로 검증 권장
+
+### 9.3 즉시 조치 사항
+
+#### Critical (즉시 처리)
+1. [ ] 프론트엔드 버그 수정 (`portfolio.tsx`의 `earned`, `claimYield` 호출)
+2. [ ] 테스트 스크립트 추가 (`contracts/package.json`)
+3. [ ] 환경 변수 보안 검증
+
+#### High Priority (1주일 내)
+4. [ ] 오라클 연동 구현 시작 (Phase 1: MockOracle.sol)
+5. [ ] 백엔드 API 기본 구조 구축
+
+### 9.4 기술 부채
+
+1. **Mock 데이터 의존**
+   - 프론트엔드에서 채권 목록 등 Mock 데이터 사용 중
+   - 실제 블록체인 데이터 연동 필요
+
+2. **하드코딩된 컨트랙트 주소**
+   - `frontend/app/config/contracts.ts`에 주소 직접 입력
+   - 네트워크별 동적 설정 개선 필요
+
+3. **타입 안전성 개선**
+   - 프론트엔드에서 컨트랙트 ABI 타입 생성 (`typechain`) 활용 검토
+   - 현재 수동으로 ABI 정의 중
+
+## 10. 보안 및 배포 전략 (Refined)
+
+### 10.1 배포 현황
 - **Network**: Creditcoin Testnet
 - **Deployed Contracts**:
   - MockUSDC, BondToken, LiquidityPool, YieldDistributor
 - **Configuration**:
   - Frontend: `frontend/app/config/contracts.ts`에 주소 및 ABI 관리
 
-### 9.2 향후 보안 계획
+### 10.2 향후 보안 계획
 - [ ] `dotenv`를 통한 환경 변수 관리 강화 (진행 중)
 - [ ] 배포 전 `slither` 등을 이용한 정적 분석 수행
 - [ ] 주요 권한(Admin Role) 관리자 지갑 분리
+- [ ] 멀티시그 지갑 도입 검토
 
-## 10. 문서화
+## 11. 문서화
 - [x] 구현 계획서 (`IMPLEMENTATION_PLAN.md`)
 - [x] 단계별 리포트 (`docs/reports/`)
+  - `docs/reports/18_project_review_report.md`: 프로젝트 종합 검토 보고서 (2026-01-16)
+- [x] 오라클 연동 설계 (`docs/roadmap/14_oracle_integration_architecture.md`)
 - [ ] API 문서 (백엔드 구축 시)
 - [ ] 사용자 가이드 (최종 릴리스 시)
+- [ ] 배포 가이드
+- [ ] 보안 감사 리포트
