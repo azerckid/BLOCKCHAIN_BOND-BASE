@@ -68,7 +68,8 @@ describe("OracleAdapter (Integration)", function () {
     it("Should record asset performance and distribute yield correctly", async function () {
         const principalAmount = ethers.parseUnits("1000", 18);
         const interestAmount = ethers.parseUnits("50", 18);
-        const timestamp = Math.floor(Date.now() / 1000);
+        const latestBlock = await ethers.provider.getBlock("latest");
+        const timestamp = (latestBlock?.timestamp || 0) + 1;
         const proof = "ipfs://QmProof";
 
         const performanceData = {
@@ -103,13 +104,14 @@ describe("OracleAdapter (Integration)", function () {
     it("Should only distribute NEW interest paid", async function () {
         const principalAmount = ethers.parseUnits("1000", 18);
         const initialInterest = ethers.parseUnits("50", 18);
-        const timestamp = Math.floor(Date.now() / 1000);
+        const initialBlock = await ethers.provider.getBlock("latest");
+        const initialTimestamp = (initialBlock?.timestamp || 0) + 1;
 
         // 1st update
         await usdcToken.mint(oracleNode.address, initialInterest);
         await usdcToken.connect(oracleNode).approve(await oracleAdapter.getAddress(), initialInterest);
         await oracleAdapter.connect(oracleNode).updateAssetStatus(BOND_ID, {
-            timestamp: timestamp,
+            timestamp: initialTimestamp,
             principalPaid: principalAmount,
             interestPaid: initialInterest,
             status: 0,
@@ -119,12 +121,14 @@ describe("OracleAdapter (Integration)", function () {
         // 2nd update with additional interest
         const additionalInterest = ethers.parseUnits("30", 18);
         const totalInterest = initialInterest + additionalInterest;
+        const latestBlock = await ethers.provider.getBlock("latest");
+        const nextTimestamp = (latestBlock?.timestamp || 0) + 1;
 
         await usdcToken.mint(oracleNode.address, additionalInterest);
         await usdcToken.connect(oracleNode).approve(await oracleAdapter.getAddress(), additionalInterest);
 
         await expect(oracleAdapter.connect(oracleNode).updateAssetStatus(BOND_ID, {
-            timestamp: timestamp + 100,
+            timestamp: nextTimestamp,
             principalPaid: principalAmount,
             interestPaid: totalInterest,
             status: 0,
