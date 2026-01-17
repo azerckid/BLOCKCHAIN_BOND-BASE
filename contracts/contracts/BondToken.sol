@@ -44,6 +44,10 @@ contract BondToken is ERC1155, AccessControl, ERC1155Supply {
         emit URI(newuri, id);
     }
 
+    function setURI(string memory newuri) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _setURI(newuri);
+    }
+
     function mint(address account, uint256 id, uint256 amount, string memory tokenUri, bytes memory data)
         public
         onlyRole(MINTER_ROLE)

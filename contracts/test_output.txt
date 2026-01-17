@@ -1,0 +1,52 @@
+
+> contracts@1.0.0 test
+> hardhat test
+
+WARNING: You are currently using Node.js v25.2.1, which is not supported by Hardhat. This can lead to unexpected behavior. See https://v2.hardhat.org/nodejs-versions
+
+
+[dotenv@17.2.3] injecting env (2) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+Compiled 2 Solidity files successfully (evm target: paris).
+
+
+  BondToken
+    Deployment
+      ✔ Should grant roles to deployer
+    Minting
+      ✔ Should allow minter to mint tokens with URI
+      ✔ Should fail if non-minter tries to mint
+      ✔ Should track total supply correctly
+    URI Management
+      ✔ Should return base URI if token URI is not set
+      ✔ Should allow uri setter to update token URI
+      ✔ Should fail if non-setter tries to set URI
+
+  LiquidityPool
+    Investment
+      ✔ Should fail if amount is 0
+      ✔ Should fail if USDC is not approved
+      ✔ Should allow investment after approval
+    Withdrawal
+      ✔ Should allow admin to withdraw funds
+      ✔ Should fail if non-admin tries to withdraw
+
+  MockOracle (Integration)
+    ✔ Should distribute yield via MockOracle correctly
+    ✔ Should fail if unauthorized user tries to set asset data
+    ✔ Should fail if MockOracle doesn't have DISTRIBUTOR_ROLE on YieldDistributor
+
+  YieldDistributorV2 (Integrated System)
+    Purchase & Real-time Yield Accrual
+      ✔ Should accurately track total holdings in YieldDistributor when user purchases bonds
+      ✔ Should accrue yield immediately after purchase and deposit
+      ✔ Should handle proportional distribution for multiple holders
+    Transfers & Checkpoints
+      ✔ Should update rewards correctly on transfer between users
+    Claiming
+      ✔ Should allow user to claim yield
+    Reinvesting
+      ✔ Should allow user to reinvest yield into more bonds
+
+
+  21 passing (616ms)
+
