@@ -1,71 +1,129 @@
-# BondBase: 사용자 플랫폼 통합 가이드 (User App Guide)
+# BondBase User App Guide
 
-본 문서는 BondBase 서비스를 이용하는 투자자와 운영자를 위해 각 메뉴별 기능과 사용 방법을 상세히 설명합니다. BondBase는 Creditcoin 네트워크를 기반으로 실물 자산(RWA) 투자 및 수익 배분 서비스를 제공합니다.
-
----
-
-## 🏗️ 1. Dashboard (종합 상황실)
-
-대시보드는 사용자의 전체적인 투자 현황과 시장의 흐름을 한눈에 파악할 수 있는 첫 화면입니다.
-
-- **Total Value Locked (TVL)**: 플랫폼 전체에 예치된 총 자산 규모를 보여줍니다.
-- **Your Total Investment**: 현재 내가 투자 중인 전체 원금 합계입니다.
-- **Yield Stats**: 현재까지 발생한 총 수익과 시장 평균 APR(연이율) 정보를 제공합니다.
-- **Asset Allocation**: 내가 어떤 카테고리(부동산, 농업, 에너지 등)에 얼만큼 비중을 두고 투자하고 있는지 원형 차트로 시각화합니다.
-- **Performance Chart**: 월별 또는 주별 투자 자산 가치의 변동 추이를 추적할 수 있습니다.
+본 문서는 **BondBase 플랫폼**의 각 페이지별 기능, 용어 정의, 그리고 사용자가 수행할 수 있는 모든 상호작용(버튼 클릭 등)에 대해 상세하게 설명합니다.
 
 ---
 
-## 🛒 2. Bond Market (채권 시장)
+## 1. Dashboard (대시보드)
+**경로**: `/` (Home)
 
-실제 실무 자산과 연동된 고수익 채권을 탐색하고 직접 투자할 수 있는 마켓플레이스입니다.
+BondBase에 접속했을 때 가장 먼저 보이는 화면으로, 사용자의 투자 요약과 플랫폼의 주요 지표를 한눈에 보여줍니다.
 
-### 핵심 기능
-- **채권 탐색**: 검색창과 필터(All, Real Estate, Agriculture, Energy, Logistics)를 사용하여 원하는 투자처를 찾을 수 있습니다.
-- **펀딩 현황**: 각 채권별로 목표 모집 금액 대비 현재 달성율(%)과 남은 투자 가능 금액을 실시간으로 확인할 수 있습니다.
-- **투자 상세(Modal)**: 'Invest Now' 클릭 시 상세 투자 화면이 열리며, 여기에서 투자할 USDC 수량을 입력합니다.
+### 1.1 주요 지표 (Key Metrics)
+상단에 위치한 4개의 카드 섹션입니다.
+- **Total Portfolio Value**: 현재 사용자가 투자한 모든 채권의 원금 가치 합계입니다.
+- **Average Yield (APR)**: 보유 중인 자산들의 가중 평균 연간 수익률(APR)입니다.
+- **Unclaimed Yield**: 발생했지만 아직 지갑으로 인출하지 않은 '수령 가능한' 이자 수익 총액입니다.
+- **TVL in Protocol**: BondBase 전체 프로토콜에 예치된 총 자산 규모(Total Value Locked)입니다.
 
-### 투자 프로세스
-1. **Approve (승인)**: 자산을 처음 구매할 때, 지갑의 USDC를 사용할 수 있도록 컨트랙트에 승인을 요청합니다.
-2. **Deposit (투자)**: 승인이 완료되면 'Invest' 버튼을 통해 실제 투자를 실행하고 Bond 토큰(ERC-1155)을 지급받습니다.
-
----
-
-## 💼 3. My Portfolio (나의 투자 관리)
-
-내 투자의 모든 세부 내역을 관리하고, 오라클이 검증한 데이터를 바탕으로 수익을 확정 짓는 페이지입니다.
-
-### 실시간 자산 모니터링
-- **Principal Progress (원금 상환 트래커)**: 각 채권별로 원금이 얼마나 상환되었는지 확인할 수 있습니다. 이는 오라클(Oracle)이 오프체인 상환 데이터를 온체인에 동기화한 결과입니다.
-- **Asset Status Badge**: 자산의 상태를 확인합니다.
-    - `ACTIVE`: 정상적으로 운용 및 상환 중인 상태.
-    - `REPAID`: 모든 원리금이 상환되어 종료된 상태.
-    - `DEFAULT`: 상환에 문제가 발생한 상태 (주의 요망).
-- **Oracle Proof (검증 증명)**: `PROOF` 링크를 통해 오라클이 제출한 실제 법적/금융 증빙 자료(IPFS 등)를 직접 열람하여 투명성을 확인할 수 있습니다.
-
-### 수익 관리 (Yield Engine)
-- **Claim**: 현재까지 쌓인 이자 수익을 내 지갑으로 즉시 인출합니다.
-- **Reinvest (복리 투자)**: 이자를 인출하지 않고 해당 채권의 원금에 그대로 합쳐서 더 큰 이자 수익을 노리는 복리 연동 기능입니다.
+### 1.2 Investment Opportunities (투자 기회)
+- **New Investment Opportunities**: 최근 등록된 채권 상품들을 카드 형태로 미리 보여줍니다.
+- **View All Markets (버튼)**: 클릭 시 **Bond Market** 페이지로 이동하여 전체 상품 목록을 확인합니다.
 
 ---
 
-## ⚙️ 4. Settings (지갑 및 환경 설정)
+## 2. Bond Market (채권 시장)
+**경로**: `/market`
 
-플랫폼 이용을 위한 기술적인 설정과 지갑 연결을 관리합니다.
+실제 RWA(Real World Asset) 기반 채권 상품을 검색하고 필터링하여 투자할 수 있는 마켓플레이스입니다.
 
-- **Wallet Connection**: 현재 연결된 지갑 주소, 네트워크(Creditcoin Testnet), 잔액을 확인합니다.
-- **Network Switcher**: 필요한 경우 Creditcoin 테스트넷으로 네트워크 전환을 지원합니다.
-- **Faucet (테스트 전용)**: 테스트넷 환경에서 원활한 체험을 위해 테스트용 USDC를 무료로 민팅할 수 있는 기능을 제공합니다.
-- **Safety**: 사용이 끝난 후 지갑 연결을 해제(Disconnect)할 수 있습니다.
+### 2.1 검색 및 필터 (Search & Filter)
+- **Search Input**: 채권의 이름(Title)이나 지역(Location, 예: Bangkok)을 입력하여 검색합니다.
+- **Category Tabs**: `All`, `Real Estate`, `Agriculture`, `Energy`, `Logistics` 등의 탭을 클릭하여 해당 카테고리 상품만 필터링합니다.
+
+### 2.2 채권 카드 (Bond Card)
+각 상품 카드는 다음과 같은 정보를 포함합니다.
+- **APR**: 연간 수익률 (예: 12.5%).
+- **Term**: 투자 기간 (예: 12 Months).
+- **Location**: 자산의 소재지.
+- **Funding Progress**: 모집된 금액 / 목표 금액. (`Target $5.0M` 등)
+- **Invest Now (버튼)**:
+    - 클릭 시 **투자 모달(Investment Modal)**이 열립니다.
+    - **Step 1: Approve**: 처음 투자 시, 내 지갑의 USDC 사용 권한을 승인하는 트랜잭션을 발생시킵니다.
+    - **Step 2: Deposit**: 승인 후 원하는 투자 금액을 입력하고 `Confirm Investment`를 누르면 실제 투자가 진행됩니다.
 
 ---
 
-## 🛡️ 5. 보안 및 주의사항
+## 3. My Portfolio (내 포트폴리오)
+**경로**: `/portfolio`
 
-- **가스비(Gas Fee)**: 모든 투자의 승인(Approve), 투자(Invest), 수익 수령(Claim) 시에는 소량의 CTC(Creditcoin) 가스비가 필요합니다.
-- **스마트 컨트랙트**: BondBase의 모든 거래는 위변조가 불가능한 스마트 컨트랙트에 의해 처리되며, 오라클 데이터를 통해 실물 자산과의 연결성이 보장됩니다.
+나의 투자 내역을 상세 관리하고, 발생한 수익(Yield)을 청구(Claim)하거나 재투자(Reinvest)하는 페이지입니다.
+
+### 3.1 자산 요약 (Summary Stats)
+- **Total Value Locked**: 내 총 투자 자산.
+- **Cumulative Yield**: 현재까지 누적된(쌓인) 실시간 이자 수익입니다.
+    - **CLAIM (버튼)**: `Cumulative Yield`가 $0 이상일 때 나타납니다. 클릭 시 **YieldDistributor** 컨트랙트와 상호작용하여 이자를 내 지갑으로 즉시 인출합니다. (가스비 발생)
+- **Avg. Portfolio APR**: 내 포트폴리오의 평균 수익률.
+
+### 3.2 차트 (Charts)
+- **Performance Chart**: 시간 경과에 따른 자산 가치 변화 그래프.
+- **Allocation Chart**: 자산 카테고리별 분산 투자 비율을 보여주는 원형 차트.
+
+### 3.3 투자 목록 (Investment List)
+보유 중인 각 채권별 상세 상태를 보여줍니다.
+- **Engine Status Badge**:
+    - `HOLDING ACTIVE`: 정상 운용 중.
+    - `COMPLETELY REPAID`: 상환 완료.
+    - `ASSET DEFAULTED`: 채무 불이행(부실) 발생.
+- **Principal Repaid**: 오라클이 검증한 원금 상환 비율(%).
+- **Oracle Verified / PROOF (링크)**: 클릭 시 오라클이 제출한 투명성 증명 데이터(IPFS/URL)를 새 탭에서 엽니다.
+- **REINVEST (버튼)**: (활성화 시) 발생한 이자를 인출하지 않고 원금에 합산하여 복리 효과를 누립니다.
 
 ---
-**최종 업데이트**: 2026-01-17
-**버전**: v1.0
-**작성**: BondBase Core Team
+
+## 4. Impact Map (임팩트 투명성)
+**경로**: `/impact`
+
+투자가 만들어내는 실제 사회적/환경적 가치(ESG Impact)를 지도와 데이터로 확인합니다.
+
+### 4.1 Stats Grid (ESG 지표)
+- **Total Carbon Reduced**: 탄소 배출 저감량 (kg 단위).
+- **Active Jobs Created**: 해당 투자로 인해 창출된 일자리 수.
+- **Community ESG Score**: 지역 사회 기여도 등급 (예: A+).
+
+### 4.2 Interactive Map (지도)
+- **Marker (핀)**: 지도 위의 핀을 클릭하면 해당 RWA 자산의 상세 정보 창(Info Window)이 뜹니다.
+- **Quick Controls (하단 버튼)**: `Bangkok`, `Chiang Mai` 등 버튼 클릭 시 지도가 해당 지역으로 자동 이동합니다.
+
+### 4.3 Detailed Metrics (우측 패널)
+- 선택된 자산의 구체적인 Impat 데이터를 막대 차트(Bar Chart)로 시각화합니다.
+- **ESG Verification**: 오라클에 의해 데이터가 언제 마지막으로 검증되었는지(Verified On 날짜) 표시합니다.
+
+---
+
+## 5. AI Concierge (AI 가이드)
+**경로**: `/ai-guide`
+
+AI 챗봇을 통해 BondBase 사용법, 투자 가이드, 블록체인 용어 등을 질문할 수 있습니다.
+
+### 5.1 Controls
+- **Engine Selector**: 사용할 AI 모델을 선택합니다. (`GEMINI 2.0` 또는 `GPT-4O`)
+- **RESET (버튼)**: 대화 내용을 모두 지우고 초기화합니다.
+
+### 5.2 Quick Actions
+채팅창이 비어있을 때 제공되는 추천 질문 버튼들입니다. 클릭하면 즉시 해당 질문을 전송합니다.
+- `💳 Get Testnet Tokens`: 테스트넷 토큰 받는 법.
+- `💰 How to Invest`: 투자 절차 안내.
+- `📈 Yield System`: 수익 구조 설명.
+- `⚙️ Wallet Setup`: 지갑 설정 가이드.
+
+---
+
+## 6. Settings (설정)
+**경로**: `/settings`
+
+계정 및 지갑 연결 설정을 관리합니다.
+
+### 6.1 Wallet Tab
+- **Connected Wallet**: 현재 연결된 지갑 주소와 네트워크 상태를 보여줍니다.
+- **Faucet (테스트넷 전용)**:
+    - **Mint MockUSDC**: 테스트용 가상 화폐(MockUSDC) 1,000개를 내 지갑으로 발행합니다.
+    - **Mint Native Token**: (지원 시) 테스트용 가스비 토큰을 요청합니다.
+- **Disconnect (버튼)**: 지갑 연결을 해제합니다.
+
+### 6.2 Profile / Appearance Tab
+- **Profile**: 사용자 닉네임, 이메일 등 개인 정보 수정 (현재 데모 버전에서는 Mock 동작).
+- **Appearance**: 다크 모드/라이트 모드 테마 설정.
+
+---
+**Note**: 본 가이드는 v1.0 기준으로 작성되었으며, 추후 기능 업데이트에 따라 변경될 수 있습니다.
