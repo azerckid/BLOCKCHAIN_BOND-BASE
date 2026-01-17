@@ -258,7 +258,7 @@ BuildCTC/
 - [x] 구현 계획서 (`IMPLEMENTATION_PLAN.md`)
 - [x] 단계별 리포트 (`docs/reports/`)
   - `docs/reports/18_project_review_report.md`: 프로젝트 종합 검토 보고서 (2026-01-16)
-- [x] 오라클 연동 설계 (`docs/roadmap/14_oracle_integration_architecture.md`)
+  - [x] 오라클 연동 설계 (`docs/core/14_oracle_integration_architecture.md`)
 - [ ] API 문서 (백엔드 구축 시)
 - [ ] 사용자 가이드 (최종 릴리스 시)
 - [ ] 배포 가이드

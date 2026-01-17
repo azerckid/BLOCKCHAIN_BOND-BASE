@@ -12,9 +12,10 @@ export const CONFIG = {
 
 export const ABIS = {
     OracleAdapter: [
-        "function updateAssetStatus(uint256 bondId, (uint256 timestamp, uint256 principalPaid, uint256 interestPaid, uint8 status, string verifyProof) data) external",
+        "function updateAssetStatus(uint256 bondId, (uint256 timestamp, uint256 principalPaid, uint256 interestPaid, uint8 status, string verifyProof) perf, (uint256 carbonReduced, uint256 jobsCreated, uint256 smeSupported, string reportUrl) impact) external",
         "function getAssetPerformance(uint256 bondId) external view returns (uint256 timestamp, uint256 principalPaid, uint256 interestPaid, uint8 status, string verifyProof)",
-        "event AssetStatusUpdated(uint256 indexed bondId, uint8 status, uint256 interestDelta)",
+        "function getImpactData(uint256 bondId) external view returns (uint256 carbonReduced, uint256 jobsCreated, uint256 smeSupported, string reportUrl)",
+        "event AssetStatusUpdated(uint256 indexed bondId, uint256 principalPaid, uint256 interestPaid, uint8 status, string verifyProof, uint256 carbonReduced, uint256 jobsCreated, uint256 smeSupported)",
     ],
     MockUSDC: [
         "function approve(address spender, uint256 amount) external returns (bool)",

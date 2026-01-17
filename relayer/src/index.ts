@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { CONFIG, ABIS } from "./config";
+import { CONFIG, ABIS } from "./config.js";
 
 /**
  * MOCK FINTECH API SIMULATION
@@ -8,8 +8,26 @@ import { CONFIG, ABIS } from "./config";
  */
 class MockFintechAPI {
     private static bondData: Record<number, any> = {
-        1: { principalPaid: 50000, interestPaid: 12000, status: 0, proof: "ipfs://QmMockData1" },
-        2: { principalPaid: 10000, interestPaid: 2500, status: 0, proof: "ipfs://QmMockData2" },
+        1: {
+            principalPaid: 50000,
+            interestPaid: 12000,
+            status: 0,
+            proof: "ipfs://QmMockData1",
+            carbonReduced: 1200, // kg
+            jobsCreated: 15,
+            smeSupported: 8,
+            reportUrl: "https://rwa-report.com/bond-1"
+        },
+        2: {
+            principalPaid: 10000,
+            interestPaid: 2500,
+            status: 0,
+            proof: "ipfs://QmMockData2",
+            carbonReduced: 430,
+            jobsCreated: 4,
+            smeSupported: 2,
+            reportUrl: "https://rwa-report.com/bond-2"
+        },
     };
 
     static async getAssetPerformance(bondId: number) {
@@ -17,7 +35,8 @@ class MockFintechAPI {
         if (Math.random() > 0.7) {
             this.bondData[bondId].interestPaid += 500;
             this.bondData[bondId].principalPaid += 1000;
-            console.log(`[API] Mock Data Updated for Bond #${bondId}: Interest +500`);
+            this.bondData[bondId].carbonReduced += 20;
+            console.log(`[API] Mock Data Updated for Bond #${bondId}: Interest +500, Carbon +20kg`);
         }
         return this.bondData[bondId];
     }
@@ -71,7 +90,7 @@ async function main() {
                     }
 
                     // 5. Execute Update
-                    const updateData = {
+                    const perfData = {
                         timestamp: Math.floor(Date.now() / 1000),
                         principalPaid: ethers.parseUnits(extData.principalPaid.toString(), 18),
                         interestPaid: extInterest,
@@ -79,8 +98,15 @@ async function main() {
                         verifyProof: extData.proof
                     };
 
-                    console.log(`[Bond #${bondId}] Sending update to OracleAdapter...`);
-                    const tx = await oracleAdapter.updateAssetStatus(bondId, updateData);
+                    const impactData = {
+                        carbonReduced: extData.carbonReduced,
+                        jobsCreated: extData.jobsCreated,
+                        smeSupported: extData.smeSupported,
+                        reportUrl: extData.reportUrl
+                    };
+
+                    console.log(`[Bond #${bondId}] Sending update (Performance + Impact) to OracleAdapter...`);
+                    const tx = await oracleAdapter.updateAssetStatus(bondId, perfData, impactData);
                     const receipt = await tx.wait();
                     console.log(`[Bond #${bondId}] Sync successful! Tx: ${receipt.hash}`);
                 } else {

@@ -167,6 +167,9 @@ To ensure the structural integrity and maintainability of the project, all docum
 
 AI agents MUST respect this hierarchy when creating or modifying documents and proactively rebase misplaced files.
 
+### [Document Prefix Numbering Rule]
+When creating or naming documentation files, **prefix numbers must be attached** to indicate the chronological order in which documents were actually worked on. This prefix serves solely as a visual indicator of the sequence of documentation work. While the actual completion status of a document can be determined by dates recorded within the document itself, the prefix number is necessary for quickly identifying the order of document creation and should always be included when writing documentation.
+
 
 [CRITICAL: DATABASE INTEGRITY RULE] You are strictly prohibited from performing any database operations, including migrations, schema resets, or structural changes, without first creating a complete data backup (dump). Data preservation is your absolute priority. Never execute destructive commands like 'DROP TABLE' or 'migrate reset' until a verifiable backup has been secured and confirmed.
 

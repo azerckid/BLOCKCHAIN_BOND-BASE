@@ -32,6 +32,12 @@ export function AdvancedOracleModule() {
     const [status, setStatus] = React.useState("0"); // 0: Active, 1: Repaid, 2: Default
     const [verifyProof, setVerifyProof] = React.useState("");
 
+    // ESG Impact Data State
+    const [carbonReduced, setCarbonReduced] = React.useState("");
+    const [jobsCreated, setJobsCreated] = React.useState("");
+    const [smeSupported, setSmeSupported] = React.useState("");
+    const [reportUrl, setReportUrl] = React.useState("");
+
     const [step, setStep] = React.useState<"idle" | "approving" | "updating" | "success">("idle");
     const [txHash, setTxHash] = React.useState<`0x${string}` | undefined>();
 
@@ -113,18 +119,24 @@ export function AdvancedOracleModule() {
     const handleUpdate = async () => {
         try {
             setStep("updating");
-            const data = {
+            const perf = {
                 timestamp: BigInt(Math.floor(Date.now() / 1000)),
                 principalPaid: principalInWei,
                 interestPaid: interestInWei,
                 status: Number(status),
                 verifyProof: verifyProof || "Simulation Proof"
             };
+            const impact = {
+                carbonReduced: BigInt(carbonReduced || 0),
+                jobsCreated: BigInt(jobsCreated || 0),
+                smeSupported: BigInt(smeSupported || 0),
+                reportUrl: reportUrl || ""
+            };
             const hash = await updateStatus({
                 address: CONTRACTS.OracleAdapter.address as `0x${string}`,
                 abi: CONTRACTS.OracleAdapter.abi,
                 functionName: "updateAssetStatus",
-                args: [BigInt(bondId), data],
+                args: [BigInt(bondId), perf, impact],
             });
             setTxHash(hash);
         } catch (error) {
@@ -266,6 +278,52 @@ export function AdvancedOracleModule() {
                                         className="h-14 pl-12 rounded-2xl bg-neutral-50 border-neutral-100 font-bold focus:bg-white transition-all shadow-inner"
                                         placeholder="ipfs://Qm..."
                                     />
+                                </div>
+                            </div>
+
+                            {/* ESG Impact Section */}
+                            <div className="p-6 bg-emerald-50/50 rounded-3xl border border-emerald-100 space-y-4">
+                                <Label className="text-[10px] font-black text-emerald-900 uppercase tracking-widest block">ESG Impact Metrics</Label>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1">
+                                        <Label className="text-[9px] font-black text-neutral-400 uppercase">Carbon (kg)</Label>
+                                        <Input
+                                            type="number"
+                                            value={carbonReduced}
+                                            onChange={e => setCarbonReduced(e.target.value)}
+                                            className="h-10 rounded-xl bg-white border-neutral-100 font-bold text-xs"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-[9px] font-black text-neutral-400 uppercase">Jobs Created</Label>
+                                        <Input
+                                            type="number"
+                                            value={jobsCreated}
+                                            onChange={e => setJobsCreated(e.target.value)}
+                                            className="h-10 rounded-xl bg-white border-neutral-100 font-bold text-xs"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1">
+                                        <Label className="text-[9px] font-black text-neutral-400 uppercase">SMEs Support</Label>
+                                        <Input
+                                            type="number"
+                                            value={smeSupported}
+                                            onChange={e => setSmeSupported(e.target.value)}
+                                            className="h-10 rounded-xl bg-white border-neutral-100 font-bold text-xs"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-[9px] font-black text-neutral-400 uppercase">Report URL</Label>
+                                        <Input
+                                            type="text"
+                                            value={reportUrl}
+                                            onChange={e => setReportUrl(e.target.value)}
+                                            className="h-10 rounded-xl bg-white border-neutral-100 font-bold text-xs"
+                                            placeholder="https://..."
+                                        />
+                                    </div>
                                 </div>
                             </div>
 

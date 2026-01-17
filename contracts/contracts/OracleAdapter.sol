@@ -18,9 +18,8 @@ contract OracleAdapter is IOracleAdapter, AccessControl {
 
     // History of asset performances per bondId
     mapping(uint256 => AssetPerformance) private _assetPerformances;
-
-    // Mapping of trusted oracles for additional security check if needed
-    mapping(address => bool) public trustedOracles;
+    // History of impact data per bondId
+    mapping(uint256 => ImpactData) private _impactData;
 
     /**
      * @dev Constructor sets the YieldDistributor and USDC token addresses.
@@ -42,44 +41,54 @@ contract OracleAdapter is IOracleAdapter, AccessControl {
     /**
      * @dev Main entry point for the Oracle Node to push asset data.
      * @param bondId The bond ID to update.
-     * @param data Structured performance data.
+     * @param perf Structured performance data.
+     * @param impact ESG impact data.
      */
-    function updateAssetStatus(uint256 bondId, AssetPerformance calldata data) 
+    function updateAssetStatus(
+        uint256 bondId, 
+        AssetPerformance calldata perf, 
+        ImpactData calldata impact
+    ) 
         external 
         onlyRole(ORACLE_ROLE) 
     {
         // 1. Validations
-        require(data.timestamp > 0, "Invalid timestamp");
-        require(data.timestamp <= block.timestamp, "Future timestamp not allowed");
+        require(perf.timestamp > 0, "Invalid timestamp");
+        require(perf.timestamp <= block.timestamp, "Future timestamp not allowed");
         
         // 2. Logic for interest distribution
-        // If there is new interest paid, distribute it to Bond Holders
-        if (data.interestPaid > _assetPerformances[bondId].interestPaid) {
-            uint256 newInterest = data.interestPaid - _assetPerformances[bondId].interestPaid;
+        if (perf.interestPaid > _assetPerformances[bondId].interestPaid) {
+            uint256 newInterest = perf.interestPaid - _assetPerformances[bondId].interestPaid;
             
-            // Pull USDC from the oracle (the caller) to this contract
-            // The oracle must have approved this contract to spend USDC
             bool success = usdcToken.transferFrom(msg.sender, address(this), newInterest);
             require(success, "USDC transfer from Oracle failed");
 
-            // Approve YieldDistributor to spend USDC
             usdcToken.approve(address(yieldDistributor), newInterest);
-
-            // Notify YieldDistributor to distribute the yield
             yieldDistributor.depositYield(bondId, newInterest);
         }
 
         // 3. Update internal storage
-        _assetPerformances[bondId] = data;
+        _assetPerformances[bondId] = perf;
+        _impactData[bondId] = impact;
 
-        // 4. Emit event for off-chain tracking
+        // 4. Emit event
         emit AssetStatusUpdated(
             bondId, 
-            data.principalPaid, 
-            data.interestPaid, 
-            data.status, 
-            data.verifyProof
+            perf.principalPaid, 
+            perf.interestPaid, 
+            perf.status, 
+            perf.verifyProof,
+            impact.carbonReduced,
+            impact.jobsCreated,
+            impact.smeSupported
         );
+    }
+
+    /**
+     * @dev View function to get ESG impact data.
+     */
+    function getImpactData(uint256 bondId) external view override returns (ImpactData memory) {
+        return _impactData[bondId];
     }
 
     /**

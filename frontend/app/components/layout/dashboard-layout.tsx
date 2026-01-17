@@ -9,7 +9,8 @@ import {
     Logout01Icon,
     Notification01Icon,
     Menu01Icon,
-    Comment01Icon
+    Comment01Icon,
+    GlobalIcon
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -51,6 +52,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         { to: "/", icon: Home01Icon, label: "Dashboard" },
         { to: "/bonds", icon: Database01Icon, label: "Bond Market" },
         { to: "/portfolio", icon: Wallet01Icon, label: "My Portfolio" },
+        { to: "/impact", icon: GlobalIcon, label: "Impact Map" },
         { to: "/ai-guide", icon: Comment01Icon, label: "AI Guide" },
         { to: "/settings", icon: Settings02Icon, label: "Settings" },
     ];

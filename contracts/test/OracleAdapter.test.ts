@@ -80,14 +80,21 @@ describe("OracleAdapter (Integration)", function () {
             verifyProof: proof
         };
 
+        const impactData = {
+            carbonReduced: 100,
+            jobsCreated: 5,
+            smeSupported: 2,
+            reportUrl: "https://rwa-report.com/1"
+        };
+
         // Oracle Node needs USDC to distribute interest
         await usdcToken.mint(oracleNode.address, interestAmount);
         await usdcToken.connect(oracleNode).approve(await oracleAdapter.getAddress(), interestAmount);
 
         // Update status through OracleAdapter
-        await expect(oracleAdapter.connect(oracleNode).updateAssetStatus(BOND_ID, performanceData))
+        await expect(oracleAdapter.connect(oracleNode).updateAssetStatus(BOND_ID, performanceData, impactData))
             .to.emit(oracleAdapter, "AssetStatusUpdated")
-            .withArgs(BOND_ID, principalAmount, interestAmount, 0, proof)
+            .withArgs(BOND_ID, principalAmount, interestAmount, 0, proof, 100, 5, 2)
             .and.to.emit(yieldDistributor, "YieldDeposited")
             .withArgs(BOND_ID, interestAmount);
 
@@ -116,6 +123,11 @@ describe("OracleAdapter (Integration)", function () {
             interestPaid: initialInterest,
             status: 0,
             verifyProof: "proof1"
+        }, {
+            carbonReduced: 50,
+            jobsCreated: 2,
+            smeSupported: 1,
+            reportUrl: ""
         });
 
         // 2nd update with additional interest
@@ -133,6 +145,11 @@ describe("OracleAdapter (Integration)", function () {
             interestPaid: totalInterest,
             status: 0,
             verifyProof: "proof2"
+        }, {
+            carbonReduced: 80,
+            jobsCreated: 3,
+            smeSupported: 1,
+            reportUrl: ""
         }))
             .to.emit(yieldDistributor, "YieldDeposited")
             .withArgs(BOND_ID, additionalInterest);
@@ -149,7 +166,13 @@ describe("OracleAdapter (Integration)", function () {
             status: 0,
             verifyProof: ""
         };
-        await expect(oracleAdapter.connect(user1).updateAssetStatus(BOND_ID, performanceData))
+        const impactData = {
+            carbonReduced: 0,
+            jobsCreated: 0,
+            smeSupported: 0,
+            reportUrl: ""
+        };
+        await expect(oracleAdapter.connect(user1).updateAssetStatus(BOND_ID, performanceData, impactData))
             .to.be.revertedWithCustomError(oracleAdapter, "AccessControlUnauthorizedAccount");
     });
 });

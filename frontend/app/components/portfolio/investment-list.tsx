@@ -20,6 +20,7 @@ import { CONTRACTS } from "@/config/contracts";
 import { MOCK_BONDS } from "@/routes/bonds";
 import type { BondProps } from "@/components/bonds/bond-card";
 import { toast } from "sonner";
+import { ImpactSummary } from "./impact-summary";
 
 // Component for individual row to handle its own hooks
 function InvestmentRow({ inv, address }: { inv: any, address: `0x${string}` }) {
@@ -204,6 +205,11 @@ function InvestmentRow({ inv, address }: { inv: any, address: `0x${string}` }) {
             <div className="text-right hidden md:block">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Term</p>
                 <p className="text-sm font-bold text-neutral-900">{inv.term}</p>
+            </div>
+
+            {/* Impact Section - Shown inside the card or expanded */}
+            <div className="w-full xl:col-span-3 border-t border-neutral-200/50 pt-4 mt-2">
+                <ImpactSummary bondId={inv.id} />
             </div>
         </div>
     );

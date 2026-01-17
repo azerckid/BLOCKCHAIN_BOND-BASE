@@ -23,22 +23,45 @@ interface IOracleAdapter {
     }
 
     /**
-     * @dev Emitted when an asset status is updated.
+     * @dev Struct to store ESG impact data.
+     */
+    struct ImpactData {
+        uint256 carbonReduced; // kg
+        uint256 jobsCreated;
+        uint256 smeSupported;
+        string reportUrl;      // External ESG report
+    }
+
+    /**
+     * @dev Emitted when an asset status and impact data are updated.
      */
     event AssetStatusUpdated(
         uint256 indexed bondId,
         uint256 principalPaid,
         uint256 interestPaid,
         uint8 status,
-        string verifyProof
+        string verifyProof,
+        uint256 carbonReduced,
+        uint256 jobsCreated,
+        uint256 smeSupported
     );
 
     /**
-     * @dev Updates the asset performance data and triggers yield distribution if interest is paid.
+     * @dev Updates the asset performance data and ESG impact.
      * @param bondId The ID of the bond being updated.
-     * @param data The performance data to record.
+     * @param perf The performance data to record.
+     * @param impact The ESG impact data.
      */
-    function updateAssetStatus(uint256 bondId, AssetPerformance calldata data) external;
+    function updateAssetStatus(
+        uint256 bondId, 
+        AssetPerformance calldata perf, 
+        ImpactData calldata impact
+    ) external;
+
+    /**
+     * @dev Returns the last recorded impact data for a bond.
+     */
+    function getImpactData(uint256 bondId) external view returns (ImpactData memory);
 
     /**
      * @dev Returns the last recorded performance data for a bond.
