@@ -38,7 +38,7 @@ export default function PortfolioPage() {
         address: CONTRACTS.YieldDistributor.address as `0x${string}`,
         abi: CONTRACTS.YieldDistributor.abi,
         functionName: "earned",
-        args: address ? [address] : undefined,
+        args: address ? [address, BigInt(1)] : undefined,
         query: { enabled: !!address, refetchInterval: 5000 }
     });
 
@@ -59,6 +59,7 @@ export default function PortfolioPage() {
             address: CONTRACTS.YieldDistributor.address as `0x${string}`,
             abi: CONTRACTS.YieldDistributor.abi,
             functionName: "claimYield",
+            args: [BigInt(1)],
         });
     };
 
