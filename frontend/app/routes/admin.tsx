@@ -15,6 +15,7 @@ import {
 } from "@hugeicons/core-free-icons";
 
 import { YieldDepositModule } from "@/components/admin/yield-deposit-module";
+import { OracleTriggerModule } from "@/components/admin/oracle-trigger-module";
 
 // DISTRIBUTOR_ROLE hash: keccak256("DISTRIBUTOR_ROLE")
 const DISTRIBUTOR_ROLE = "0xfbd454f36a7e1a388bd6fc3ab10d434aa4578f811acbbcf33afb1c697486313c";
@@ -121,7 +122,18 @@ export default function AdminPage() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
                     {/* Left: Yield Distribution Module */}
-                    <div className="lg:col-span-12 xl:col-span-7">
+                    <div className="lg:col-span-12 xl:col-span-7 space-y-10">
+                        <OracleTriggerModule />
+
+                        <div className="relative py-4">
+                            <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                                <div className="w-full border-t border-neutral-200"></div>
+                            </div>
+                            <div className="relative flex justify-center">
+                                <span className="bg-white px-4 text-[10px] font-black text-neutral-400 uppercase tracking-widest">Protocol Owner Override</span>
+                            </div>
+                        </div>
+
                         <YieldDepositModule />
                     </div>
 
