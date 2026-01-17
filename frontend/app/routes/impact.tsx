@@ -5,14 +5,14 @@ import {
     Tree01Icon,
     UserGroupIcon,
     Analytics01Icon,
-    Location01Icon,
+    Settings02Icon,
     Chart01Icon,
-    Settings02Icon
+    Location01Icon
 } from "@hugeicons/core-free-icons";
 import { useReadContract } from "wagmi";
 import { CONTRACTS } from "@/config/contracts";
 import { MOCK_BONDS } from "./bonds";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
     BarChart,
     Bar,
@@ -23,6 +23,13 @@ import {
     ResponsiveContainer,
     Cell
 } from "recharts";
+import {
+    APIProvider,
+    Map,
+    Marker,
+    InfoWindow,
+    useApiIsLoaded
+} from "@vis.gl/react-google-maps";
 
 const STAT_CARDS = [
     { label: "Total Carbon Reduced", value: "2,430 kg", icon: Tree01Icon, color: "text-emerald-600", bg: "bg-emerald-50" },
@@ -30,8 +37,28 @@ const STAT_CARDS = [
     { label: "Community ESG Score", value: "A+", icon: Analytics01Icon, color: "text-indigo-600", bg: "bg-indigo-50" },
 ];
 
+const DARK_MAP_STYLE = [
+    { elementType: "geometry", stylers: [{ color: "#212121" }] },
+    { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+    { elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+    { elementType: "labels.text.stroke", stylers: [{ color: "#212121" }] },
+    { featureType: "administrative", elementType: "geometry", stylers: [{ color: "#757575" }] },
+    { featureType: "administrative.country", elementType: "labels.text.fill", stylers: [{ color: "#9e9e9e" }] },
+    { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
+    { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#bdbdbd" }] },
+    { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+    { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#181818" }] },
+    { featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#616161" }] },
+    { featureType: "road", elementType: "geometry.fill", stylers: [{ color: "#2c2c2c" }] },
+    { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#8a8a8a" }] },
+    { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#3c3c3c" }] },
+    { featureType: "water", elementType: "geometry", stylers: [{ color: "#000000" }] },
+    { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#3d3d3d" }] },
+];
+
 export default function ImpactPage() {
     const [activeBond, setActiveBond] = useState(MOCK_BONDS[0]);
+    const [infoWindowShown, setInfoWindowShown] = useState<string | null>(null);
 
     // In a real app, we would aggregate all bonds' impact data
     const { data: impact } = useReadContract({
@@ -55,6 +82,11 @@ export default function ImpactPage() {
     ];
 
     const COLORS = ["#10b981", "#3b82f6", "#6366f1"];
+
+    const handleMarkerClick = useCallback((bond: typeof MOCK_BONDS[0]) => {
+        setActiveBond(bond);
+        setInfoWindowShown(bond.id);
+    }, []);
 
     return (
         <DashboardLayout>
@@ -89,44 +121,72 @@ export default function ImpactPage() {
 
                 {/* Main Content Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-                    {/* Left: Interactive Map/Visualization (Stylized) */}
+                    {/* Left: Interactive Map */}
                     <div className="lg:col-span-3 space-y-6">
-                        <div className="bg-neutral-900 rounded-[3rem] p-8 min-h-[500px] relative overflow-hidden flex flex-col items-center justify-center text-center shadow-2xl shadow-neutral-200 group">
-                            {/* Decorative Grid */}
-                            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
-
-                            {/* Stylized Africa SVG or Map Placeholder */}
-                            <div className="relative z-10 w-full max-w-lg aspect-square flex items-center justify-center">
-                                <div className="absolute inset-0 bg-indigo-500/20 blur-[120px] rounded-full animate-pulse" />
-                                <div className="text-white space-y-4">
-                                    <HugeiconsIcon icon={Location01Icon} size={64} className="mx-auto text-indigo-400 animate-bounce" />
-                                    <h2 className="text-3xl font-black uppercase tracking-tighter">BondBase Global Impact Hub</h2>
-                                    <p className="text-neutral-400 font-bold max-w-sm mx-auto leading-relaxed">
-                                        Visualizing social and environmental pulse across our investment regions.
-                                    </p>
-
-                                    {/* Active Pulse Markers */}
-                                    <div className="flex gap-2 flex-wrap justify-center mt-12 px-4">
+                        <div className="bg-neutral-900 rounded-[3.5rem] p-4 min-h-[600px] relative overflow-hidden shadow-2xl shadow-neutral-200 border-8 border-neutral-800">
+                            <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+                                <div className="absolute inset-0">
+                                    <Map
+                                        defaultCenter={{ lat: 13.7563, lng: 100.5018 }}
+                                        defaultZoom={6}
+                                        gestureHandling={'greedy'}
+                                        disableDefaultUI={true}
+                                        styles={DARK_MAP_STYLE}
+                                        className="w-full h-full grayscale-[0.5] contrast-[1.2]"
+                                    >
                                         {MOCK_BONDS.map((bond) => (
-                                            <button
+                                            <Marker
                                                 key={bond.id}
-                                                onClick={() => setActiveBond(bond)}
-                                                className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase transition-all border ${activeBond.id === bond.id
-                                                    ? 'bg-white text-neutral-900 border-white scale-110 shadow-lg'
-                                                    : 'bg-neutral-800 text-neutral-400 border-neutral-700 hover:border-neutral-500'
-                                                    }`}
-                                            >
-                                                {bond.location.split(',')[0]}
-                                            </button>
+                                                position={{ lat: bond.lat, lng: bond.lng }}
+                                                onClick={() => handleMarkerClick(bond)}
+                                            />
                                         ))}
+
+                                        {infoWindowShown && (
+                                            <InfoWindow
+                                                position={{
+                                                    lat: MOCK_BONDS.find(b => b.id === infoWindowShown)?.lat || 0,
+                                                    lng: MOCK_BONDS.find(b => b.id === infoWindowShown)?.lng || 0
+                                                }}
+                                                onCloseClick={() => setInfoWindowShown(null)}
+                                            >
+                                                <div className="p-2 space-y-2 max-w-[200px]">
+                                                    <p className="text-[10px] font-black text-indigo-600 uppercase italic">Active RWA Node</p>
+                                                    <h4 className="font-black text-neutral-900 leading-tight">{MOCK_BONDS.find(b => b.id === infoWindowShown)?.title}</h4>
+                                                    <p className="text-[9px] text-neutral-500 font-bold">{MOCK_BONDS.find(b => b.id === infoWindowShown)?.location}</p>
+                                                </div>
+                                            </InfoWindow>
+                                        )}
+                                    </Map>
+                                </div>
+                            </APIProvider>
+
+                            {/* Overlay Controls */}
+                            <div className="absolute top-6 left-6 z-10 bg-neutral-900/80 backdrop-blur-xl p-4 rounded-3xl border border-white/10 shadow-2xl">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                                     </div>
+                                    <span className="text-[10px] font-black text-white uppercase tracking-widest whitespace-nowrap">Global RWA Hub - Live</span>
                                 </div>
                             </div>
 
-                            {/* Bottom Label */}
-                            <div className="absolute bottom-8 left-10 flex items-center gap-2">
-                                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
-                                <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em]">Live from Smart Oracles</span>
+                            <div className="absolute bottom-6 right-6 z-10 flex gap-2">
+                                {MOCK_BONDS.slice(0, 3).map((bond) => (
+                                    <button
+                                        key={bond.id}
+                                        onClick={() => {
+                                            setActiveBond(bond);
+                                            setInfoWindowShown(bond.id);
+                                        }}
+                                        className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase transition-all backdrop-blur-xl border ${activeBond.id === bond.id
+                                                ? 'bg-white text-neutral-900 border-white shadow-xl scale-105'
+                                                : 'bg-neutral-800/60 text-neutral-400 border-white/5 hover:border-white/20'
+                                            }`}
+                                    >
+                                        {bond.location.split(',')[0]}
+                                    </button>
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -138,10 +198,13 @@ export default function ImpactPage() {
                             <div className="space-y-1">
                                 <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 border-none font-black text-[10px] uppercase">{activeBond.category}</Badge>
                                 <h2 className="text-2xl font-black text-neutral-900 leading-tight">{activeBond.title}</h2>
-                                <p className="text-sm font-bold text-neutral-400">Impact Metrics Distribution</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <HugeiconsIcon icon={Location01Icon} size={14} className="text-neutral-400" />
+                                    <p className="text-sm font-bold text-neutral-400">{activeBond.location}</p>
+                                </div>
                             </div>
 
-                            <div className="h-[250px] w-full">
+                            <div className="h-[250px] w-full mt-4">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart data={chartData} layout="vertical" margin={{ left: -20, right: 20 }}>
                                         <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f5f5f5" />
@@ -188,7 +251,7 @@ export default function ImpactPage() {
                                     "Beyond the financial return, your investments represent tangible growth for local communities and a greener future."
                                 </p>
                                 <button className="pt-2 text-[11px] font-black uppercase tracking-widest flex items-center gap-2 hover:translate-x-1 transition-transform">
-                                    Download Impact Portfoio <HugeiconsIcon icon={Location01Icon} size={12} />
+                                    Download Impact Portfolio <HugeiconsIcon icon={Location01Icon} size={12} />
                                 </button>
                             </div>
                         </div>

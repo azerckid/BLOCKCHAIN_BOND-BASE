@@ -37,6 +37,8 @@ export const MOCK_BONDS: BondProps[] = [
         remainingAmount: "$1.2M",
         status: "active",
         category: "Real Estate",
+        lat: 13.7563,
+        lng: 100.5018,
     },
     {
         id: "2",
@@ -50,6 +52,8 @@ export const MOCK_BONDS: BondProps[] = [
         remainingAmount: "$0.4M",
         status: "active",
         category: "Agriculture",
+        lat: 18.7883,
+        lng: 98.9853,
     },
     {
         id: "3",
@@ -63,6 +67,8 @@ export const MOCK_BONDS: BondProps[] = [
         remainingAmount: "$3.1M",
         status: "active",
         category: "Energy",
+        lat: 7.8804,
+        lng: 98.3923,
     },
     {
         id: "4",
@@ -76,6 +82,8 @@ export const MOCK_BONDS: BondProps[] = [
         remainingAmount: "$2.8M",
         status: "active",
         category: "Logistics",
+        lat: 13.7367,
+        lng: 100.5231,
     },
     {
         id: "5",
@@ -89,6 +97,8 @@ export const MOCK_BONDS: BondProps[] = [
         remainingAmount: "$0.1M",
         status: "active",
         category: "Agriculture",
+        lat: 12.6814,
+        lng: 101.2816,
     }
 ];
 

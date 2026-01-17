@@ -26,6 +26,8 @@ export interface BondProps {
     loanAmount: number;
     status: "active" | "funded" | "pending";
     category: string;
+    lat: number;
+    lng: number;
 }
 
 export function BondCard({ bond }: { bond: BondProps }) {
