@@ -13,6 +13,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { HelpGuide } from "./help-guide";
 
 interface NavItemProps {
     to: string;
@@ -144,6 +145,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     {children}
                 </div>
             </main>
+            <HelpGuide />
         </div>
     );
 }
