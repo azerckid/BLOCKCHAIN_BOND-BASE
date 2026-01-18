@@ -11,7 +11,6 @@ import {
     Settings02Icon,
     AiChat02Icon,
     ZapIcon,
-    RefreshIcon,
     WasteIcon
 } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";

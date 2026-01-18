@@ -12,7 +12,6 @@ import {
     Tick01Icon,
     Loading03Icon,
     Alert01Icon,
-    SafeIcon,
     Wallet02Icon
 } from "@hugeicons/core-free-icons";
 

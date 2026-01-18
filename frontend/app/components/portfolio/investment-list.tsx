@@ -3,11 +3,7 @@ import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
     Clock01Icon,
-    Shield01Icon,
-    ArrowRight01Icon,
-    ActivityIcon,
-    Link01Icon,
-    LockIcon
+    Link01Icon
 } from "@hugeicons/core-free-icons";
 import { Progress } from "@/components/ui/progress";
 

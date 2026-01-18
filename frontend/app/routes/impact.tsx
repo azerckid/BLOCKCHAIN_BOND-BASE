@@ -27,8 +27,7 @@ import {
     APIProvider,
     Map,
     Marker,
-    InfoWindow,
-    useApiIsLoaded
+    InfoWindow
 } from "@vis.gl/react-google-maps";
 
 const STAT_CARDS = [

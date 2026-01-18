@@ -3,9 +3,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import {
     Tree01Icon,
     UserGroupIcon,
-    GlobalIcon,
-    LicenseIcon,
-    Analytics01Icon
+    GlobalIcon
 } from "@hugeicons/core-free-icons";
 import { useReadContract } from "wagmi";
 import { CONTRACTS } from "@/config/contracts";
