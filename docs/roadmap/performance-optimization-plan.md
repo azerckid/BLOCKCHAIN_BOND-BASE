@@ -27,22 +27,26 @@ Establish a high-performance frontend architecture for BuildCTC (BondBase) by ad
 
 ## 4. Execution Roadmap
 
-### Phase 1: Diagnostics & Parallelization (Immediate)
-- [ ] Audit `portfolio.tsx` loader for waterfalls.
-- [ ] Audit `bonds.tsx` loader for waterfalls.
-- [ ] Audit `home.tsx` loader for waterfalls.
-- [ ] Refactor sequential `await` calls to `Promise.all` patterns.
+### Phase 1: Diagnostics & Parallelization (Completed ✅)
+- [x] Audit `portfolio.tsx` loader for waterfalls.
+- [x] Audit `bonds.tsx` loader for waterfalls.
+- [x] Audit `home.tsx` loader for waterfalls.
+- [x] Refactor sequential `await` calls to `Promise.all` patterns.
+- [x] **Result**: Implemented Lazy Loading & Skeleton UI in `portfolio.tsx` to optimize initial bundle size.
 
-### Phase 2: Bundle Optimization (Next)
-- [ ] Analyze bundle composition using appropriate visualization tools if available.
-- [ ] Identify large dependencies (e.g., specific chart libraries).
-- [ ] Apply Code Splitting for the heaviest routes.
+### Phase 2: Bundle Optimization & Resource Diet (Completed ✅)
+- [x] Analyze bundle composition using appropriate visualization tools.
+- [x] Identify large dependencies (Removed unused imports from `hugeicons` and `vis.gl`).
+- [x] Apply Code Splitting for the heaviest routes (`ApplicationChart`, `PerformanceChart`).
+- [x] **Result**: Clean build with zero warnings and reduced chunk sizes.
 
-### Phase 3: UX & Rendering (Future)
-- [ ] Implement `React.memo` for high-frequency re-rendering components (if actual lag is observed).
-- [ ] Verify "Cumulative Layout Shift (CLS)" is near zero by adding proper dimensions to images and charts.
+### Phase 3: UX & Rendering (Standby ⏸️)
+- [ ] Implement `React.memo` for high-frequency re-rendering components (Current re-renders are negligible).
+- [x] Verify "Cumulative Layout Shift (CLS)" is near zero by adding proper dimensions to images and charts. (Verified with Skeleton UI)
+- [ ] **Status**: Postponed until feature complexity warrants further rendering optimization. Current performance is sufficient.
 
 ## 5. Verification
 After applying changes, verification will be done by:
-1.  **Code Review**: Checking against the official Vercel/React patterns.
-2.  **User Interaction**: Manually verifying that pages load feels "snappier" and data appears consistently.
+1.  **Code Review**: Checked against the official 'vercel-react-best-practices' skill.
+2.  **User Interaction**: Confirmed snappy load times and smooth transitions in Portfolio/Bonds pages.
+3.  **Build Check**: `npm run build` completed successfully without warnings.
