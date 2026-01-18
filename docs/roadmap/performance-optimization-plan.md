@@ -40,10 +40,12 @@ Establish a high-performance frontend architecture for BuildCTC (BondBase) by ad
 - [x] Apply Code Splitting for the heaviest routes (`ApplicationChart`, `PerformanceChart`).
 - [x] **Result**: Clean build with zero warnings and reduced chunk sizes.
 
-### Phase 3: UX & Rendering (Standby ⏸️)
-- [ ] Implement `React.memo` for high-frequency re-rendering components (Current re-renders are negligible).
-- [x] Verify "Cumulative Layout Shift (CLS)" is near zero by adding proper dimensions to images and charts. (Verified with Skeleton UI)
-- [ ] **Status**: Postponed until feature complexity warrants further rendering optimization. Current performance is sufficient.
+### Phase 3: UX & Rendering (Completed - Bonus Scope ✅)
+- [x] **Advanced Rendering**: Applied `content-visibility: auto` to BondMarket list for scroll performance optimization (`rendering-content-visibility`).
+- [x] **Logic Optimization**: Refactored `InvestmentList` with Early Return pattern for readability (`js-early-exit`).
+- [x] Verify "Cumulative Layout Shift (CLS)" is near zero. (Verified with Skeleton UI & SVG)
+- [ ] Implement `React.memo` (Deferred: No bottleneck detected).
+- [x] **Status**: Critical rendering paths optimized. Advanced patterns applied successfully.
 
 ## 5. Verification
 After applying changes, verification will be done by:
