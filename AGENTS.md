@@ -27,9 +27,7 @@ BuildCTC is a Real World Assets (RWA) Yield Protocol built on Creditcoin 2.0 tha
 - **Regulatory Compliance**: Must comply with Thai financial regulations and cross-border capital movement regulations
 - **Token Model**: ERC-1155 fractional tokens for flexible asset division and trading
 
-## Communication Rules
-- **[No Emojis]** 사용자와의 모든 채팅 대화에서 이모지(Emoji) 및 이모티콘(Emoticon) 사용을 전면 금지합니다.
-- **[Documentation-First Implementation]** If the USER requests a task or technical implementation that is not defined in the existing documentation, you must first clarify that it is outside the current scope and ask if the documentation should be updated before proceeding with the implementation. (문서에 정의되지 않은 작업을 수행하기 전, 반드시 문서 업데이트 여부를 먼저 확인하십시오.)
+
 
 ## Setup Commands
 
@@ -131,6 +129,10 @@ BuildCTC is a Real World Assets (RWA) Yield Protocol built on Creditcoin 2.0 tha
   - Handle network switching (Creditcoin mainnet/testnet)
   - Show transaction status (pending, success, failed)
 
+## Communication Rules
+- **[No Emojis]** 사용자와의 모든 채팅 대화에서 이모지(Emoji) 및 이모티콘(Emoticon) 사용을 전면 금지합니다.
+- **[Documentation-First Implementation]** If the USER requests a task or technical implementation that is not defined in the existing documentation, you must first clarify that it is outside the current scope and ask if the documentation should be updated before proceeding with the implementation. (문서에 정의되지 않은 작업을 수행하기 전, 반드시 문서 업데이트 여부를 먼저 확인하십시오.)
+
 ### Git
 - Git commit messages must follow Conventional Commits in Korean
 - Format: `type(scope): description`
@@ -140,19 +142,15 @@ BuildCTC is a Real World Assets (RWA) Yield Protocol built on Creditcoin 2.0 tha
 ## Workflow & Safety
 - **[Safe Checkpoint Strategy]** 새로운 작업이나 중요한 변경(새 파일 생성, DB 스키마 수정, 패키지 설치 등)을 시작하기 전에, 반드시 현재 상태를 git commit하거나 작업 디렉토리가 깨끗한지 확인을 요청해야 합니다.
 
-## Communication Rules
-- **[No Emojis]** 사용자와의 모든 채팅 대화에서 이모지(Emoji) 및 이모티콘(Emoticon) 사용을 전면 금지합니다. 텍스트와 코드만으로 명확하게 정보를 전달하십시오.
-
 ## Testing Instructions
 - Currently, tests are being integrated as part of the development phase (Phase 9).
 - Run available tests using: `npm test`
 
-## Key Documentation
+## Documentation Standards
+
+### Key Documents
 - `docs/PLAN.md`: 프로젝트 기획서 및 비즈니스 모델
 - `docs/IMPLEMENTATION_PLAN.md`: 개발 구현 계획서 및 기술 아키텍처
-- `docs/core/`: 시스템 설계 문서, DB 스키마, 표준 규칙
-- `docs/features/`: 기능별 상세 명세서
-- `docs/roadmap/`: 향후 구현 계획 및 전략 제안
 
 ### [Strict Document Hierarchy Rule]
 To ensure the structural integrity and maintainability of the project, all documentation within the `docs/` directory must be strictly categorized into the following 7 core sub-directories (as defined in `DOCUMENT_MANAGEMENT_PLAN.md`):
@@ -171,34 +169,51 @@ AI agents MUST respect this hierarchy when creating or modifying documents and p
 When creating or naming documentation files, **prefix numbers must be attached** to indicate the chronological order in which documents were actually worked on. This prefix serves solely as a visual indicator of the sequence of documentation work. While the actual completion status of a document can be determined by dates recorded within the document itself, the prefix number is necessary for quickly identifying the order of document creation and should always be included when writing documentation.
 
 
-[CRITICAL: DATABASE INTEGRITY RULE] You are strictly prohibited from performing any database operations, including migrations, schema resets, or structural changes, without first creating a complete data backup (dump). Data preservation is your absolute priority. Never execute destructive commands like 'DROP TABLE' or 'migrate reset' until a verifiable backup has been secured and confirmed.
+## Development Standards & Critical Rules
 
-[MANDATORY BACKUP PROCEDURE] Before initiating any database-related tasks, you must perform a full export of all existing records. This is a non-negotiable prerequisite for any migration or schema update. You must ensure that both user-generated content and administrative data are fully protected against loss before any changes are applied.
+### [CRITICAL: DATABASE INTEGRITY RULE]
+You are strictly prohibited from performing any database operations, including migrations, schema resets, or structural changes, without first creating a complete data backup (dump). Data preservation is your absolute priority. Never execute destructive commands like 'DROP TABLE' or 'migrate reset' until a verifiable backup has been secured and confirmed.
 
-[STRICT ADHERENCE TO STANDARDS] Never suggest or implement "quick fixes," "short-cuts," or temporary workarounds. You must always prioritize formal, standardized, and industry-best-practice methodologies. All proposed solutions must be production-ready and architecturally sound, focusing on long-term stability and correctness over immediate speed.
+### [MANDATORY BACKUP PROCEDURE]
+Before initiating any database-related tasks, you must perform a full export of all existing records. This is a non-negotiable prerequisite for any migration or schema update. You must ensure that both user-generated content and administrative data are fully protected against loss before any changes are applied.
 
-[NO TEMPORARY PATCHES] You are strictly forbidden from proposing temporary bypasses or "quick-and-dirty" solutions. Every recommendation and implementation must follow the most formal and correct path. Prioritize robustness and adherence to professional engineering standards in every decision, ensuring that no technical debt is introduced for the sake of convenience.
+### [STRICT ADHERENCE TO STANDARDS]
+Never suggest or implement "quick fixes," "short-cuts," or temporary workarounds. You must always prioritize formal, standardized, and industry-best-practice methodologies. All proposed solutions must be production-ready and architecturally sound, focusing on long-term stability and correctness over immediate speed.
 
-[Side-Effect Isolation] When modifying shared components or logic, you MUST analyze the 'Impact Scope' first. Ensure that changes intended for a specific use case (e.g., AI features) do not inadvertently affect general functionality (e.g., normal chat). You MUST strictly isolate such logic using conditional checks or specific guards.
+### [NO TEMPORARY PATCHES]
+You are strictly forbidden from proposing temporary bypasses or "quick-and-dirty" solutions. Every recommendation and implementation must follow the most formal and correct path. Prioritize robustness and adherence to professional engineering standards in every decision, ensuring that no technical debt is introduced for the sake of convenience.
 
-[Strict Document Integrity Rule] When updating or modifying any strategy, implementation, or design documents, you MUST strictly preserve the existing framework, formatting, and structural integrity. Do not perform total overwrites that discard previous detailed technical specifications, historical context, or complex logic. All updates must be made incrementally and appropriately integrated into the current structure to ensure no data loss or architectural context is sacrificed.
+### [Side-Effect Isolation]
+When modifying shared components or logic, you MUST analyze the 'Impact Scope' first. Ensure that changes intended for a specific use case (e.g., AI features) do not inadvertently affect general functionality (e.g., normal chat). You MUST strictly isolate such logic using conditional checks or specific guards.
 
-[Strict Document Persistence Rule] When updating or modifying any document, you MUST NOT overwrite, delete, or discard the existing content, historical context, or previous specifications. All updates must be made by appending new information or integrating changes incrementally while preserving the original framework. This ensures that the entirety of the project's evolution, including past technical decisions and verification records, remains fully traceable.
+### [Strict Document Integrity Rule]
+When updating or modifying any strategy, implementation, or design documents, you MUST strictly preserve the existing framework, formatting, and structural integrity. Do not perform total overwrites that discard previous detailed technical specifications, historical context, or complex logic. All updates must be made incrementally and appropriately integrated into the current structure to ensure no data loss or architectural context is sacrificed.
 
-[Standard Rules for Environment Variable Management]
-1. Strategic Isolation of Environments
-Principle: Maintain strict separation between Local and Production environments using file suffixes.
-Workflow:
-Use .env.development or .env.local for local execution (test keys, localhost URLs).
-Use .env.production as the source of truth for deployment parameters (production domains, live API keys).
-Priority: AI must respect the framework's priority logic (typically: .env.development/local overrides .env).
-2. Zero-Leak Security Policy (Git Integrity)
-Rule: No part of any .env* file shall ever be committed to a Version Control System (VCS).
-Verification: AI must proactively audit 
-.gitignore
- to ensure global patterns like .env* are effectively blocking all potential environment files before suggesting any variable updates.
-3. Cloud-Native Secret Management
-Deployment Strategy: Environment variables in production must be managed via the hosting provider's secure dashboard (e.g., Vercel, AWS) or CLI, never via file transmission to the server.
-Automation: When syncing variables, prioritize using official CLIs to pull/push secrets between the local .env files and the cloud environment to prevent manual entry errors.
-4. Context-Aware Variable Configuration
-Dynamic Mapping: Redirection URLs, Auth providers, and Database connection strings must be dynamically configured to point to localhost in development and the verified production domain in deployment, managed through the isolated .env files.
+### [Strict Document Persistence Rule]
+When updating or modifying any document, you MUST NOT overwrite, delete, or discard the existing content, historical context, or previous specifications. All updates must be made by appending new information or integrating changes incrementally while preserving the original framework. This ensures that the entirety of the project's evolution, including past technical decisions and verification records, remains fully traceable.
+
+### [Standard Rules for Environment Variable Management]
+1. **Strategic Isolation of Environments**
+   - **Principle**: Maintain strict separation between Local and Production environments using file suffixes.
+   - **Workflow**: Use `.env.development` or `.env.local` for local execution (test keys, localhost URLs). Use `.env.production` as the source of truth for deployment parameters.
+   - **Priority**: AI must respect the framework's priority logic (typically: `.env.development`/`.env.local` overrides `.env`).
+
+2. **Zero-Leak Security Policy (Git Integrity)**
+   - **Rule**: No part of any `.env*` file shall ever be committed to a Version Control System (VCS).
+   - **Verification**: AI must proactively audit `.gitignore` to ensure global patterns like `.env*` are effectively blocking all potential environment files before suggesting any variable updates.
+
+3. **Cloud-Native Secret Management**
+   - **Deployment Strategy**: Environment variables in production must be managed via the hosting provider's secure dashboard (e.g., Vercel, AWS) or CLI, never via file transmission to the server.
+   - **Automation**: When syncing variables, prioritize using official CLIs to pull/push secrets between the local .env files and the cloud environment to prevent manual entry errors.
+
+4. **Context-Aware Variable Configuration**
+   - **Dynamic Mapping**: Redirection URLs, Auth providers, and Database connection strings must be dynamically configured to point to localhost in development and the verified production domain in deployment, managed through the isolated .env files.
+
+### [Vercel & React Performance Standards]
+All frontend development MUST strictly adhere to Vercel's engineering best practices to ensure optimal performance and user experience:
+1. **Eliminate Waterfalls**: Strictly prohibit sequential blocking data fetches. Always use `Promise.all` for parallel execution or leverage `Suspense` for streaming.
+2. **Zero-Bundle-Bloat**: 
+   - Mandate `next/dynamic` (lazy loading) for heavy components.
+   - Prohibition of "Barrel Files" (re-exporting index files) in ways that break tree-shaking.
+3. **Server-Centric Optimizations**: Prioritize `React.cache` for request deduplication and perform data transformation on the server side to minimize client payload.
+4. **Core Rules**: Follow principles defined in the 'vercel-react-best-practices' skill (e.g., Waterfalls remediation, Bundle size reduction).
