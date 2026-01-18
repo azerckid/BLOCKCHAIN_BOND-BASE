@@ -127,3 +127,8 @@
     @apply font-sans;
     }
 }
+
+@utility content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px; /* Approximate height of a card */
+}

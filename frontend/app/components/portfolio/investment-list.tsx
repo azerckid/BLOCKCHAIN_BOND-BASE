@@ -248,6 +248,7 @@ export function InvestmentList() {
         return <div className="p-8 text-center text-neutral-400">Please connect your wallet to view investments.</div>;
     }
 
+    // Early exit if no investments
     if (myInvestments.length === 0) {
         return (
             <div className="p-12 text-center bg-neutral-50 rounded-2xl border border-dashed border-neutral-200">

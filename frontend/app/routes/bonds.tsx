@@ -170,7 +170,9 @@ export default function BondsPage() {
                 {filteredBonds.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                         {filteredBonds.map((bond) => (
-                            <BondCard key={bond.id} bond={bond} />
+                            <div key={bond.id} className="content-visibility-auto">
+                                <BondCard bond={bond} />
+                            </div>
                         ))}
                     </div>
                 ) : (
