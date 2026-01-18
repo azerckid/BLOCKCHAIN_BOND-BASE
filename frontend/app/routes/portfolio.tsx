@@ -1,9 +1,6 @@
 import * as React from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
-import { AllocationChart } from "@/components/portfolio/allocation-chart";
-import { PerformanceChart } from "@/components/portfolio/performance-chart";
-import { InvestmentList } from "@/components/portfolio/investment-list";
 import { StatItem } from "@/components/portfolio/stat-summary";
 import {
     Coins01Icon,
@@ -18,6 +15,39 @@ import type { BondProps } from "@/components/bonds/bond-card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Loading03Icon, Tick01Icon } from "@hugeicons/core-free-icons";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Lazy load heavy chart and list components
+const AllocationChart = React.lazy(() => import("@/components/portfolio/allocation-chart").then(module => ({ default: module.AllocationChart })));
+const PerformanceChart = React.lazy(() => import("@/components/portfolio/performance-chart").then(module => ({ default: module.PerformanceChart })));
+const InvestmentList = React.lazy(() => import("@/components/portfolio/investment-list").then(module => ({ default: module.InvestmentList })));
+
+function ChartSkeleton() {
+    return (
+        <div className="w-full h-[400px] rounded-2xl border border-neutral-100 bg-white p-6 space-y-4">
+            <div className="flex justify-between items-center">
+                <Skeleton className="h-6 w-32" />
+                <Skeleton className="h-8 w-24" />
+            </div>
+            <div className="flex-1 flex items-end gap-2 h-[300px]">
+                {Array.from({ length: 12 }).map((_, i) => (
+                    <Skeleton key={i} className="flex-1 h-full" style={{ height: `${Math.random() * 80 + 20}%` }} />
+                ))}
+            </div>
+        </div>
+    );
+}
+
+function ListSkeleton() {
+    return (
+        <div className="space-y-4">
+            <Skeleton className="h-8 w-48 mb-6" />
+            {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="w-full h-24 rounded-xl" />
+            ))}
+        </div>
+    );
+}
 
 export default function PortfolioPage() {
     const { address } = useAccount();
@@ -132,12 +162,18 @@ export default function PortfolioPage() {
 
                 {/* Charts Grid */}
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                    <PerformanceChart />
-                    <AllocationChart />
+                    <React.Suspense fallback={<ChartSkeleton />}>
+                        <PerformanceChart />
+                    </React.Suspense>
+                    <React.Suspense fallback={<ChartSkeleton />}>
+                        <AllocationChart />
+                    </React.Suspense>
                 </div>
 
                 {/* Detailed List */}
-                <InvestmentList />
+                <React.Suspense fallback={<ListSkeleton />}>
+                    <InvestmentList />
+                </React.Suspense>
             </div>
         </DashboardLayout>
     );
