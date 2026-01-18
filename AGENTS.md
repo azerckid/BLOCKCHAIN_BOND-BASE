@@ -209,11 +209,19 @@ When updating or modifying any document, you MUST NOT overwrite, delete, or disc
 4. **Context-Aware Variable Configuration**
    - **Dynamic Mapping**: Redirection URLs, Auth providers, and Database connection strings must be dynamically configured to point to localhost in development and the verified production domain in deployment, managed through the isolated .env files.
 
-### [Vercel & React Performance Standards]
-All frontend development MUST strictly adhere to Vercel's engineering best practices to ensure optimal performance and user experience:
+### [React Performance Standards (Adapted from Vercel Engineering)]
+All frontend development MUST strictly adhere to modern React engineering best practices.
+**Primary Source of Truth: [React Router v7 Documentation](https://reactrouter.com/home)**
+
+**Architectural Reference:**
+We adopt Vercel's high-performance principles (Anti-Waterfalls, Zero-Bloat) but verify implementation details against React Router patterns.
+*For conceptual guidance, consult the local knowledge base at `.agent/skills/vercel-react-best-practices/`.*
+*(Note: If the skill is missing, you may optionally install it via `npx skillscokac -i vercel-react-best-practices`, but apply rules within the context of React Router v7.)*
+
 1. **Eliminate Waterfalls**: Strictly prohibit sequential blocking data fetches. Always use `Promise.all` for parallel execution or leverage `Suspense` for streaming.
 2. **Zero-Bundle-Bloat**: 
-   - Mandate `next/dynamic` (lazy loading) for heavy components.
+   - Mandate `React.lazy` (lazy loading) for heavy components.
    - Prohibition of "Barrel Files" (re-exporting index files) in ways that break tree-shaking.
-3. **Server-Centric Optimizations**: Prioritize `React.cache` for request deduplication and perform data transformation on the server side to minimize client payload.
-4. **Core Rules**: Follow principles defined in the 'vercel-react-best-practices' skill (e.g., Waterfalls remediation, Bundle size reduction).
+3. **Server-Centric Optimizations**: Prioritize server-side data fetching (Loaders) and transformation to minimize client payload.
+4. **Core Rules Enforcement**: 
+   - Consult the rules in `.agent/skills/vercel-react-best-practices/rules/` for specific patterns (e.g., `rendering-content-visibility.md`, `js-early-exit.md`).
