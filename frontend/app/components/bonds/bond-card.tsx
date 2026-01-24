@@ -58,26 +58,27 @@ export function BondCard({ bond }: { bond: BondProps }) {
 
     return (
         <>
-            <Card className="group overflow-hidden border-neutral-200/60 hover:border-neutral-900/10 hover:shadow-2xl hover:shadow-neutral-200/50 transition-all duration-300 bg-white">
+            <Card className="group overflow-hidden border-neutral-200/60 hover:border-neutral-900/10 hover:shadow-2xl hover:shadow-neutral-200/50 transition-all duration-300 bg-white pt-0">
                 <CardHeader className="p-0">
-                    <div className="relative h-48 overflow-hidden bg-neutral-900">
+                    <div className="relative h-56 overflow-hidden bg-neutral-900">
                         <div
-                            className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-950 opacity-90 transition-transform duration-500 group-hover:scale-105"
+                            className="absolute inset-0 bg-gradient-to-br from-neutral-800 via-neutral-900 to-black opacity-100 transition-transform duration-500 group-hover:scale-105"
                         />
-                        <div className="absolute inset-0 flex items-center justify-center p-8">
-                            <div className="text-center space-y-2">
-                                <Badge className="bg-white/10 text-white border-white/20 backdrop-blur-md mb-2">
-                                    {bond.category}
-                                </Badge>
-                                <h3 className="text-xl font-bold text-white tracking-tight leading-tight">
-                                    {bond.title}
-                                </h3>
-                            </div>
+                        {/* Interactive Sparkle Effect Placeholder */}
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,0.1),transparent)]" />
+
+                        <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
+                            <Badge className="bg-white/10 text-white border-white/20 backdrop-blur-md mb-4 px-3 py-1 text-[10px] tracking-[0.2em] font-black uppercase">
+                                {bond.category}
+                            </Badge>
+                            <h3 className="text-2xl md:text-3xl font-black text-white tracking-tighter leading-tight drop-shadow-2xl">
+                                {bond.title}
+                            </h3>
                         </div>
-                        <div className="absolute top-4 right-4 focus-visible:outline-none">
+                        <div className="absolute top-6 right-6 focus-visible:outline-none">
                             <Badge variant={bond.status === "active" ? "default" : "secondary"} className={cn(
-                                "shadow-sm",
-                                bond.status === "active" ? "bg-green-500 hover:bg-green-600 border-none" : ""
+                                "shadow-lg px-3 py-1 text-[10px] font-black",
+                                bond.status === "active" ? "bg-green-500 hover:bg-green-600 border-none animate-pulse" : ""
                             )}>
                                 {bond.status.toUpperCase()}
                             </Badge>
@@ -123,12 +124,12 @@ export function BondCard({ bond }: { bond: BondProps }) {
                         <span className="text-xs font-medium">{bond.location}</span>
                     </div>
                 </CardContent>
-                <CardFooter className="px-6 pb-6 pt-0">
+                <CardFooter className="px-6 py-6 border-t border-neutral-100 flex items-center justify-center">
                     <Button
                         onClick={() => setIsModalOpen(true)}
-                        className="w-full group/btn rounded-xl bg-neutral-900 hover:bg-black text-white py-6 h-auto transition-all"
+                        className="w-full group/btn rounded-xl bg-neutral-900 hover:bg-black text-white py-6 h-auto transition-all flex items-center justify-center"
                     >
-                        <span>Invest Now</span>
+                        <span className="font-bold tracking-tight">Invest Now</span>
                         <HugeiconsIcon icon={ArrowRight01Icon} size={18} className="ml-2 transition-transform group-hover/btn:translate-x-1" />
                     </Button>
                 </CardFooter>

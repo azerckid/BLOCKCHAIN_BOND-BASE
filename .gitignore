@@ -39,6 +39,11 @@ yarn-error.log*
 # MacOS
 .DS_Store
 
+# Databases
+*.db
+*.db-journal
+*.db.backup_*
+
 # Blockchain specific
 contracts/artifacts/
 contracts/cache/

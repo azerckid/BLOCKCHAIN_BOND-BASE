@@ -98,3 +98,33 @@ export const repayments = sqliteTable("repayments", {
     repaymentDate: integer("repayment_date").notNull(),
     oracleRequestId: text("oracle_request_id"),
 });
+
+// Choonsim Project Integration
+export const choonsimProjects = sqliteTable("choonsim_projects", {
+    id: text("id").primaryKey(), // Default "choonsim-main"
+    name: text("name").notNull(),
+    totalFollowers: integer("total_followers").default(0),
+    totalSubscribers: integer("total_subscribers").default(0),
+    southAmericaShare: integer("south_america_share").default(70), // Percent
+    japanShare: integer("japan_share").default(30), // Percent
+    updatedAt: integer("updated_at").notNull(), // Timestamp
+});
+
+export const choonsimRevenue = sqliteTable("choonsim_revenue", {
+    id: text("id").primaryKey(),
+    projectId: text("project_id").references(() => choonsimProjects.id).notNull(),
+    amount: integer("amount").notNull(), // USDC base units
+    source: text("source").notNull(), // SUBSCRIPTION, ROYALTY, etc.
+    description: text("description"),
+    receivedAt: integer("received_at").notNull(), // Timestamp
+    onChainTxHash: text("on_chain_tx_hash"),
+});
+
+export const choonsimMilestones = sqliteTable("choonsim_milestones", {
+    id: text("id").primaryKey(),
+    projectId: text("project_id").references(() => choonsimProjects.id).notNull(),
+    key: text("key").notNull(), // e.g., "FOLLOWERS_50K"
+    description: text("description").notNull(),
+    achievedAt: integer("achieved_at").notNull(), // Timestamp
+    bonusAmount: integer("bonus_amount"),
+});

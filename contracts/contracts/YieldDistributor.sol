@@ -12,6 +12,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  */
 contract YieldDistributor is AccessControl, ReentrancyGuard {
     bytes32 public constant DISTRIBUTOR_ROLE = keccak256("DISTRIBUTOR_ROLE");
+    bytes32 public constant ORACLE_ROLE = keccak256("ORACLE_ROLE");
     uint256 public constant PRECISION_FACTOR = 1e18;
 
     IERC20 public immutable usdcToken;
@@ -41,12 +42,19 @@ contract YieldDistributor is AccessControl, ReentrancyGuard {
 
     event BondRegistered(uint256 indexed bondId);
     event YieldDeposited(uint256 indexed bondId, uint256 amount);
+    event YieldPending(uint256 indexed bondId, uint256 amount);
+    event YieldVerified(uint256 indexed bondId, uint256 amount);
     event YieldClaimed(address indexed user, uint256 indexed bondId, uint256 amount);
     event Reinvested(address indexed user, uint256 indexed bondId, uint256 amount);
+
+    // Audit State
+    mapping(uint256 => bool) public requiresAudit;
+    mapping(uint256 => uint256) public pendingYield;
 
     constructor(address _usdcToken) {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(DISTRIBUTOR_ROLE, msg.sender);
+        _grantRole(ORACLE_ROLE, msg.sender); // Initially admin is oracle for testing
         usdcToken = IERC20(_usdcToken);
     }
 
@@ -58,6 +66,10 @@ contract YieldDistributor is AccessControl, ReentrancyGuard {
         require(!bonds[bondId].isRegistered, "Already registered");
         bonds[bondId].isRegistered = true;
         emit BondRegistered(bondId);
+    }
+
+    function setAuditRequirement(uint256 bondId, bool required) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        requiresAudit[bondId] = required;
     }
 
     /**
@@ -102,6 +114,7 @@ contract YieldDistributor is AccessControl, ReentrancyGuard {
 
     /**
      * @dev Admin deposits USDC as yield for a specific bond.
+     * If audit is required, amount is held in 'pending' until verified by Oracle.
      */
     function depositYield(uint256 bondId, uint256 amount) external nonReentrant onlyRole(DISTRIBUTOR_ROLE) {
         require(bonds[bondId].isRegistered, "Bond not registered");
@@ -111,9 +124,27 @@ contract YieldDistributor is AccessControl, ReentrancyGuard {
         bool success = usdcToken.transferFrom(msg.sender, address(this), amount);
         require(success, "USDC transfer failed");
 
-        // Increase reward per token index
+        if (requiresAudit[bondId]) {
+            pendingYield[bondId] += amount;
+            emit YieldPending(bondId, amount);
+        } else {
+            // Legacy / Standard behavior: immediate distribution
+            bonds[bondId].rewardPerTokenStored += (amount * PRECISION_FACTOR) / bonds[bondId].totalHoldings;
+            emit YieldDeposited(bondId, amount);
+        }
+    }
+
+    /**
+     * @dev Independent Oracle verifies the revenue data and releases yield for distribution.
+     * Releases funds from 'pending' to 'rewardPerTokenStored'.
+     */
+    function verifyYield(uint256 bondId, uint256 amount) external onlyRole(ORACLE_ROLE) {
+        require(pendingYield[bondId] >= amount, "Insufficient pending yield");
+        
+        pendingYield[bondId] -= amount;
         bonds[bondId].rewardPerTokenStored += (amount * PRECISION_FACTOR) / bonds[bondId].totalHoldings;
-        emit YieldDeposited(bondId, amount);
+        
+        emit YieldVerified(bondId, amount);
     }
 
     /**

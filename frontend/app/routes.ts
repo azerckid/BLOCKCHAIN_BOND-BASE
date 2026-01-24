@@ -10,4 +10,5 @@ export default [
     route("impact", "routes/impact.tsx"),
     route("api/auth/*", "routes/auth.ts"),
     route("api/chat", "routes/api.chat.ts"),
+    route("api/revenue", "routes/api.revenue.ts"),
 ] satisfies RouteConfig;
