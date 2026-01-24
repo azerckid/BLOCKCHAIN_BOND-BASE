@@ -145,9 +145,9 @@ BuildCTC is a Real World Assets (RWA) Yield Protocol built on Creditcoin 2.0 tha
 ## Workflows
 이 프로젝트는 반복적인 작업을 표준화하기 위해 자동화된 워크플로우를 사용합니다.
 
-- **`/code-review`**: Antigravity의 전문 Skill과 TestSprite를 사용하여 코드의 품질을 검증합니다.
+- **`/code-review`**: Antigravity의 전문 Skill과 오픈소스 도구를 사용하여 코드의 품질을 검증합니다.
     - **정적 분석**: `solidity-security-auditor` (스마트 컨트랙트), `vercel-react-best-practices` (프론트엔드)
-    - **동적 분석**: TestSprite를 통한 자동 테스트 생성 및 실행
+    - **동적 분석**: Lint, Type Check, Hardhat/Vitest 테스트 실행 및 로직 시뮬레이션
     - **리포트**: 보안, 성능, 안정성 결과를 통합한 마크다운 리포트 생성
 
 ## Testing Instructions
