@@ -142,6 +142,14 @@ BuildCTC is a Real World Assets (RWA) Yield Protocol built on Creditcoin 2.0 tha
 ## Workflow & Safety
 - **[Safe Checkpoint Strategy]** 새로운 작업이나 중요한 변경(새 파일 생성, DB 스키마 수정, 패키지 설치 등)을 시작하기 전에, 반드시 현재 상태를 git commit하거나 작업 디렉토리가 깨끗한지 확인을 요청해야 합니다.
 
+## Workflows
+이 프로젝트는 반복적인 작업을 표준화하기 위해 자동화된 워크플로우를 사용합니다.
+
+- **`/code-review`**: Antigravity의 전문 Skill과 TestSprite를 사용하여 코드의 품질을 검증합니다.
+    - **정적 분석**: `solidity-security-auditor` (스마트 컨트랙트), `vercel-react-best-practices` (프론트엔드)
+    - **동적 분석**: TestSprite를 통한 자동 테스트 생성 및 실행
+    - **리포트**: 보안, 성능, 안정성 결과를 통합한 마크다운 리포트 생성
+
 ## Testing Instructions
 - Currently, tests are being integrated as part of the development phase (Phase 9).
 - Run available tests using: `npm test`
@@ -216,7 +224,7 @@ All frontend development MUST strictly adhere to modern React engineering best p
 **Architectural Reference:**
 We adopt Vercel's high-performance principles (Anti-Waterfalls, Zero-Bloat) but verify implementation details against React Router patterns.
 *For conceptual guidance, consult the local knowledge base at `.agent/skills/vercel-react-best-practices/`.*
-*(Note: If the skill is missing, you may optionally install it via `npx skillscokac -i vercel-react-best-practices`, but apply rules within the context of React Router v7.)*
+*(Note: If the skill is missing, retrieve it from [SkillsCokac](https://skills.cokac.com/) or install via `npx skillscokac -i vercel-react-best-practices`. Always apply rules within the context of React Router v7.)*
 
 1. **Eliminate Waterfalls**: Strictly prohibit sequential blocking data fetches. Always use `Promise.all` for parallel execution or leverage `Suspense` for streaming.
 2. **Zero-Bundle-Bloat**: 
