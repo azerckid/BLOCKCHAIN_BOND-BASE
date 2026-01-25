@@ -64,10 +64,30 @@ export function getWalletClient() {
     return _walletClient;
 }
 
-export const publicClient = createPublicClient({
-    chain: creditcoinTestnet,
-    transport: http(),
-});
+let _publicClient: ReturnType<typeof createPublicClient> | null = null;
+
+export function getPublicClient() {
+    if (!_publicClient) {
+        _publicClient = createPublicClient({
+            chain: creditcoinTestnet,
+            transport: http(),
+        });
+    }
+    return _publicClient;
+}
+
+// Legacy export for backward compatibility (lazy getter)
+export const publicClient = {
+    get readContract() {
+        return getPublicClient().readContract.bind(getPublicClient());
+    },
+    get waitForTransactionReceipt() {
+        return getPublicClient().waitForTransactionReceipt.bind(getPublicClient());
+    },
+    get simulateContract() {
+        return getPublicClient().simulateContract.bind(getPublicClient());
+    },
+};
 
 /**
  * Deposit yield for a specific bond.
