@@ -6,7 +6,6 @@ import {
     Coins01Icon,
     Globe02Icon,
     Analytics01Icon,
-    Certificate01Icon,
     UserGroupIcon,
     ArrowUp01Icon,
     ChampionIcon
