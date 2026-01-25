@@ -8,10 +8,18 @@ import { CONTRACTS } from '@/config/contracts';
  * Responsible for executing transactions from the BondBase backend to Creditcoin.
  */
 
-// WARNING: In production, ensure RELAYER_PRIVATE_KEY is securely managed.
-const privateKey = process.env.RELAYER_PRIVATE_KEY as `0x${string}`;
+// Helper to safely get environment variables in both Node and Browser (Vite)
+const getEnv = (key: string): string | undefined => {
+    if (typeof process !== 'undefined' && process.env) {
+        return process.env[key];
+    }
+    // @ts-ignore - Vite specific
+    return import.meta.env[key] || import.meta.env[`VITE_${key}`];
+};
 
-if (!privateKey && process.env.NODE_ENV === 'production') {
+const privateKey = getEnv('RELAYER_PRIVATE_KEY') as `0x${string}`;
+
+if (!privateKey && typeof process !== 'undefined' && process.env.NODE_ENV === 'production') {
     throw new Error('RELAYER_PRIVATE_KEY is missing in production environment');
 }
 

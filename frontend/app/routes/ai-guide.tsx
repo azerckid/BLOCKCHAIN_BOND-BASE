@@ -129,19 +129,19 @@ export default function AiGuidePage() {
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <h2 className="font-black text-3xl text-neutral-900 tracking-tighter uppercase">Assistant Ready</h2>
+                                        <h2 className="font-black text-3xl text-neutral-900 tracking-tighter uppercase">IP Concierge Ready</h2>
                                         <p className="text-sm font-bold text-neutral-400 max-w-sm mx-auto leading-relaxed italic">
-                                            How can I help you navigate the <span className="text-neutral-900">BondBase ecosystem</span> today?
+                                            Hello! I'm your expert guide for <span className="text-emerald-600 font-black">ChoonSim AI-Talk</span> RWA investments.
                                         </p>
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl px-4">
                                     {[
-                                        { label: "💳 Get Testnet Tokens", text: "How do I get testnet CTC and MockUSDC?" },
-                                        { label: "💰 How to Invest", text: "Explain the bond investment process step by step." },
-                                        { label: "📈 Yield System", text: "How does the Hold-to-Earn and Auto-compounding work?" },
-                                        { label: "⚙️ Wallet Setup", text: "Guide me through MetaMask installation and network setup." },
+                                        { label: "💎 Growth Bond Info", text: "How do I invest in ChoonSim Growth Bonds?" },
+                                        { label: "🔄 Reinvestment Logic", text: "Explain the Revenue Share & Auto-Reinvest system." },
+                                        { label: "🛡️ Oracle Audit", text: "How does the Creditcoin Oracle verify ChoonSim's revenue?" },
+                                        { label: "💳 Wallet & CTC", text: "How do I get testnet CTC for transaction fees?" },
                                     ].map((action, index) => (
                                         <button
                                             key={index}

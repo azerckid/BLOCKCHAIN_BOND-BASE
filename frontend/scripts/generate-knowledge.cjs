@@ -3,7 +3,7 @@ const path = require('path');
 
 const docsDir = path.join(__dirname, '../../docs');
 const outputFile = path.join(__dirname, '../app/lib/knowledge.json');
-const ignoreDirs = ['archive'];
+const ignoreDirs = ['archive', 'stitch', 'templates', 'legacy'];
 
 const getAllFiles = (dir, fileList = []) => {
     if (!fs.existsSync(dir)) return fileList;

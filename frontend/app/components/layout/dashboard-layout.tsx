@@ -52,9 +52,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     const navigation = [
         { to: "/", icon: Home01Icon, label: "Dashboard" },
         { to: "/choonsim", icon: ChartBreakoutCircleIcon, label: "Choonsim Growth" },
-        { to: "/bonds", icon: Database01Icon, label: "Bond Market" },
+        { to: "/bonds", icon: Database01Icon, label: "Growth Market" },
         { to: "/portfolio", icon: Wallet01Icon, label: "My Portfolio" },
-        { to: "/impact", icon: GlobalIcon, label: "Impact Map" },
+        { to: "/impact", icon: GlobalIcon, label: "Fandom Impact" },
         { to: "/ai-guide", icon: Comment01Icon, label: "AI Guide" },
         { to: "/settings", icon: Settings02Icon, label: "Settings" },
     ];

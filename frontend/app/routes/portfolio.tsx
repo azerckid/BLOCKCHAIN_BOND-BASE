@@ -10,7 +10,7 @@ import {
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { formatUnits } from "viem";
 import { CONTRACTS } from "@/config/contracts";
-import { MOCK_BONDS } from "@/routes/bonds";
+import { CHOONSIM_BOND_DATA } from "@/routes/bonds";
 import type { BondProps } from "@/components/bonds/bond-card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -52,8 +52,9 @@ function ListSkeleton() {
 export default function PortfolioPage() {
     const { address } = useAccount();
 
-    const bondIds = MOCK_BONDS.map((b: BondProps) => BigInt(b.id));
-    const accounts = MOCK_BONDS.map(() => address as `0x${string}`);
+    const activeBonds = [CHOONSIM_BOND_DATA];
+    const bondIds = activeBonds.map((b: BondProps) => BigInt(b.id));
+    const accounts = activeBonds.map(() => address as `0x${string}`);
 
     const { data: balances } = useReadContract({
         address: CONTRACTS.BondToken.address as `0x${string}`,

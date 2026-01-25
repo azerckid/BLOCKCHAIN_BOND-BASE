@@ -22,10 +22,14 @@ async function main() {
     console.log("2️⃣  Enabling Audit for Bond 101...");
     await (await yieldDistributor.setAuditRequirement(CHOONSIM_BOND_ID, true)).wait();
 
-    // 3. Grant DISTRIBUTOR_ROLE to Relayer
-    console.log("3️⃣  Granting DISTRIBUTOR_ROLE to Relayer...");
+    // 3. Grant Roles to Relayer
+    console.log("3️⃣  Granting DISTRIBUTOR_ROLE & ORACLE_ROLE to Relayer...");
     const DISTRIBUTOR_ROLE = ethers.keccak256(ethers.toUtf8Bytes("DISTRIBUTOR_ROLE"));
+    const ORACLE_ROLE = ethers.keccak256(ethers.toUtf8Bytes("ORACLE_ROLE"));
+
     await (await yieldDistributor.grantRole(DISTRIBUTOR_ROLE, RELAYER)).wait();
+    await (await yieldDistributor.grantRole(ORACLE_ROLE, RELAYER)).wait();
+    console.log("✅ Roles granted.");
 
     // 4. Setup Relayer USDC (Mint)
     console.log("4️⃣  Setup Relayer USDC (Minting 1M USDC)...");

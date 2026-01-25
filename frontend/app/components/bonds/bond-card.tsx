@@ -24,7 +24,7 @@ export interface BondProps {
     totalAmount: string;
     remainingAmount: string;
     loanAmount: number;
-    status: "active" | "funded" | "pending";
+    status: "active" | "funded" | "pending" | "legacy";
     category: string;
     lat: number;
     lng: number;
@@ -78,7 +78,8 @@ export function BondCard({ bond }: { bond: BondProps }) {
                         <div className="absolute top-6 right-6 focus-visible:outline-none">
                             <Badge variant={bond.status === "active" ? "default" : "secondary"} className={cn(
                                 "shadow-lg px-3 py-1 text-[10px] font-black",
-                                bond.status === "active" ? "bg-green-500 hover:bg-green-600 border-none animate-pulse" : ""
+                                bond.status === "active" ? "bg-green-500 hover:bg-green-600 border-none animate-pulse" :
+                                    bond.status === "legacy" ? "bg-neutral-600 text-white border-none" : ""
                             )}>
                                 {bond.status.toUpperCase()}
                             </Badge>

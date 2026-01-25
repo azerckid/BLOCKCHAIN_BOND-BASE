@@ -11,7 +11,10 @@ import {
     Zap,
     ShieldCheck,
     Clock,
-    Search
+    Search,
+    Coins,
+    RefreshCw,
+    Wallet
 } from "lucide-react";
 import {
     LineChart,
@@ -38,6 +41,8 @@ export interface ChoonsimDashboardProps {
         currentApr: number;
         pendingYield: number;
         isAuditEnabled: boolean;
+        userEarnedYield: number; // New field for Phase 3
+        userBondBalance: number; // New field for Phase 3
     };
     history: Array<{
         name: string;
@@ -50,9 +55,12 @@ export interface ChoonsimDashboardProps {
         date: string;
         status: string;
     }>;
+    onClaim?: () => void;
+    onReinvest?: () => void;
+    isLoading?: boolean;
 }
 
-export function ChoonsimDashboard({ project, history, milestones }: ChoonsimDashboardProps) {
+export function ChoonsimDashboard({ project, history, milestones, onClaim, onReinvest, isLoading }: ChoonsimDashboardProps) {
     const regionData = [
         { name: "South America", value: project.southAmericaShare, color: "#10b981" },
         { name: "Japan", value: project.japanShare, color: "#06b6d4" },
@@ -94,6 +102,104 @@ export function ChoonsimDashboard({ project, history, milestones }: ChoonsimDash
                         Invest in Choonsim
                     </Button>
                 </div>
+            </div>
+
+            {/* Phase 3: Investor Portfolio Quick View */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <Card className="lg:col-span-2 border-emerald-100 bg-gradient-to-br from-white to-emerald-50/30 shadow-xl shadow-emerald-50/40 overflow-hidden relative">
+                    <div className="absolute top-0 right-0 p-8 opacity-5">
+                        <Wallet size={120} />
+                    </div>
+                    <CardContent className="p-8">
+                        <div className="flex flex-col md:flex-row justify-between gap-8 h-full">
+                            <div className="space-y-6 flex-1">
+                                <div className="space-y-1">
+                                    <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest flex items-center gap-2">
+                                        <Coins size={14} /> My Active Investment
+                                    </p>
+                                    <h2 className="text-4xl font-black text-neutral-900 tracking-tight">
+                                        {project.userBondBalance.toLocaleString()} <span className="text-xl font-medium text-neutral-400">CHNSM</span>
+                                    </h2>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="p-4 rounded-2xl bg-white/60 border border-emerald-100/50">
+                                        <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Earned Rewards</p>
+                                        <p className="text-2xl font-black text-emerald-600 tracking-tighter">
+                                            {project.userEarnedYield.toFixed(2)} <span className="text-xs font-bold">USDC</span>
+                                        </p>
+                                    </div>
+                                    <div className="p-4 rounded-2xl bg-white/60 border border-emerald-100/50">
+                                        <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Expected APY</p>
+                                        <p className="text-2xl font-black text-neutral-900 tracking-tighter">
+                                            {project.currentApr}% <span className="text-xs font-bold text-emerald-500">+Bonus</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col justify-center gap-3 md:min-w-[200px]">
+                                <Button
+                                    onClick={onReinvest}
+                                    disabled={isLoading || project.userEarnedYield <= 0}
+                                    className="w-full rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white h-14 font-black shadow-lg shadow-emerald-200 group"
+                                >
+                                    <RefreshCw className={cn("mr-2 h-5 w-5 group-hover:rotate-180 transition-transform duration-500", isLoading && "animate-spin")} />
+                                    REINVEST
+                                </Button>
+                                <Button
+                                    onClick={onClaim}
+                                    disabled={isLoading || project.userEarnedYield <= 0}
+                                    variant="outline"
+                                    className="w-full rounded-2xl border-neutral-200 h-14 font-black text-neutral-700 hover:bg-neutral-50"
+                                >
+                                    CLAIM YIELD
+                                </Button>
+                                <p className="text-[10px] text-center text-neutral-400 font-bold italic">
+                                    * Reinvesting compounds your earnings automatically.
+                                </p>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Compound Visualizer Card */}
+                <Card className="border-neutral-100 shadow-xl shadow-neutral-100/50 bg-neutral-900 text-white relative overflow-hidden">
+                    <div className="absolute top-[-20px] right-[-20px] w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl"></div>
+                    <CardHeader className="px-6 py-4 border-b border-white/10">
+                        <CardTitle className="text-sm font-black tracking-tight flex items-center gap-2">
+                            <TrendingUp className="text-emerald-400" size={16} />
+                            Compound Power
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6 space-y-6">
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-end">
+                                <span className="text-[11px] font-bold text-neutral-400">1-Year Forecast</span>
+                                <span className="text-lg font-black text-emerald-400">
+                                    +{(project.userBondBalance * (project.currentApr / 100)).toFixed(0)} CHNSM
+                                </span>
+                            </div>
+                            <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                                <div className="h-full bg-emerald-500 w-[65%] rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                            </div>
+                            <p className="text-[10px] text-neutral-400 leading-relaxed font-medium">
+                                By choosing <span className="text-emerald-400 font-bold">REINVEST</span>, your monthly dividends are automatically converted back into growth bonds, scaling your share of ChoonSim's global IP.
+                            </p>
+                        </div>
+                        <div className="pt-4 border-t border-white/5">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 rounded-lg bg-emerald-500/10">
+                                    <ShieldCheck className="text-emerald-400" size={16} />
+                                </div>
+                                <div className="space-y-0.5">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Auto-Verified</p>
+                                    <p className="text-[9px] font-bold text-neutral-500">Every compound step is audited by CC Oracle.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
 
             {/* Quick Stats Grid */}
@@ -217,7 +323,7 @@ export function ChoonsimDashboard({ project, history, milestones }: ChoonsimDash
 
                 {/* Regional Share & Milestones Column */}
                 <div className="space-y-8">
-                    {/* Audit Transparency Widget (New) */}
+                    {/* Audit Transparency Widget */}
                     <Card className="border-emerald-100 bg-emerald-50/30 shadow-lg shadow-emerald-50/50">
                         <CardHeader className="px-6 py-4 border-b border-emerald-100">
                             <CardTitle className="text-sm font-black tracking-tight flex items-center gap-2">

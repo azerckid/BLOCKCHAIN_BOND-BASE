@@ -59,21 +59,8 @@ export async function loader() {
     return { project, recentRevenue, milestones };
 }
 
-const CHOONSIM_BOND: BondProps = {
-    id: "choonsim-growth-1",
-    title: "Choonsim AI-Talk Growth Bond",
-    description: "성장하는 춘심 IP의 미래 수익권에 투자하고 전용 혜택을 누리세요.",
-    apr: 18.2,
-    term: "Perpetual",
-    location: "Global (Japan / S.America)",
-    totalAmount: "$1.0M",
-    remainingAmount: "$0.4M",
-    loanAmount: 1000000,
-    status: "active",
-    category: "AI / IP Revenue",
-    lat: 35.6762,
-    lng: 139.6503,
-};
+// Bond data imported from market for consistency
+import { CHOONSIM_BOND_DATA } from "./bonds";
 
 export default function Home() {
     const { project, recentRevenue, milestones } = useLoaderData<typeof loader>();
@@ -85,14 +72,14 @@ export default function Home() {
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                            <Badge className="bg-neutral-900 text-white rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-widest">Choonsim Official</Badge>
-                            <span className="text-xs font-bold text-neutral-400">Phase 1: Foundation</span>
+                            <Badge className="bg-emerald-600 text-white rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-100">Choonsim Official</Badge>
+                            <span className="text-xs font-bold text-neutral-400">Phase 3: IP Growth</span>
                         </div>
-                        <h1 className="text-4xl font-black tracking-tighter text-neutral-900">
-                            Growing with Chunsim
+                        <h1 className="text-4xl font-black tracking-tighter text-neutral-900 italic">
+                            Growing with <span className="text-emerald-600">Choonsim</span>
                         </h1>
                         <p className="text-neutral-500 font-medium max-w-md">
-                            글로벌 팬덤이 응원하는 춘심이의 성장이 당신의 자산이 됩니다.
+                            Join the global expansion of Chunsim AI-Talk. Turn IP fandom growth into your real-world assets.
                         </p>
                     </div>
                 </div>
@@ -102,28 +89,28 @@ export default function Home() {
                     <StatSummary>
                         <StatItem
                             title="Choonsim Followers"
-                            value={project?.totalFollowers?.toLocaleString() || "32,000"}
+                            value={project?.totalFollowers?.toLocaleString() || "65,200"}
                             trend={{ value: "Global", isUp: true }}
                             icon={UserGroupIcon}
                             vibrant
                         />
                         <StatItem
                             title="Active Subscribers"
-                            value={project?.totalSubscribers?.toLocaleString() || "1,240"}
+                            value={project?.totalSubscribers?.toLocaleString() || "1,541"}
                             icon={Analytics01Icon}
                             description="AI-Talk monthly users"
                         />
                         <StatItem
-                            title="Distributed Yield"
-                            value="$12,450"
+                            title="IP Yield (APR)"
+                            value="18.5%"
                             icon={Coins01Icon}
-                            trend={{ value: "18.2% APR", isUp: true }}
+                            trend={{ value: "Targeted", isUp: true }}
                         />
                         <StatItem
-                            title="S.America & Japan Share"
-                            value="70%+"
+                            title="Fandom Reach"
+                            value="Global"
                             icon={Globe02Icon}
-                            description="Main fandom regions"
+                            description="S.America & Japan"
                         />
                     </StatSummary>
                 </section>
@@ -136,7 +123,7 @@ export default function Home() {
                                 Primary Alpha Opportunity
                             </h2>
                         </div>
-                        <BondCard bond={CHOONSIM_BOND} />
+                        <BondCard bond={CHOONSIM_BOND_DATA} />
                     </div>
 
                     {/* Milestones & Revenue */}

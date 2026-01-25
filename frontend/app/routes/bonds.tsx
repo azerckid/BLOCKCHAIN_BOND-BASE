@@ -24,7 +24,23 @@ export async function action({ request }: ActionFunctionArgs) {
     return { success: true, amount, bondId };
 }
 
-export const MOCK_BONDS: BondProps[] = [
+export const CHOONSIM_BOND_DATA: BondProps = {
+    id: "101",
+    title: "Choonsim AI-Talk Growth Bond",
+    description: "Investment in the global expansion of Chunsim AI-Talk. Earn yields from subscription revenue and milestone bonuses.",
+    apr: 18.5,
+    term: "Perpetual",
+    location: "Global (Japan / S.America)",
+    totalAmount: "$1.0M",
+    loanAmount: 1000000,
+    remainingAmount: "$0.4M",
+    status: "active",
+    category: "IP Rights",
+    lat: 35.6762,
+    lng: 139.6503,
+};
+
+export const LEGACY_BONDS: BondProps[] = [
     {
         id: "1",
         title: "SME Working Capital - Bangkok",
@@ -35,7 +51,7 @@ export const MOCK_BONDS: BondProps[] = [
         totalAmount: "$5.0M",
         loanAmount: 5000000,
         remainingAmount: "$1.2M",
-        status: "active",
+        status: "legacy",
         category: "Real Estate",
         lat: 13.7563,
         lng: 100.5018,
@@ -50,66 +66,25 @@ export const MOCK_BONDS: BondProps[] = [
         totalAmount: "$2.0M",
         loanAmount: 2000000,
         remainingAmount: "$0.4M",
-        status: "active",
+        status: "legacy",
         category: "Agriculture",
         lat: 18.7883,
         lng: 98.9853,
-    },
-    {
-        id: "3",
-        title: "Clean Energy Infrastructure",
-        description: "Solar panel installation for suburban community centers.",
-        apr: 11.8,
-        term: "24 Months",
-        location: "Phuket, Thailand",
-        totalAmount: "$8.5M",
-        loanAmount: 8500000,
-        remainingAmount: "$3.1M",
-        status: "active",
-        category: "Energy",
-        lat: 7.8804,
-        lng: 98.3923,
-    },
-    {
-        id: "4",
-        title: "Logistics Fleet Expansion",
-        description: "Financing for electric delivery vehicles in urban areas.",
-        apr: 13.5,
-        term: "18 Months",
-        location: "Bangkok, Thailand",
-        totalAmount: "$3.5M",
-        loanAmount: 3500000,
-        remainingAmount: "$2.8M",
-        status: "active",
-        category: "Logistics",
-        lat: 13.7367,
-        lng: 100.5231,
-    },
-    {
-        id: "5",
-        title: "Fishery Modernization",
-        description: "Sustainable fishing equipment and cold storage facilities.",
-        apr: 15.0,
-        term: "12 Months",
-        location: "Rayong, Thailand",
-        totalAmount: "$1.5M",
-        loanAmount: 1500000,
-        remainingAmount: "$0.1M",
-        status: "active",
-        category: "Agriculture",
-        lat: 12.6814,
-        lng: 101.2816,
     }
 ];
 
-const CATEGORIES = ["All", "Real Estate", "Agriculture", "Energy", "Logistics"];
+// Re-export MOCK_BONDS for backward compatibility with other components
+export const MOCK_BONDS: BondProps[] = [CHOONSIM_BOND_DATA];
+
+const CATEGORIES = ["All", "IP Rights", "Legacy Assets"];
 
 export default function BondsPage() {
     const [selectedCategory, setSelectedCategory] = React.useState("All");
     const [searchQuery, setSearchQuery] = React.useState("");
 
-    const filteredBonds = MOCK_BONDS.filter(bond => {
-        const matchesCategory = selectedCategory === "All" || bond.category === selectedCategory;
+    const allActiveBonds = [CHOONSIM_BOND_DATA];
+    const filteredBonds = (selectedCategory === "Legacy Assets" ? LEGACY_BONDS : allActiveBonds).filter(bond => {
+        const matchesCategory = selectedCategory === "All" || selectedCategory === "Legacy Assets" || bond.category === selectedCategory;
         const matchesSearch = bond.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             bond.location.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesCategory && matchesSearch;
@@ -121,8 +96,8 @@ export default function BondsPage() {
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div className="space-y-2">
-                        <h1 className="text-3xl font-black tracking-tight text-neutral-900">Bond Market</h1>
-                        <p className="text-neutral-500 font-medium italic">Discover high-yield real-world assets on Creditcoin.</p>
+                        <h1 className="text-3xl font-black tracking-tight text-neutral-900">Growth Market</h1>
+                        <p className="text-neutral-500 font-medium italic">Discover high-yield IP & Growth assets on BondBase.</p>
                     </div>
 
                     <div className="flex items-center gap-2">

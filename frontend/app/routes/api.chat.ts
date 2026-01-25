@@ -1,7 +1,8 @@
 import { type ActionFunctionArgs } from "react-router";
-import { streamText, smoothStream } from "ai";
+import { streamText, smoothStream, tool } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { z } from "zod";
 
 import knowledgeBase from "../lib/knowledge.json";
 
@@ -33,42 +34,58 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         }).join("\n");
 
         const systemPrompt = `
-      You are the "BondBase AI Concierge", a sophisticated assistant for an RWA (Real World Asset) investment platform on Creditcoin.
+      You are the "BondBase AI Concierge", a sophisticated assistant specialized in ChoonSim AI-Talk IP RWA (Real World Asset) investments on Creditcoin.
       
-      Your personality: Professional, encouraging, and deeply technical yet accessible.
+      Your personality: Professional, encouraging, and an enthusiast of ChoonSim's global fandom growth.
       
       Your knowledge base is strictly limited to the provided context. When answering:
-      1. Use specific technical details (Contract addresses, Chain IDs, Token standards like ERC-1155) found in the docs.
-      2. If asked about "How to invest", explain the flow from Faucet -> Bond Market -> Invest.
-      3. If asked about yields, explain "Hold to Earn" and "Reinvest" (Compounding) mechanics.
+      1. Explain how ChoonSim's AI-Talk subscription revenue is converted into investor yields.
+      2. Use specific technical details (Contract addresses, Token standards like ERC-1155) found in the docs.
+      3. If asked about "How to invest", explain the flow from Faucet -> Growth Market -> Invest in ChoonSim Bonds.
+      4. Explain the "Revenue Share" and "Auto-Reinvest" (Compounding) mechanics specifically for ChoonSim bonds.
       5. IMPORTANT: When helpful, provide direct internal Markdown links to BondBase pages:
-         - [Bond Market](/bonds)
+         - [Growth Market](/bonds)
+         - [Fandom Impact](/impact)
+         - [Choonsim Growth](/choonsim)
          - [My Portfolio](/portfolio)
-         - [Impact Map](/impact)
          - [Account Settings](/settings)
-         - [Admin Dashboard](/admin)
       
       CRITICAL:
-      - If the information is not in the context, clearly state that you don't have that specific data but suggest where they might look (e.g., "official discord" or "block explorer").
+      - You are focused on the ChoonSim IP ecosystem. If asked about previous Thai SME loans, acknowledge them as "Legacy Pilot Projects" but redirect focus to ChoonSim.
       - Do not hallucinate numbers or addresses.
       - Use Markdown for beautiful formatting (tables, lists, bold text).
-      - Always respond as an AI Concierge who is here to make RWA investment seamless.
+      - Always respond as an AI Concierge who is here to make IP investment seamless.
 
-      Context from BondBase Master Documents:
+      Context from BondBase & ChoonSim Documents:
       ${context}
       `;
 
         // Select model provider based on user preference or default
-        // Defaulting to Google Gemini 2.0 Flash
+        // Upgraded to Gemini 2.0 Flash as per user request
         const modelInstance = model === "openai"
             ? openai("gpt-4o")
             : googleProvider("gemini-2.0-flash-exp");
+
+        // Initialize Viem Client for Creditcoin Testnet
+        const { createPublicClient, http, defineChain } = await import("viem");
+        const creditcoinTestnet = defineChain({
+            id: 102031,
+            name: "Creditcoin Testnet",
+            nativeCurrency: { name: "Creditcoin", symbol: "CTC", decimals: 18 },
+            rpcUrls: { default: { http: ["https://rpc.cc3-testnet.creditcoin.network"] } },
+            blockExplorers: { default: { name: "Creditcoin Explorer", url: "https://explorer.creditcoin.org" } },
+        });
+
+        const client = createPublicClient({
+            chain: creditcoinTestnet,
+            transport: http()
+        });
 
         const result = await streamText({
             model: modelInstance,
             system: systemPrompt,
             messages,
-            // experimental_transform: smoothStream() provides the character-by-character typing feel
+            // tools: { ... } removed due to Gemini API schema compatibility issues
             experimental_transform: smoothStream({ delayInMs: 20 }),
         });
 

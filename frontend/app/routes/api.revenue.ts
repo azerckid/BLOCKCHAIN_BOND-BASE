@@ -39,7 +39,11 @@ export async function action({ request }: ActionFunctionArgs) {
         if (type === "REVENUE") {
             const { amount, source, description } = data;
 
-            // 1. Record in DB (Off-chain Ledger)
+            // 1. Trigger On-chain Deposit (Staging for Audit)
+            console.log(`[API] Triggering on-chain deposit for ${amount} USDC`);
+            const relayResult = await relayDepositYield(CHOONSIM_BOND_ID, amount);
+
+            // 2. Record in DB with On-chain Hash
             await db.insert(choonsimRevenue).values({
                 id: randomUUID(),
                 projectId: "choonsim-main",
@@ -47,12 +51,8 @@ export async function action({ request }: ActionFunctionArgs) {
                 source,
                 description,
                 receivedAt: new Date().getTime(),
+                onChainTxHash: relayResult.hash,
             });
-
-            // 2. Trigger On-chain Deposit (Staging for Audit)
-            // This will move funds into its 'Pending' status if audit is enabled
-            console.log(`[API] Triggering on-chain deposit for ${amount} USDC`);
-            const relayResult = await relayDepositYield(CHOONSIM_BOND_ID, amount);
 
             // 3. Update project totals
             if (source === "SUBSCRIPTION") {

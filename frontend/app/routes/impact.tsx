@@ -11,7 +11,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { useReadContract } from "wagmi";
 import { CONTRACTS } from "@/config/contracts";
-import { MOCK_BONDS } from "./bonds";
+import { CHOONSIM_BOND_DATA, LEGACY_BONDS } from "./bonds";
 import { useState, useCallback } from "react";
 import {
     BarChart,
@@ -31,9 +31,9 @@ import {
 } from "@vis.gl/react-google-maps";
 
 const STAT_CARDS = [
-    { label: "Total Carbon Reduced", value: "2,430 kg", icon: Tree01Icon, color: "text-emerald-600", bg: "bg-emerald-50" },
-    { label: "Active Jobs Created", value: "48", icon: UserGroupIcon, color: "text-blue-600", bg: "bg-blue-50" },
-    { label: "Community ESG Score", value: "A+", icon: Analytics01Icon, color: "text-indigo-600", bg: "bg-indigo-50" },
+    { label: "Global Fandom Growth", value: "65.2K", icon: UserGroupIcon, color: "text-emerald-600", bg: "bg-emerald-50" },
+    { label: "Engagement Rate", value: "84%", icon: Analytics01Icon, color: "text-blue-600", bg: "bg-blue-50" },
+    { label: "Fandom Sentiment", value: "A+", icon: Tree01Icon, color: "text-indigo-600", bg: "bg-indigo-50" },
 ];
 
 const DARK_MAP_STYLE = [
@@ -55,16 +55,28 @@ const DARK_MAP_STYLE = [
     { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#3d3d3d" }] },
 ];
 
+const SA_BOND_DATA = {
+    ...CHOONSIM_BOND_DATA,
+    id: "102-SA", // Virtual ID for visualization
+    title: "Choonsim LatAm Expansion",
+    location: "São Paulo, Brazil",
+    lat: -23.5505,
+    lng: -46.6333,
+};
+
 export default function ImpactPage() {
-    const [activeBond, setActiveBond] = useState(MOCK_BONDS[0]);
+    const allBonds = [CHOONSIM_BOND_DATA, SA_BOND_DATA]; // Show active ChoonSim (Japan) & LatAm (Brazil)
+    const [activeBond, setActiveBond] = useState(CHOONSIM_BOND_DATA);
     const [infoWindowShown, setInfoWindowShown] = useState<string | null>(null);
 
     // In a real app, we would aggregate all bonds' impact data
+    const isVirtualId = isNaN(Number(activeBond.id));
     const { data: impact } = useReadContract({
         address: CONTRACTS.OracleAdapter.address as `0x${string}`,
         abi: CONTRACTS.OracleAdapter.abi,
         functionName: "getImpactData",
-        args: [BigInt(activeBond.id)],
+        args: [isVirtualId ? 0n : BigInt(activeBond.id)],
+        query: { enabled: !isVirtualId }
     });
 
     const impactData = impact ? {
@@ -82,10 +94,10 @@ export default function ImpactPage() {
 
     const COLORS = ["#10b981", "#3b82f6", "#6366f1"];
 
-    const handleMarkerClick = useCallback((bond: typeof MOCK_BONDS[0]) => {
+    const handleMarkerClick = useCallback((bond: typeof allBonds[0]) => {
         setActiveBond(bond);
         setInfoWindowShown(bond.id);
-    }, []);
+    }, [allBonds]);
 
     return (
         <DashboardLayout>
@@ -97,9 +109,9 @@ export default function ImpactPage() {
                             <div className="w-12 h-12 bg-neutral-900 rounded-2xl flex items-center justify-center shadow-xl shadow-neutral-200">
                                 <HugeiconsIcon icon={GlobalIcon} size={28} className="text-white" />
                             </div>
-                            <h1 className="text-4xl font-black tracking-tight text-neutral-900 uppercase">Impact Transparency</h1>
+                            <h1 className="text-4xl font-black tracking-tight text-neutral-900 uppercase">Fandom Impact</h1>
                         </div>
-                        <p className="text-neutral-500 font-bold ml-1 italic">Real-time ESG verification powered by Oracle & On-chain Proofs.</p>
+                        <p className="text-neutral-500 font-bold ml-1 italic">Visualizing ChoonSim's Global Footprint & Fandom Expansion.</p>
                     </div>
                 </div>
 
@@ -123,17 +135,17 @@ export default function ImpactPage() {
                     {/* Left: Interactive Map */}
                     <div className="lg:col-span-3 space-y-6">
                         <div className="bg-neutral-900 rounded-[1.75rem] p-4 min-h-[600px] relative overflow-hidden shadow-2xl shadow-neutral-200 border-8 border-neutral-800">
-                            <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+                            <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ""}>
                                 <div className="absolute inset-0">
                                     <Map
-                                        defaultCenter={{ lat: 13.7563, lng: 100.5018 }}
-                                        defaultZoom={6}
+                                        defaultCenter={{ lat: 10.0, lng: 0.0 }} // Global view
+                                        defaultZoom={2}
                                         gestureHandling={'greedy'}
                                         disableDefaultUI={true}
                                         styles={DARK_MAP_STYLE}
                                         className="w-full h-full grayscale-[0.5] contrast-[1.2]"
                                     >
-                                        {MOCK_BONDS.map((bond) => (
+                                        {allBonds.map((bond) => (
                                             <Marker
                                                 key={bond.id}
                                                 position={{ lat: bond.lat, lng: bond.lng }}
@@ -144,15 +156,15 @@ export default function ImpactPage() {
                                         {infoWindowShown && (
                                             <InfoWindow
                                                 position={{
-                                                    lat: MOCK_BONDS.find(b => b.id === infoWindowShown)?.lat || 0,
-                                                    lng: MOCK_BONDS.find(b => b.id === infoWindowShown)?.lng || 0
+                                                    lat: allBonds.find(b => b.id === infoWindowShown)?.lat || 0,
+                                                    lng: allBonds.find(b => b.id === infoWindowShown)?.lng || 0
                                                 }}
                                                 onCloseClick={() => setInfoWindowShown(null)}
                                             >
-                                                <div className="p-2 space-y-2 max-w-[200px]">
-                                                    <p className="text-[10px] font-black text-indigo-600 uppercase italic">Active RWA Node</p>
-                                                    <h4 className="font-black text-neutral-900 leading-tight">{MOCK_BONDS.find(b => b.id === infoWindowShown)?.title}</h4>
-                                                    <p className="text-[9px] text-neutral-500 font-bold">{MOCK_BONDS.find(b => b.id === infoWindowShown)?.location}</p>
+                                                <div className="p-2 space-y-1 max-w-[200px]">
+                                                    <p className="text-[10px] font-black text-emerald-600 uppercase italic tracking-wider">Active IP Hub</p>
+                                                    <h4 className="font-black text-neutral-900 leading-tight">{allBonds.find(b => b.id === infoWindowShown)?.title}</h4>
+                                                    <p className="text-[9px] text-neutral-500 font-bold">{allBonds.find(b => b.id === infoWindowShown)?.location}</p>
                                                 </div>
                                             </InfoWindow>
                                         )}
@@ -166,12 +178,12 @@ export default function ImpactPage() {
                                     <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
                                         <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                                     </div>
-                                    <span className="text-[10px] font-black text-white uppercase tracking-widest whitespace-nowrap">Global RWA Hub - Live</span>
+                                    <span className="text-[10px] font-black text-white uppercase tracking-widest whitespace-nowrap">Global IP Network - Live</span>
                                 </div>
                             </div>
 
                             <div className="absolute bottom-6 right-6 z-10 flex gap-2">
-                                {MOCK_BONDS.slice(0, 3).map((bond) => (
+                                {allBonds.slice(0, 3).map((bond) => (
                                     <button
                                         key={bond.id}
                                         onClick={() => {
@@ -195,7 +207,7 @@ export default function ImpactPage() {
                         {/* Selector Info */}
                         <div className="bg-white border border-neutral-100 rounded-[1.25rem] p-8 shadow-sm space-y-6">
                             <div className="space-y-1">
-                                <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 border-none font-black text-[10px] uppercase">{activeBond.category}</Badge>
+                                <Badge className="bg-emerald-50 text-emerald-700 border-none font-black text-[10px] uppercase">{activeBond.category}</Badge>
                                 <h2 className="text-2xl font-black text-neutral-900 leading-tight">{activeBond.title}</h2>
                                 <div className="flex items-center gap-2 mt-1">
                                     <HugeiconsIcon icon={Location01Icon} size={14} className="text-neutral-400" />
@@ -214,7 +226,7 @@ export default function ImpactPage() {
                                                 return (
                                                     <div className="bg-neutral-900 p-3 rounded-xl border border-neutral-800 shadow-2xl">
                                                         <p className="text-[10px] font-black text-white uppercase tracking-widest">{payload[0].name}</p>
-                                                        <p className="text-lg font-black text-indigo-400">{payload[0].value}</p>
+                                                        <p className="text-lg font-black text-emerald-400">{payload[0].value}</p>
                                                     </div>
                                                 );
                                             }
@@ -231,8 +243,8 @@ export default function ImpactPage() {
 
                             <div className="pt-4 border-t border-neutral-50 flex items-center justify-between">
                                 <div className="space-y-0.5">
-                                    <p className="text-[10px] uppercase font-black text-neutral-400">ESG Verification</p>
-                                    <p className="text-xs font-black text-emerald-600 uppercase">Verified on {new Date().toLocaleDateString()}</p>
+                                    <p className="text-[10px] uppercase font-black text-neutral-400">Governance Verification</p>
+                                    <p className="text-xs font-black text-emerald-600 uppercase italic">Validated on {new Date().toLocaleDateString()}</p>
                                 </div>
                                 <button className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center hover:bg-neutral-100 transition-colors">
                                     <HugeiconsIcon icon={Settings02Icon} size={18} className="text-neutral-500" />
@@ -241,16 +253,16 @@ export default function ImpactPage() {
                         </div>
 
                         {/* Additional Insight */}
-                        <div className="bg-indigo-600 rounded-[1.25rem] p-8 text-white space-y-4 shadow-xl shadow-indigo-100 relative overflow-hidden group">
-                            <div className="absolute -top-4 -right-4 w-32 h-32 bg-indigo-500 rounded-full blur-3xl opacity-50 transition-all group-hover:scale-150" />
+                        <div className="bg-neutral-900 rounded-[1.25rem] p-8 text-white space-y-4 shadow-xl shadow-neutral-100 relative overflow-hidden group">
+                            <div className="absolute -top-4 -right-4 w-32 h-32 bg-neutral-800 rounded-full blur-3xl opacity-50 transition-all group-hover:scale-150" />
                             <div className="relative z-10 space-y-4">
-                                <HugeiconsIcon icon={Chart01Icon} size={32} />
-                                <h3 className="text-xl font-black leading-tight uppercase tracking-tighter">Your Social Yield</h3>
-                                <p className="text-indigo-100 text-sm font-bold leading-relaxed italic opacity-80">
-                                    "Beyond the financial return, your investments represent tangible growth for local communities and a greener future."
+                                <HugeiconsIcon icon={Chart01Icon} size={32} className="text-emerald-500" />
+                                <h3 className="text-xl font-black leading-tight uppercase tracking-tighter">Your Fandom Yield</h3>
+                                <p className="text-neutral-400 text-sm font-bold leading-relaxed italic opacity-80">
+                                    "Beyond the financial return, your investments represent the global democratization of IP and a closer bond with ChoonSim."
                                 </p>
-                                <button className="pt-2 text-[11px] font-black uppercase tracking-widest flex items-center gap-2 hover:translate-x-1 transition-transform">
-                                    Download Impact Portfolio <HugeiconsIcon icon={Location01Icon} size={12} />
+                                <button className="pt-2 text-[11px] font-black text-emerald-500 uppercase tracking-widest flex items-center gap-2 hover:translate-x-1 transition-transform">
+                                    Download Fandom Report <HugeiconsIcon icon={Location01Icon} size={12} />
                                 </button>
                             </div>
                         </div>
