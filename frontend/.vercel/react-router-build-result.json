@@ -1,0 +1,285 @@
+{
+  "buildManifest": {
+    "serverBundles": {
+      "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0": {
+        "id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+        "file": "build/server/nodejs_eyJydW50aW1lIjoibm9kZWpzIn0/index.js",
+        "config": {
+          "runtime": "nodejs"
+        }
+      }
+    },
+    "routeIdToServerBundleId": {
+      "routes/home": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/bonds": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/choonsim": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/portfolio": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/settings": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/admin": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/ai-guide": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/impact": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/auth": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/api.chat": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/api.revenue": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0"
+    },
+    "routes": {
+      "root": {
+        "id": "root",
+        "file": "app/root.tsx",
+        "path": "",
+        "config": {}
+      },
+      "routes/home": {
+        "id": "routes/home",
+        "parentId": "root",
+        "file": "app/routes/home.tsx",
+        "index": true,
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/bonds": {
+        "id": "routes/bonds",
+        "parentId": "root",
+        "file": "app/routes/bonds.tsx",
+        "path": "bonds",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/choonsim": {
+        "id": "routes/choonsim",
+        "parentId": "root",
+        "file": "app/routes/choonsim.tsx",
+        "path": "choonsim",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/portfolio": {
+        "id": "routes/portfolio",
+        "parentId": "root",
+        "file": "app/routes/portfolio.tsx",
+        "path": "portfolio",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/settings": {
+        "id": "routes/settings",
+        "parentId": "root",
+        "file": "app/routes/settings.tsx",
+        "path": "settings",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/admin": {
+        "id": "routes/admin",
+        "parentId": "root",
+        "file": "app/routes/admin.tsx",
+        "path": "admin",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/ai-guide": {
+        "id": "routes/ai-guide",
+        "parentId": "root",
+        "file": "app/routes/ai-guide.tsx",
+        "path": "ai-guide",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/impact": {
+        "id": "routes/impact",
+        "parentId": "root",
+        "file": "app/routes/impact.tsx",
+        "path": "impact",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/auth": {
+        "id": "routes/auth",
+        "parentId": "root",
+        "file": "app/routes/auth.ts",
+        "path": "api/auth/*",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/api.chat": {
+        "id": "routes/api.chat",
+        "parentId": "root",
+        "file": "app/routes/api.chat.ts",
+        "path": "api/chat",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/api.revenue": {
+        "id": "routes/api.revenue",
+        "parentId": "root",
+        "file": "app/routes/api.revenue.ts",
+        "path": "api/revenue",
+        "config": {
+          "runtime": "nodejs"
+        }
+      }
+    }
+  },
+  "reactRouterConfig": {
+    "appDirectory": "/Users/namhyeongseog/Desktop/A_PROJECT/BondBase/frontend/app",
+    "basename": "/",
+    "buildDirectory": "/Users/namhyeongseog/Desktop/A_PROJECT/BondBase/frontend/build",
+    "future": {
+      "unstable_optimizeDeps": false,
+      "unstable_subResourceIntegrity": false,
+      "unstable_trailingSlashAwareDataRequests": false,
+      "v8_middleware": false,
+      "v8_splitRouteModules": false,
+      "v8_viteEnvironmentApi": false
+    },
+    "routes": {
+      "root": {
+        "id": "root",
+        "file": "root.tsx",
+        "path": ""
+      },
+      "routes/home": {
+        "id": "routes/home",
+        "parentId": "root",
+        "file": "routes/home.tsx",
+        "index": true
+      },
+      "routes/bonds": {
+        "id": "routes/bonds",
+        "parentId": "root",
+        "file": "routes/bonds.tsx",
+        "path": "bonds"
+      },
+      "routes/choonsim": {
+        "id": "routes/choonsim",
+        "parentId": "root",
+        "file": "routes/choonsim.tsx",
+        "path": "choonsim"
+      },
+      "routes/portfolio": {
+        "id": "routes/portfolio",
+        "parentId": "root",
+        "file": "routes/portfolio.tsx",
+        "path": "portfolio"
+      },
+      "routes/settings": {
+        "id": "routes/settings",
+        "parentId": "root",
+        "file": "routes/settings.tsx",
+        "path": "settings"
+      },
+      "routes/admin": {
+        "id": "routes/admin",
+        "parentId": "root",
+        "file": "routes/admin.tsx",
+        "path": "admin"
+      },
+      "routes/ai-guide": {
+        "id": "routes/ai-guide",
+        "parentId": "root",
+        "file": "routes/ai-guide.tsx",
+        "path": "ai-guide"
+      },
+      "routes/impact": {
+        "id": "routes/impact",
+        "parentId": "root",
+        "file": "routes/impact.tsx",
+        "path": "impact"
+      },
+      "routes/auth": {
+        "id": "routes/auth",
+        "parentId": "root",
+        "file": "routes/auth.ts",
+        "path": "api/auth/*"
+      },
+      "routes/api.chat": {
+        "id": "routes/api.chat",
+        "parentId": "root",
+        "file": "routes/api.chat.ts",
+        "path": "api/chat"
+      },
+      "routes/api.revenue": {
+        "id": "routes/api.revenue",
+        "parentId": "root",
+        "file": "routes/api.revenue.ts",
+        "path": "api/revenue"
+      }
+    },
+    "routeDiscovery": {
+      "mode": "lazy",
+      "manifestPath": "/__manifest"
+    },
+    "serverBuildFile": "index.js",
+    "serverModuleFormat": "esm",
+    "ssr": true,
+    "allowedActionOrigins": false,
+    "unstable_routeConfig": [
+      {
+        "id": "root",
+        "path": "",
+        "file": "root.tsx",
+        "children": [
+          {
+            "file": "routes/home.tsx",
+            "index": true
+          },
+          {
+            "file": "routes/bonds.tsx",
+            "path": "bonds"
+          },
+          {
+            "file": "routes/choonsim.tsx",
+            "path": "choonsim"
+          },
+          {
+            "file": "routes/portfolio.tsx",
+            "path": "portfolio"
+          },
+          {
+            "file": "routes/settings.tsx",
+            "path": "settings"
+          },
+          {
+            "file": "routes/admin.tsx",
+            "path": "admin"
+          },
+          {
+            "file": "routes/ai-guide.tsx",
+            "path": "ai-guide"
+          },
+          {
+            "file": "routes/impact.tsx",
+            "path": "impact"
+          },
+          {
+            "file": "routes/auth.ts",
+            "path": "api/auth/*"
+          },
+          {
+            "file": "routes/api.chat.ts",
+            "path": "api/chat"
+          },
+          {
+            "file": "routes/api.revenue.ts",
+            "path": "api/revenue"
+          }
+        ]
+      }
+    ]
+  },
+  "viteConfig": {
+    "build": {
+      "assetsDir": "assets"
+    }
+  }
+}
