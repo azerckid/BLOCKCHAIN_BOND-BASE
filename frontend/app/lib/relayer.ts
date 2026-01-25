@@ -38,18 +38,42 @@ export async function relayDepositYield(bondId: number, amount: string) {
     console.log(`[Relayer] Starting depositYield for Bond: ${bondId}, Amount: ${amount} USDC`);
 
     try {
+        const depositAmount = parseUnits(amount, 18); // Assuming 18 decimals for USDC (MockUSDC)
+
+        // 1. Check & Auto-Approve if needed
+        const allowance = await publicClient.readContract({
+            address: CONTRACTS.MockUSDC.address as `0x${string}`,
+            abi: CONTRACTS.MockUSDC.abi,
+            functionName: 'allowance',
+            args: [account.address, CONTRACTS.YieldDistributor.address as `0x${string}`],
+        }) as bigint;
+
+        if (allowance < depositAmount) {
+            console.log(`[Relayer] Low allowance (${allowance}). Approving YieldDistributor...`);
+            const approveHash = await walletClient.writeContract({
+                address: CONTRACTS.MockUSDC.address as `0x${string}`,
+                abi: CONTRACTS.MockUSDC.abi,
+                functionName: 'approve',
+                args: [CONTRACTS.YieldDistributor.address as `0x${string}`, BigInt("115792089237316195423570985008687907853269984665640564039457584007913129639935")], // Max uint256
+                account,
+            });
+            await publicClient.waitForTransactionReceipt({ hash: approveHash });
+            console.log(`[Relayer] Approval confirmed: ${approveHash}`);
+        }
+
+        // 2. Perform Deposit
         const { request } = await publicClient.simulateContract({
             address: CONTRACTS.YieldDistributor.address as `0x${string}`,
             abi: CONTRACTS.YieldDistributor.abi,
             functionName: 'depositYield',
-            args: [BigInt(bondId), parseUnits(amount, 18)], // Assuming 18 decimals for USDC (MockUSDC)
+            args: [BigInt(bondId), depositAmount],
             account,
         });
 
         const hash = await walletClient.writeContract(request);
         console.log(`[Relayer] Transaction sent: ${hash}`);
 
-        // Wait for confirmation (optional but recommended for backend consistency)
+        // Wait for confirmation
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
         console.log(`[Relayer] Transaction confirmed in block: ${receipt.blockNumber}`);
 

@@ -10,6 +10,7 @@ import {
     Notification01Icon,
     Menu01Icon,
     Comment01Icon,
+    ChartBreakoutCircleIcon,
     GlobalIcon
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
@@ -40,7 +41,7 @@ const NavItem = ({ to, icon, label, onClick }: NavItemProps) => {
             <span className="shrink-0 transition-transform duration-200 group-hover:scale-110">
                 <HugeiconsIcon icon={icon} size={24} />
             </span>
-            <span className="font-medium">{label}</span>
+            <span className="font-medium text-sm">{label}</span>
         </NavLink>
     );
 };
@@ -50,6 +51,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
     const navigation = [
         { to: "/", icon: Home01Icon, label: "Dashboard" },
+        { to: "/choonsim", icon: ChartBreakoutCircleIcon, label: "Choonsim Growth" },
         { to: "/bonds", icon: Database01Icon, label: "Bond Market" },
         { to: "/portfolio", icon: Wallet01Icon, label: "My Portfolio" },
         { to: "/impact", icon: GlobalIcon, label: "Impact Map" },

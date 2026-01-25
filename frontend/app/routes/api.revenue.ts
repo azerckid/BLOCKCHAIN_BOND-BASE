@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs } from "react-router";
 import { db } from "@/db";
-import { choonsimRevenue, choonsimProjects, choonsimMilestones } from "@/db/schema";
+import { choonsimRevenue, choonsimProjects, choonsimMilestones, choonsimMetricsHistory } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { relayDepositYield } from "@/lib/relayer";
@@ -86,6 +86,29 @@ export async function action({ request }: ActionFunctionArgs) {
             if (bonusAmount && parseFloat(bonusAmount) > 0) {
                 await relayDepositYield(CHOONSIM_BOND_ID, bonusAmount);
             }
+        } else if (type === "METRICS") {
+            const { followers, subscribers, shares } = data;
+
+            // 1. Update Project Main Stats
+            await db.update(choonsimProjects)
+                .set({
+                    totalFollowers: followers,
+                    totalSubscribers: subscribers,
+                    southAmericaShare: shares?.southAmerica || 70,
+                    japanShare: shares?.japan || 30,
+                    otherRegionShare: shares?.other || 0,
+                    updatedAt: new Date().getTime()
+                })
+                .where(eq(choonsimProjects.id, "choonsim-main"));
+
+            // 2. Record to History (for charts)
+            await db.insert(choonsimMetricsHistory).values({
+                id: randomUUID(),
+                projectId: "choonsim-main",
+                followers,
+                subscribers,
+                recordedAt: new Date().getTime(),
+            });
         }
 
         return new Response(JSON.stringify({ success: true }), {

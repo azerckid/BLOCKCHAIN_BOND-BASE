@@ -7,7 +7,7 @@ import { type Abi } from "viem";
 
 export const CONTRACTS = {
     MockUSDC: {
-        address: "0x97A41Ff77f70e9328A20b62b393F8Fb0E7e49364",
+        address: "0xf11806bF4c798841b917217338F5b7907dB8938f",
         abi: [
             { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" },
             { "inputs": [{ "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "allowance", "type": "uint256" }, { "internalType": "uint256", "name": "needed", "type": "uint256" }], "name": "ERC20InsufficientAllowance", "type": "error" },
@@ -37,7 +37,7 @@ export const CONTRACTS = {
         ] as Abi
     },
     BondToken: {
-        address: "0x6aaEe229EB0f59dC0F4B579B4E5d35E05A6846Bb",
+        address: "0xcD8BdED91974cee972fd39f1A9471490E1F1C504",
         abi: [
             { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" },
             { "inputs": [], "name": "AccessControlBadConfirmation", "type": "error" },
@@ -82,7 +82,7 @@ export const CONTRACTS = {
         ] as Abi
     },
     LiquidityPool: {
-        address: "0x290adf245E805D24DF630A01843b3C3Fb20bd082",
+        address: "0xdd797Bd099569b982A505cAC3064f1FF3c0A4ea9",
         abi: [
             { "inputs": [{ "internalType": "address", "name": "_usdcToken", "type": "address" }, { "internalType": "address", "name": "_bondToken", "type": "address" }], "stateMutability": "nonpayable", "type": "constructor" },
             { "inputs": [], "name": "AccessControlBadConfirmation", "type": "error" },
@@ -108,7 +108,7 @@ export const CONTRACTS = {
         ] as Abi
     },
     YieldDistributor: {
-        address: "0xEbBa8Cec7Dee65bE9263e6378b33EC6D6Dba1308",
+        address: "0xcF427f89B38dbfd3fB230B63B17f5C0aa6362700",
         abi: [
             { "inputs": [{ "internalType": "address", "name": "_usdcToken", "type": "address" }], "stateMutability": "nonpayable", "type": "constructor" },
             { "inputs": [], "name": "AccessControlBadConfirmation", "type": "error" },

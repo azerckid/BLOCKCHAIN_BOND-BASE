@@ -107,7 +107,16 @@ export const choonsimProjects = sqliteTable("choonsim_projects", {
     totalSubscribers: integer("total_subscribers").default(0),
     southAmericaShare: integer("south_america_share").default(70), // Percent
     japanShare: integer("japan_share").default(30), // Percent
+    otherRegionShare: integer("other_region_share").default(0), // Percent
     updatedAt: integer("updated_at").notNull(), // Timestamp
+});
+
+export const choonsimMetricsHistory = sqliteTable("choonsim_metrics_history", {
+    id: text("id").primaryKey(),
+    projectId: text("project_id").references(() => choonsimProjects.id).notNull(),
+    followers: integer("followers").notNull(),
+    subscribers: integer("subscribers").notNull(),
+    recordedAt: integer("recorded_at").notNull(), // Timestamp
 });
 
 export const choonsimRevenue = sqliteTable("choonsim_revenue", {
