@@ -26,23 +26,18 @@ export function meta() {
 }
 
 export async function loader() {
-    let project = await db.query.choonsimProjects.findFirst({
+    // Initialize if not exists (using onConflictDoNothing to prevent race conditions)
+    await db.insert(choonsimProjects).values({
+        id: "choonsim-main",
+        name: "Chunsim AI-Talk",
+        totalFollowers: 32000,
+        totalSubscribers: 1240,
+        updatedAt: new Date().getTime(),
+    }).onConflictDoNothing();
+
+    const project = await db.query.choonsimProjects.findFirst({
         where: eq(choonsimProjects.id, "choonsim-main"),
     });
-
-    if (!project) {
-        // Initialize if not exists
-        await db.insert(choonsimProjects).values({
-            id: "choonsim-main",
-            name: "Chunsim AI-Talk",
-            totalFollowers: 32000,
-            totalSubscribers: 1240,
-            updatedAt: new Date().getTime(),
-        });
-        project = await db.query.choonsimProjects.findFirst({
-            where: eq(choonsimProjects.id, "choonsim-main"),
-        });
-    }
 
     const recentRevenue = await db.query.choonsimRevenue.findMany({
         where: eq(choonsimRevenue.projectId, "choonsim-main"),
