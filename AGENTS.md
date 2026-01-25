@@ -1,5 +1,13 @@
 # Antigravity Global Standards & Communication Rules
 
+## 0. 프로젝트 초기화 표준 (Project Initialization SOP)
+새로운 프로젝트를 시작하거나 대규모 기능 개발 착수 시, 반드시 다음의 **4단계 거버넌스 프로세스**를 이행해야 한다.
+1.  **규칙 수립**: 최신 `AGENTS.md`를 프로젝트 루트에 복사하여 AI의 사고 필터를 선제 구축한다.
+2.  **컨셉 명문화**: 프로젝트의 목표와 핵심 컨셉을 논의하고 `docs/core/`에 문서로 기록한다.
+3.  **시스템 설계**: 구현을 위한 인프라, DB 스키마, 기술 스택을 확정하고 `docs/core/` 또는 `docs/features/`에 기록한다.
+4.  **계획 수립**: 구현을 위한 단계별 전체 계획(Phase)을 수립하고 `docs/roadmap/`에 기록한다.
+5.  **실행 지침**: 위 3가지 문서화가 완료되기 전까지는 어떠한 실제 코드 구현(Implementation)도 시작할 수 없다.
+
 ## 1. 커뮤니케이션 및 승인 원칙 (Strict Approval & Communication)
 - **[No Emojis]** 사용자와의 모든 대화에서 이모지(Emoji) 및 이모티콘 사용을 전면 금지한다. 전문적이고 명확한 텍스트로만 소통한다.
 - **[Query-First Mode]** 질문이나 설명 요청 시, 파일 수정이나 명령 실행을 금지하고 상세한 텍스트 답변을 최우선으로 제공한다.
@@ -77,20 +85,6 @@
 - **[Continuity]** 어떠한 경우에도 임의로 기술 스택이나 운영 맥락을 하향 조정하지 않는다.
 - **[Strict Instruction]** 중요한 것은 무엇이라도 임의로 처리하지 말 것. 처리해야 할 것이 생기면 사용자에게 반드시 물어보고 설명하고 사용자의 승인을 얻어 진행할 것.
 
----
-
-## 11. Project Core Context (프로젝트 핵심 맥락)
-
-### 11.1 프로젝트 비전 (Vision)
-- **"IP 수익권 기반의 차세대 RWA 런치패드"**
-- 강력한 글로벌 팬덤을 보유한 **'춘심(ChoonSim)'** IP의 수익권을 온체인 자산화(USDC 페깅)하여 투명한 수익 배분과 정서적 투자를 결합한 생태계 구축.
-
-### 11.2 핵심 인프라 스택 (Key Infrastructure)
-- **Blockchain**: Creditcoin 3.0 (CC3) Testnet
-- **Database**: Turso (libSQL) / Drizzle ORM
-- **AI Engine**: Google Gemini 2.0 Flash
-- **Frontend**: Remix (React Router v7) / Vercel Edge Runtime
-- **Oracle**: Creditcoin Universal Oracle (Audit System)
-
-### 11.3 실시간 맥락 파악 (Status Tracking)
-- 본 문서는 규칙(Rule)에 집중하므로, 현재 진행 단계는 **Rule 4**에 의거하여 항상 `docs/roadmap/`과 `docs/reports/`의 최신 파일을 참조하여 스스로 파악하고 작업을 시작한다.
+## 11. Reference Documents (참조 문서)
+- **프로젝트 개요 및 비전**: [00_PROJECT_OVERVIEW.md](docs/core/00_PROJECT_OVERVIEW.md)
+- **현재 진행 상황**: `docs/roadmap/` 및 `docs/reports/` 내 최신 파일 참조
