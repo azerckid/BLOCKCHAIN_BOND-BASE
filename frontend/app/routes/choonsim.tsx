@@ -5,7 +5,7 @@ import { choonsimProjects, choonsimMetricsHistory, choonsimRevenue, choonsimMile
 import { eq, desc, sql } from "drizzle-orm";
 import { useLoaderData, useRevalidator } from "react-router";
 import { DateTime } from "luxon";
-import { publicClient, walletClient } from "@/lib/relayer";
+import { publicClient, getWalletClient } from "@/lib/relayer";
 import { CONTRACTS } from "@/config/contracts";
 import { formatUnits } from "viem";
 import { useState } from "react";
@@ -118,7 +118,7 @@ export default function ChoonsimRoute() {
     const handleClaim = async () => {
         setIsPending(true);
         const promise = (async () => {
-            const hash = await walletClient.writeContract({
+            const hash = await getWalletClient().writeContract({
                 address: CONTRACTS.YieldDistributor.address as `0x${string}`,
                 abi: CONTRACTS.YieldDistributor.abi,
                 functionName: 'claimYield',
@@ -140,7 +140,7 @@ export default function ChoonsimRoute() {
     const handleReinvest = async () => {
         setIsPending(true);
         const promise = (async () => {
-            const hash = await walletClient.writeContract({
+            const hash = await getWalletClient().writeContract({
                 address: CONTRACTS.YieldDistributor.address as `0x${string}`,
                 abi: CONTRACTS.YieldDistributor.abi,
                 functionName: 'reinvest',

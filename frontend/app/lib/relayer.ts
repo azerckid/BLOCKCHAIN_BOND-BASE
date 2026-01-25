@@ -17,23 +17,54 @@ const getEnv = (key: string): string | undefined => {
     return import.meta.env[key] || import.meta.env[`VITE_${key}`];
 };
 
-const privateKey = getEnv('RELAYER_PRIVATE_KEY') as `0x${string}`;
+// Development fallback: Hardhat #0 account
+const DEV_FALLBACK_KEY = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
 
-if (!privateKey && typeof process !== 'undefined' && process.env.NODE_ENV === 'production') {
-    throw new Error('RELAYER_PRIVATE_KEY is missing in production environment');
+/**
+ * Lazy initialization for relayer account
+ * Only validates and creates account when actually needed
+ */
+let _account: ReturnType<typeof privateKeyToAccount> | null = null;
+let _walletClient: ReturnType<typeof createWalletClient> | null = null;
+
+function getValidPrivateKey(): `0x${string}` {
+    const privateKey = getEnv('RELAYER_PRIVATE_KEY');
+    
+    if (!privateKey) {
+        // In production, log warning but use fallback to prevent crash
+        if (typeof process !== 'undefined' && process.env.NODE_ENV === 'production') {
+            console.warn('[Relayer] RELAYER_PRIVATE_KEY not set. Using development fallback.');
+        }
+        return DEV_FALLBACK_KEY as `0x${string}`;
+    }
+    
+    // Ensure proper format
+    const cleanKey = privateKey.trim();
+    if (!cleanKey.startsWith('0x')) {
+        return `0x${cleanKey}` as `0x${string}`;
+    }
+    return cleanKey as `0x${string}`;
 }
 
-// Fallback for development if not provided
-const activePrivateKey = privateKey || '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'; // Hardhat #0 account default
-const account = privateKeyToAccount(activePrivateKey);
+function getRelayerAccount() {
+    if (!_account) {
+        _account = privateKeyToAccount(getValidPrivateKey());
+    }
+    return _account;
+}
+
+export function getWalletClient() {
+    if (!_walletClient) {
+        _walletClient = createWalletClient({
+            account: getRelayerAccount(),
+            chain: creditcoinTestnet,
+            transport: http(),
+        });
+    }
+    return _walletClient;
+}
 
 export const publicClient = createPublicClient({
-    chain: creditcoinTestnet,
-    transport: http(),
-});
-
-export const walletClient = createWalletClient({
-    account,
     chain: creditcoinTestnet,
     transport: http(),
 });
@@ -44,6 +75,10 @@ export const walletClient = createWalletClient({
  */
 export async function relayDepositYield(bondId: number, amount: string) {
     console.log(`[Relayer] Starting depositYield for Bond: ${bondId}, Amount: ${amount} USDC`);
+
+    // Lazy initialization: only create account/client when this function is called
+    const account = getRelayerAccount();
+    const walletClient = getWalletClient();
 
     try {
         const depositAmount = parseUnits(amount, 18); // Assuming 18 decimals for USDC (MockUSDC)
