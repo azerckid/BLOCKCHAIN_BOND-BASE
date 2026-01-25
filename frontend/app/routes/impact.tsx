@@ -11,7 +11,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { useReadContract } from "wagmi";
 import { CONTRACTS } from "@/config/contracts";
-import { CHOONSIM_BOND_DATA, LEGACY_BONDS } from "./bonds";
+import { CHOONSIM_BOND_DATA } from "./bonds";
 import { useState, useCallback } from "react";
 import {
     BarChart,

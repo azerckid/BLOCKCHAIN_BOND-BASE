@@ -24,7 +24,7 @@ export async function action({ request }: ActionFunctionArgs) {
         const { type, data } = body;
 
         // Ensure Choonsim project exists
-        let project = await db.query.choonsimProjects.findFirst({
+        const project = await db.query.choonsimProjects.findFirst({
             where: eq(choonsimProjects.id, "choonsim-main"),
         });
 

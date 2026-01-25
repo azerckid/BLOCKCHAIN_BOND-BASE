@@ -30,8 +30,8 @@ function ChartSkeleton() {
                 <Skeleton className="h-8 w-24" />
             </div>
             <div className="flex-1 flex items-end gap-2 h-[300px]">
-                {Array.from({ length: 12 }).map((_, i) => (
-                    <Skeleton key={i} className="flex-1 h-full" style={{ height: `${Math.random() * 80 + 20}%` }} />
+                {[45, 72, 30, 85, 55, 60, 40, 90, 25, 65, 35, 80].map((height, i) => (
+                    <Skeleton key={i} className="flex-1 h-full" style={{ height: `${height}%` }} />
                 ))}
             </div>
         </div>
@@ -82,7 +82,7 @@ export default function PortfolioPage() {
             toast.success("Yield claimed successfully!");
             refetchEarned();
         }
-    }, [isClaimSuccess]);
+    }, [isClaimSuccess, refetchEarned]);
 
     const handleClaim = () => {
         if (!address) return;

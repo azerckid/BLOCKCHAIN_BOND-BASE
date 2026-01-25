@@ -1,8 +1,7 @@
 import { type ActionFunctionArgs } from "react-router";
-import { streamText, smoothStream, tool } from "ai";
+import { streamText, smoothStream } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { z } from "zod";
 
 import knowledgeBase from "../lib/knowledge.json";
 

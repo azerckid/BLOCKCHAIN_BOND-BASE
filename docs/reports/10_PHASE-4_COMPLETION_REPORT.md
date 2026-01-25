@@ -42,7 +42,17 @@
 | **Persona** | ✅ **Applied** | System Prompt | 춘심 IP/팬덤 전문 용어 학습 |
 | **Impact Map** | ✅ **Verified** | Google Maps API | 남미/일본 멀티 마커 지원 |
 | **Portfolio** | ✅ **Stable** | Wagmi / Viem | 데이터 로딩 방어 코드 적용 |
-| **Live Tool** | ⏸️ **Standby** | Viem / Wagmi | API 호환성 이슈로 V2 연기 |
+| **Tool Call** | ⏸️ **Standby** | Viem / Wagmi | API 호환성 이슈로 V2 연기 |
+
+### 3.1 Code Review Report (Technical Debt)
+- **Review Tool**: `/code-review` Workflow (ESLint + TSC)
+- **Fix Completed**:
+  - `Portfolio.tsx`: `useEffect` 의존성 배열 누락 및 `Impure Render` (Math.random 직접 호출) 수정.
+  - `Api.Chat.ts`: 미사용 Import (`zod`, `tool`) 제거.
+  - `Impact.tsx`: Legacy Data Import 제거.
+- **Remaining Issues (97 problems)**:
+  - 주로 `shadcn/ui` 내부의 `any` 타입 사용 및 `no-unused-vars` 경고.
+  - 서비스 동작에 치명적이지 않으므로 **Minor Technical Debt**로 분류하여 차기 버전 개선 과제로 이관.
 
 ---
 
