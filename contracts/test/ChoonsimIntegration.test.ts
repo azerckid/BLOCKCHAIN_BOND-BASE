@@ -1,5 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { YieldDistributor, ChoonsimBond, MockUSDC, LiquidityPool } from "../typechain-types";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 
@@ -61,7 +62,7 @@ describe("ChoonsimBond Integration (RWA Growth Model)", function () {
 
             await expect(choonsimBond.reachMilestone("Twitter_Followers_50K"))
                 .to.emit(choonsimBond, "MilestoneAchieved")
-                .withArgs("Twitter_Followers_50K", "Reach 50,000 followers on X", anyValue => true);
+                .withArgs("Twitter_Followers_50K", "Reach 50,000 followers on X", anyValue);
 
             milestone = await choonsimBond.milestones("Twitter_Followers_50K");
             expect(milestone.achieved).to.be.true;
