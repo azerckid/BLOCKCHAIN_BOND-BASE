@@ -29,7 +29,7 @@ let _walletClient: ReturnType<typeof createWalletClient> | null = null;
 
 function getValidPrivateKey(): `0x${string}` {
     const privateKey = getEnv('RELAYER_PRIVATE_KEY');
-    
+
     if (!privateKey) {
         // In production, log warning but use fallback to prevent crash
         if (typeof process !== 'undefined' && process.env.NODE_ENV === 'production') {
@@ -37,7 +37,7 @@ function getValidPrivateKey(): `0x${string}` {
         }
         return DEV_FALLBACK_KEY as `0x${string}`;
     }
-    
+
     // Ensure proper format
     const cleanKey = privateKey.trim();
     if (!cleanKey.startsWith('0x')) {
@@ -46,7 +46,7 @@ function getValidPrivateKey(): `0x${string}` {
     return cleanKey as `0x${string}`;
 }
 
-function getRelayerAccount() {
+export function getRelayerAccount() {
     if (!_account) {
         _account = privateKeyToAccount(getValidPrivateKey());
     }
@@ -119,6 +119,7 @@ export async function relayDepositYield(bondId: number, amount: string) {
                 functionName: 'approve',
                 args: [CONTRACTS.YieldDistributor.address as `0x${string}`, BigInt("115792089237316195423570985008687907853269984665640564039457584007913129639935")], // Max uint256
                 account,
+                chain: creditcoinTestnet,
             });
             await publicClient.waitForTransactionReceipt({ hash: approveHash });
             console.log(`[Relayer] Approval confirmed: ${approveHash}`);
@@ -131,6 +132,7 @@ export async function relayDepositYield(bondId: number, amount: string) {
             functionName: 'depositYield',
             args: [BigInt(bondId), depositAmount],
             account,
+            chain: creditcoinTestnet,
         });
 
         const hash = await walletClient.writeContract(request);

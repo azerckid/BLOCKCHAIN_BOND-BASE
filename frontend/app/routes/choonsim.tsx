@@ -5,8 +5,9 @@ import { choonsimProjects, choonsimMetricsHistory, choonsimRevenue, choonsimMile
 import { eq, desc, sql } from "drizzle-orm";
 import { useLoaderData, useRevalidator } from "react-router";
 import { DateTime } from "luxon";
-import { publicClient, getWalletClient } from "@/lib/relayer";
+import { publicClient, getWalletClient, getRelayerAccount } from "@/lib/relayer";
 import { CONTRACTS } from "@/config/contracts";
+import { creditcoinTestnet } from "@/config/wagmi";
 import { formatUnits } from "viem";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -122,7 +123,9 @@ export default function ChoonsimRoute() {
                 address: CONTRACTS.YieldDistributor.address as `0x${string}`,
                 abi: CONTRACTS.YieldDistributor.abi,
                 functionName: 'claimYield',
-                args: [BigInt(101)]
+                args: [BigInt(101)],
+                account: getRelayerAccount(),
+                chain: creditcoinTestnet
             });
             await publicClient.waitForTransactionReceipt({ hash });
             revalidator.revalidate();
@@ -144,7 +147,9 @@ export default function ChoonsimRoute() {
                 address: CONTRACTS.YieldDistributor.address as `0x${string}`,
                 abi: CONTRACTS.YieldDistributor.abi,
                 functionName: 'reinvest',
-                args: [BigInt(101)]
+                args: [BigInt(101)],
+                account: getRelayerAccount(),
+                chain: creditcoinTestnet
             });
             await publicClient.waitForTransactionReceipt({ hash });
             revalidator.revalidate();
