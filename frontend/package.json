@@ -8,7 +8,8 @@
     "build": "node scripts/generate-knowledge.cjs && react-router build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate-knowledge": "node scripts/generate-knowledge.cjs"
+    "generate-knowledge": "node scripts/generate-knowledge.cjs",
+    "oracle": "node scripts/oracle-bot.js"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.10",
