@@ -95,12 +95,50 @@ const creditcoinTestnet = {
     rpcUrls: { default: { http: ['https://rpc.cc3-testnet.creditcoin.network'] } },
 };
 
+// DB Client with reconnection logic
+let dbClient = null;
+
+// Convert libsql:// URL to https:// URL for Node.js compatibility
+function normalizeTursoUrl(url) {
+    if (url.startsWith('libsql://')) {
+        // Convert libsql://database-name.turso.io to https://database-name.turso.io
+        return url.replace('libsql://', 'https://');
+    }
+    return url;
+}
+
+function getDbClient() {
+    if (!dbClient) {
+        console.log(`[Oracle] Creating new DB client connection...`);
+        const normalizedUrl = normalizeTursoUrl(TURSO_URL);
+        console.log(`[Oracle] Using URL: ${normalizedUrl}`);
+        dbClient = createClient({
+            url: normalizedUrl,
+            authToken: TURSO_TOKEN
+        });
+    }
+    return dbClient;
+}
+
+async function testDbConnection() {
+    try {
+        const db = getDbClient();
+        // Simple test query
+        await db.execute("SELECT 1");
+        return true;
+    } catch (error) {
+        console.error(`[Oracle] DB connection test failed:`, error.message);
+        // Reset client to force reconnection
+        dbClient = null;
+        return false;
+    }
+}
+
 async function main() {
     console.log("[Oracle] Starting Oracle Bot (Revenue -> On-Chain Relay) [ES Module]...");
 
     // Setup Clients
     const account = privateKeyToAccount(PRIVATE_KEY.startsWith('0x') ? PRIVATE_KEY : `0x${PRIVATE_KEY}`);
-    const db = createClient({ url: TURSO_URL, authToken: TURSO_TOKEN });
 
     const publicClient = createPublicClient({
         chain: creditcoinTestnet,
@@ -114,12 +152,40 @@ async function main() {
     });
 
     console.log(`[Oracle] Wallet Address: ${account.address}`);
-    console.log(`[Oracle] Connecting to Turso DB...`);
+    console.log(`[Oracle] Testing Turso DB connection...`);
+
+    // Test DB connection before starting
+    const dbConnected = await testDbConnection();
+    if (!dbConnected) {
+        console.error("[ERROR] Failed to connect to Turso DB. Retrying in 10 seconds...");
+        setTimeout(main, 10000);
+        return;
+    }
+
+    console.log(`[Oracle] DB connection successful.`);
+
+    // Processing flag to prevent concurrent transactions
+    let isProcessing = false;
 
     // Polling Loop
     setInterval(async () => {
+        // Skip if already processing a transaction
+        if (isProcessing) {
+            return;
+        }
+
         let revenue = null;
         try {
+            isProcessing = true;
+
+            // 0. Ensure DB connection is alive
+            const db = getDbClient();
+            const isConnected = await testDbConnection();
+            if (!isConnected) {
+                console.log("[Oracle] DB connection lost. Skipping this cycle...");
+                return;
+            }
+
             // 1. Fetch Pending Revenue (on_chain_tx_hash IS NULL)
             const result = await db.execute("SELECT * FROM choonsim_revenue WHERE on_chain_tx_hash IS NULL LIMIT 1");
 
@@ -196,10 +262,18 @@ async function main() {
 
         } catch (error) {
             console.error("[ERROR] Oracle Loop Error:", error);
+
+            // If it's a DB connection error, reset the client
+            if (error.message && (error.message.includes('ENOTFOUND') || error.message.includes('fetch'))) {
+                console.log("[Oracle] DB connection error detected. Resetting client...");
+                dbClient = null;
+            }
+
             // On error, reset the hash to allow retry (only if it's a processing hash, not a real tx hash)
             try {
                 if (revenue && revenue.id) {
                     // Check if current hash is a processing hash (starts with 'processing_')
+                    const db = getDbClient();
                     const checkResult = await db.execute({
                         sql: "SELECT on_chain_tx_hash FROM choonsim_revenue WHERE id = ?",
                         args: [revenue.id]
@@ -219,7 +293,12 @@ async function main() {
                 }
             } catch (resetError) {
                 console.error("[ERROR] Failed to reset processing flag:", resetError);
+                // If reset also fails, it's likely a connection issue
+                dbClient = null;
             }
+        } finally {
+            // Always reset processing flag
+            isProcessing = false;
         }
     }, parseInt(process.env.ORACLE_POLL_INTERVAL || "5000", 10)); // Check interval (default: 5 seconds)
 }
