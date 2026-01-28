@@ -8,7 +8,7 @@ import { DateTime } from "luxon";
 import { publicClient, getWalletClient, getRelayerAccount } from "@/lib/relayer";
 import { CONTRACTS } from "@/config/contracts";
 import { creditcoinTestnet } from "@/config/wagmi";
-import { formatUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { useAccount, useReadContract } from "wagmi";
@@ -161,6 +161,58 @@ export default function ChoonsimRoute() {
         try { await promise; } finally { setIsPending(false); }
     };
 
+    const handleInvest = async () => {
+        if (!address) {
+            toast.error("Please connect your wallet first");
+            return;
+        }
+
+        setIsPending(true);
+        const investAmount = parseUnits("100", 18);
+
+        const promise = (async () => {
+            // 1. Approve LiquidityPool to spend USDC
+            const allowance = await publicClient.readContract({
+                address: CONTRACTS.MockUSDC.address as `0x${string}`,
+                abi: CONTRACTS.MockUSDC.abi,
+                functionName: 'allowance',
+                args: [address as `0x${string}`, CONTRACTS.LiquidityPool.address as `0x${string}`],
+            }) as bigint;
+
+            if (allowance < investAmount) {
+                const approveHash = await getWalletClient().writeContract({
+                    address: CONTRACTS.MockUSDC.address as `0x${string}`,
+                    abi: CONTRACTS.MockUSDC.abi,
+                    functionName: 'approve',
+                    args: [CONTRACTS.LiquidityPool.address as `0x${string}`, BigInt("115792089237316195423570985008687907853269984665640564039457584007913129639935")],
+                    account: getRelayerAccount(),
+                    chain: creditcoinTestnet
+                });
+                await publicClient.waitForTransactionReceipt({ hash: approveHash });
+            }
+
+            // 2. Purchase Bond
+            const hash = await getWalletClient().writeContract({
+                address: CONTRACTS.LiquidityPool.address as `0x${string}`,
+                abi: CONTRACTS.LiquidityPool.abi,
+                functionName: 'purchaseBond',
+                args: [CHOONSIM_BOND_ID, investAmount],
+                account: getRelayerAccount(),
+                chain: creditcoinTestnet
+            });
+            await publicClient.waitForTransactionReceipt({ hash });
+            revalidator.revalidate();
+        })();
+
+        toast.promise(promise, {
+            loading: 'Processing your 100 USDC investment...',
+            success: 'Successfully invested in Choonsim Bonds!',
+            error: 'Failed to complete investment.',
+        });
+
+        try { await promise; } finally { setIsPending(false); }
+    };
+
     return (
         <DashboardLayout>
             <ChoonsimDashboard
@@ -169,6 +221,7 @@ export default function ChoonsimRoute() {
                 milestones={data.milestones}
                 onClaim={handleClaim}
                 onReinvest={handleReinvest}
+                onInvest={handleInvest}
                 isLoading={isPending}
             />
         </DashboardLayout>

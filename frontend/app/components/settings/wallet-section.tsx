@@ -62,25 +62,36 @@ export function WalletSection() {
         switchChain({ chainId: creditcoinTestnet.id });
     };
 
-    const handleMint = () => {
-        if (!address) return;
-        writeMint({
-            address: CONTRACTS.MockUSDC.address as `0x${string}`,
-            abi: CONTRACTS.MockUSDC.abi,
-            functionName: "mint",
-            args: [address, parseUnits("1000", 18)],
-        });
-    };
+    const [isMintingServer, setIsMintingServer] = React.useState(false);
 
-    React.useEffect(() => {
-        if (isMintSuccess) {
-            toast.success("1,000 MockUSDC minted successfully!");
+    const handleMint = async () => {
+        if (!address) return;
+        setIsMintingServer(true);
+
+        const promise = fetch("/api/faucet", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ address })
+        }).then(async (res) => {
+            if (!res.ok) throw new Error("Faucet request failed");
+            return res.json();
+        });
+
+        toast.promise(promise, {
+            loading: 'Requesting 500 USDC from server...',
+            success: '500 MockUSDC received successfully!',
+            error: 'Failed to receive tokens.',
+        });
+
+        try {
+            await promise;
             refetchBalance();
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsMintingServer(false);
         }
-        if (mintError) {
-            toast.error(`Mint failed: ${mintError.message}`);
-        }
-    }, [isMintSuccess, mintError]);
+    };
 
     if (!isMounted) return null;
 
@@ -213,11 +224,11 @@ export function WalletSection() {
                                 </div>
                                 <Button
                                     onClick={handleMint}
-                                    disabled={isMinting || isMintConfirming}
+                                    disabled={isMintingServer}
                                     className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-9 px-4 rounded-xl gap-2 text-xs"
                                 >
-                                    {(isMinting || isMintConfirming) && <HugeiconsIcon icon={Loading03Icon} className="animate-spin" size={14} />}
-                                    Get 1,000 USDC
+                                    {isMintingServer && <HugeiconsIcon icon={Loading03Icon} className="animate-spin" size={14} />}
+                                    Get 500 USDC
                                 </Button>
                             </div>
                         </>

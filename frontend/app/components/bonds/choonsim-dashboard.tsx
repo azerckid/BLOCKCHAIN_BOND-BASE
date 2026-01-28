@@ -57,10 +57,11 @@ export interface ChoonsimDashboardProps {
     }>;
     onClaim?: () => void;
     onReinvest?: () => void;
+    onInvest?: () => void;
     isLoading?: boolean;
 }
 
-export function ChoonsimDashboard({ project, history, milestones, onClaim, onReinvest, isLoading }: ChoonsimDashboardProps) {
+export function ChoonsimDashboard({ project, history, milestones, onClaim, onReinvest, onInvest, isLoading }: ChoonsimDashboardProps) {
     const regionData = [
         { name: "South America", value: project.southAmericaShare, color: "#10b981" },
         { name: "Japan", value: project.japanShare, color: "#06b6d4" },
@@ -97,8 +98,12 @@ export function ChoonsimDashboard({ project, history, milestones, onClaim, onRei
                         <Globe className="mr-2 h-4 w-4 group-hover:rotate-12 transition-transform" />
                         Region Report
                     </Button>
-                    <Button className="rounded-xl bg-neutral-900 hover:bg-black text-white h-12 px-8 font-bold shadow-xl shadow-neutral-200 group">
-                        <Zap className="mr-2 h-4 w-4 fill-emerald-500 text-emerald-500 group-hover:scale-125 transition-transform" />
+                    <Button
+                        onClick={onInvest}
+                        disabled={isLoading}
+                        className="rounded-xl bg-neutral-900 hover:bg-black text-white h-12 px-8 font-bold shadow-xl shadow-neutral-200 group"
+                    >
+                        <Zap className={cn("mr-2 h-4 w-4 fill-emerald-500 text-emerald-500 group-hover:scale-125 transition-transform", isLoading && "animate-spin")} />
                         Invest in Choonsim
                     </Button>
                 </div>
