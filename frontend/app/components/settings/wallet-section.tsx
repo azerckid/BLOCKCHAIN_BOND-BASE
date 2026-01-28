@@ -73,14 +73,15 @@ export function WalletSection() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ address })
         }).then(async (res) => {
-            if (!res.ok) throw new Error("Faucet request failed");
-            return res.json();
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Faucet request failed");
+            return data;
         });
 
         toast.promise(promise, {
             loading: 'Requesting 500 USDC from server...',
             success: '500 MockUSDC received successfully!',
-            error: 'Failed to receive tokens.',
+            error: (err) => `Failed: ${err.message}`,
         });
 
         try {
@@ -209,27 +210,47 @@ export function WalletSection() {
                                 </div>
                             </div>
 
-                            {/* Faucet Section for Quick Testing */}
-                            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 flex items-center justify-between gap-4">
-                                <div className="flex items-start gap-3">
-                                    <div className="text-blue-500 mt-0.5">
-                                        <HugeiconsIcon icon={CoinsIcon} size={20} />
+                            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 space-y-4">
+                                <div className="flex items-center justify-between gap-4">
+                                    <div className="flex items-start gap-3">
+                                        <div className="text-blue-500 mt-0.5">
+                                            <HugeiconsIcon icon={CoinsIcon} size={20} />
+                                        </div>
+                                        <div>
+                                            <h5 className="font-bold text-sm text-blue-900">Testnet Faucet</h5>
+                                            <p className="text-xs text-blue-600 mt-1">
+                                                Need tokens for testing? Get free MockUSDC.
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h5 className="font-bold text-sm text-blue-900">Testnet Faucet</h5>
-                                        <p className="text-xs text-blue-600 mt-1">
-                                            Need tokens for testing? Get free MockUSDC.
-                                        </p>
-                                    </div>
+                                    <Button
+                                        onClick={handleMint}
+                                        disabled={isMintingServer}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-9 px-4 rounded-xl gap-2 text-xs"
+                                    >
+                                        {isMintingServer && <HugeiconsIcon icon={Loading03Icon} className="animate-spin" size={14} />}
+                                        Get 500 USDC
+                                    </Button>
                                 </div>
-                                <Button
-                                    onClick={handleMint}
-                                    disabled={isMintingServer}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-9 px-4 rounded-xl gap-2 text-xs"
-                                >
-                                    {isMintingServer && <HugeiconsIcon icon={Loading03Icon} className="animate-spin" size={14} />}
-                                    Get 500 USDC
-                                </Button>
+                                <div className="pt-3 border-t border-blue-100 flex items-center justify-between">
+                                    <p className="text-[10px] text-blue-400 font-medium">Having issues with server faucet?</p>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => {
+                                            if (!address) return;
+                                            writeMint({
+                                                address: CONTRACTS.MockUSDC.address as `0x${string}`,
+                                                abi: CONTRACTS.MockUSDC.abi,
+                                                functionName: "mint",
+                                                args: [address, parseUnits("500", 18)],
+                                            });
+                                        }}
+                                        className="h-7 text-[10px] font-black text-blue-500 hover:bg-blue-100/50 underline underline-offset-4"
+                                    >
+                                        Mint directly via MetaMask
+                                    </Button>
+                                </div>
                             </div>
                         </>
                     )}
