@@ -74,14 +74,20 @@ const USDC_ABI = [
 
 /**
  * Oracle API Route - Processes pending revenue and executes on-chain transactions
- * Called by Vercel Cron Jobs every 5 minutes
+ * Called by Vercel Cron Jobs every 2 minutes
  */
 export async function loader({ request }: LoaderFunctionArgs) {
+    // Log incoming request for debugging
+    console.log(`[Oracle API] Request received: ${request.method} ${new URL(request.url).pathname}`);
+    console.log(`[Oracle API] Headers:`, Object.fromEntries(request.headers.entries()));
+
     // Verify this is a cron job request (Vercel sets this header)
     const authHeader = request.headers.get("authorization");
     const cronSecret = getEnv("CRON_SECRET");
 
+    // Allow manual testing without CRON_SECRET, but require it for production
     if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+        console.log(`[Oracle API] Unauthorized: Expected Bearer token but got: ${authHeader?.substring(0, 20)}...`);
         return new Response("Unauthorized", { status: 401 });
     }
 
