@@ -209,15 +209,15 @@ export function ChoonsimDashboard({ project, history, milestones, onClaim, onRei
                     { label: "Global Subscribers", value: project.totalSubscribers.toLocaleString(), change: "Active", icon: Heart, color: "text-pink-500" },
                     {
                         label: "Monthly Revenue",
-                        value: `${(project.totalRevenue / 1000).toFixed(1)}K`,
+                        value: project.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
                         unit: "USDC",
                         change: "+24%",
                         icon: TrendingUp,
                         color: "text-emerald-500",
                         footer: project.pendingYield > 0 ? (
-                            <div className="mt-2 flex items-center gap-1 text-[10px] text-amber-600 font-bold animate-pulse">
-                                <Clock size={10} />
-                                {project.pendingYield.toLocaleString()} USDC Pending Audit
+                            <div className="mt-2 flex items-center gap-1 text-[11px] text-orange-500 font-extrabold animate-pulse bg-orange-50 px-2 py-1 rounded-lg border border-orange-100">
+                                <Clock size={12} />
+                                {project.pendingYield.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDC Pending Audit
                             </div>
                         ) : null
                     },
