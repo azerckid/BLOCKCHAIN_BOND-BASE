@@ -1,8 +1,19 @@
-const API_URL = "https://blockchain-bond-base.vercel.app/api/revenue";
-const API_KEY = "test_secret_key_1234";
+const dotenv = require('dotenv');
+const path = require('path');
 
-// 2분 간격 (120,000ms)
-const INTERVAL = 120000;
+// Load environment variables based on NODE_ENV
+const envFile = process.env.NODE_ENV === 'production'
+    ? path.join(__dirname, '../.env.production')
+    : path.join(__dirname, '../.env.development');
+dotenv.config({ path: envFile });
+
+const API_URL = process.env.API_URL
+    || (process.env.BETTER_AUTH_URL ? `${process.env.BETTER_AUTH_URL}/api/revenue` : null)
+    || "https://blockchain-bond-base.vercel.app/api/revenue";
+const API_KEY = process.env.CHOONSIM_API_KEY || process.env.API_KEY || "test_secret_key_1234";
+
+// 2분 간격 (120,000ms) - 환경변수로 설정 가능
+const INTERVAL = parseInt(process.env.SIMULATE_INTERVAL || "120000", 10);
 
 async function sendUpdate(type, data) {
     try {
@@ -15,16 +26,16 @@ async function sendUpdate(type, data) {
             body: JSON.stringify({ type, data })
         });
         const result = await response.json();
-        console.log(`[${new Date().toLocaleTimeString()}] ${type} Status:`, response.status, result);
+        console.log(`[${new Date().toLocaleTimeString()}] [${type}] Status:`, response.status, result);
     } catch (err) {
-        console.error(`❌ [${type}] Update Failed:`, err.message);
+        console.error(`[ERROR] [${type}] Update Failed:`, err.message);
     }
 }
 
 async function simulate() {
-    console.log("🚀 Starting Choonsim Live Revenue Loop...");
-    console.log(`⏱️  Update interval: ${INTERVAL / 1000} seconds (2 minutes)`);
-    console.log("📊 Revenue scale adjusted for long-term sustainability (5-15 USDC per update)");
+    console.log("[Simulate] Starting Choonsim Live Revenue Loop...");
+    console.log(`[Simulate] Update interval: ${INTERVAL / 1000} seconds (2 minutes)`);
+    console.log("[Simulate] Revenue scale adjusted for long-term sustainability (5-15 USDC per update)");
 
     // 초기 실행 내역
     let currentFollowers = 65000;
@@ -68,6 +79,6 @@ async function simulate() {
 }
 
 simulate().catch(err => {
-    console.error("❌ Simulation Loop Error:", err);
+    console.error("[ERROR] Simulation Loop Error:", err);
     process.exit(1);
 });
