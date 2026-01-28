@@ -81,12 +81,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
     console.log(`[Oracle API] Request received: ${request.method} ${new URL(request.url).pathname}`);
     console.log(`[Oracle API] Headers:`, Object.fromEntries(request.headers.entries()));
 
-    // Verify this is a cron job request (Vercel sets this header)
+    // Verify this is a cron job request (from Vercel Cron Jobs or external cron service)
     const authHeader = request.headers.get("authorization");
     const cronSecret = getEnv("CRON_SECRET");
+    
+    // Check for external cron service header (cron-job.org uses User-Agent)
+    const userAgent = request.headers.get("user-agent") || "";
+    const isExternalCron = userAgent.includes("cron-job.org") || userAgent.includes("Cronitor");
 
-    // Allow manual testing without CRON_SECRET, but require it for production
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    // Allow external cron services or Vercel Cron Jobs with CRON_SECRET
+    if (cronSecret && !isExternalCron && authHeader !== `Bearer ${cronSecret}`) {
         console.log(`[Oracle API] Unauthorized: Expected Bearer token but got: ${authHeader?.substring(0, 20)}...`);
         return new Response("Unauthorized", { status: 401 });
     }

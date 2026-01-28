@@ -1,8 +1,0 @@
-{
-  "crons": [
-    {
-      "path": "/api/oracle",
-      "schedule": "0 1 * * *"
-    }
-  ]
-}
