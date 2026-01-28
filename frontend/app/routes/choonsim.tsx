@@ -171,7 +171,7 @@ export default function ChoonsimRoute() {
         const investAmount = parseUnits("100", 18);
 
         const promise = (async () => {
-            // 1. Approve LiquidityPool to spend USDC
+            // 1. Approve LiquidityPool to spend USDC (User signs via MetaMask)
             const allowance = await publicClient.readContract({
                 address: CONTRACTS.MockUSDC.address as `0x${string}`,
                 abi: CONTRACTS.MockUSDC.abi,
@@ -180,27 +180,25 @@ export default function ChoonsimRoute() {
             }) as bigint;
 
             if (allowance < investAmount) {
-                const approveHash = await getWalletClient().writeContract({
+                const approveHash = await writeContractAsync({
                     address: CONTRACTS.MockUSDC.address as `0x${string}`,
                     abi: CONTRACTS.MockUSDC.abi,
                     functionName: 'approve',
                     args: [CONTRACTS.LiquidityPool.address as `0x${string}`, BigInt("115792089237316195423570985008687907853269984665640564039457584007913129639935")],
-                    account: getRelayerAccount(),
-                    chain: creditcoinTestnet
                 });
+                // Wait for approval receipt
                 await publicClient.waitForTransactionReceipt({ hash: approveHash });
             }
 
-            // 2. Purchase Bond
-            const hash = await getWalletClient().writeContract({
+            // 2. Purchase Bond (User signs via MetaMask)
+            const hash = await writeContractAsync({
                 address: CONTRACTS.LiquidityPool.address as `0x${string}`,
                 abi: CONTRACTS.LiquidityPool.abi,
                 functionName: 'purchaseBond',
                 args: [CHOONSIM_BOND_ID, investAmount],
-                account: getRelayerAccount(),
-                chain: creditcoinTestnet
             });
             await publicClient.waitForTransactionReceipt({ hash });
+
             revalidator.revalidate();
         })();
 
