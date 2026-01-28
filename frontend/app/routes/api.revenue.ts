@@ -66,7 +66,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
             return new Response(JSON.stringify({
                 success: true,
-                onChainHash: relayResult.hash
+                onChainHash: null
             }), {
                 headers: { "Content-Type": "application/json" },
             });
