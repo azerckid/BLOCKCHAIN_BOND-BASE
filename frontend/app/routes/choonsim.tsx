@@ -117,13 +117,11 @@ export default function ChoonsimRoute() {
     const handleClaim = async () => {
         setIsPending(true);
         const promise = (async () => {
-            const hash = await getWalletClient().writeContract({
+            const hash = await writeContractAsync({
                 address: CONTRACTS.YieldDistributor.address as `0x${string}`,
                 abi: CONTRACTS.YieldDistributor.abi,
                 functionName: 'claimYield',
                 args: [CHOONSIM_BOND_ID],
-                account: getRelayerAccount(),
-                chain: creditcoinTestnet
             });
             await publicClient.waitForTransactionReceipt({ hash });
             revalidator.revalidate();
