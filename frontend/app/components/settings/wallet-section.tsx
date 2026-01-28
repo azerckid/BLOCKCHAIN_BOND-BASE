@@ -68,7 +68,7 @@ export function WalletSection() {
         if (!address) return;
         setIsMintingServer(true);
 
-        const promise = fetch("/faucet", {
+        const promise = fetch("/api/faucet", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ address })
