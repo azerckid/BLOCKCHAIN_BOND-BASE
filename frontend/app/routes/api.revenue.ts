@@ -39,9 +39,9 @@ export async function action({ request }: ActionFunctionArgs) {
         if (type === "REVENUE") {
             const { amount, source, description } = data;
 
-            // 1. Trigger On-chain Deposit (Staging for Audit)
-            console.log(`[API] Triggering on-chain deposit for ${amount} USDC`);
-            const relayResult = await relayDepositYield(CHOONSIM_BOND_ID, amount);
+            // 1. [REMOVED] Direct Relay Deposit
+            // We only record in DB. The external oracle bot (verify-bot.js) will pick this up and execute on-chain.
+            console.log(`[API] Recorded revenue event: ${amount} USDC. Waiting for Oracle.`);
 
             // 2. Record in DB with On-chain Hash
             await db.insert(choonsimRevenue).values({
@@ -51,7 +51,7 @@ export async function action({ request }: ActionFunctionArgs) {
                 source,
                 description,
                 receivedAt: new Date().getTime(),
-                onChainTxHash: relayResult.hash,
+                onChainTxHash: null,
             });
 
             // 3. Update project totals
