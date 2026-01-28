@@ -11,7 +11,7 @@ import { creditcoinTestnet } from "@/config/wagmi";
 import { formatUnits, parseUnits } from "viem";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
-import { useAccount, useReadContract } from "wagmi";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
 
 export async function loader() {
     const CHOONSIM_BOND_ID = 101;
@@ -69,6 +69,7 @@ export default function ChoonsimRoute() {
     const revalidator = useRevalidator();
     const [isPending, setIsPending] = useState(false);
     const { address } = useAccount();
+    const { writeContractAsync } = useWriteContract();
 
     const CHOONSIM_BOND_ID = BigInt(data.BOND_ID);
 
@@ -140,13 +141,11 @@ export default function ChoonsimRoute() {
     const handleReinvest = async () => {
         setIsPending(true);
         const promise = (async () => {
-            const hash = await getWalletClient().writeContract({
+            const hash = await writeContractAsync({
                 address: CONTRACTS.YieldDistributor.address as `0x${string}`,
                 abi: CONTRACTS.YieldDistributor.abi,
                 functionName: 'reinvest',
                 args: [CHOONSIM_BOND_ID],
-                account: getRelayerAccount(),
-                chain: creditcoinTestnet
             });
             await publicClient.waitForTransactionReceipt({ hash });
             revalidator.revalidate();
