@@ -44,10 +44,14 @@ export async function action({ request }: ActionFunctionArgs) {
             console.log(`[API] Recorded revenue event: ${amount} USDC. Waiting for Oracle.`);
 
             // 2. Record in DB with On-chain Hash
+            // Convert amount to number (USDC amount as string "11.27" -> number for DB storage)
+            // Note: DB stores as integer, but we store the USDC amount value (will be converted to wei in oracle-bot.js)
+            const amountNum = typeof amount === 'string' ? parseFloat(amount) : Number(amount);
+
             await db.insert(choonsimRevenue).values({
                 id: randomUUID(),
                 projectId: "choonsim-main",
-                amount,
+                amount: amountNum,
                 source,
                 description,
                 receivedAt: new Date().getTime(),

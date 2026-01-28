@@ -100,7 +100,7 @@ let dbClient = null;
 
 // Convert libsql:// URL to https:// URL for Node.js compatibility
 function normalizeTursoUrl(url) {
-    if (url.startsWith('libsql://')) {
+    if (url && url.startsWith('libsql://')) {
         // Convert libsql://database-name.turso.io to https://database-name.turso.io
         return url.replace('libsql://', 'https://');
     }

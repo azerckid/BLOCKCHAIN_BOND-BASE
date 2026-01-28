@@ -13,5 +13,4 @@ export default [
     route("api/chat", "routes/api.chat.ts"),
     route("api/revenue", "routes/api.revenue.ts"),
     route("api/faucet", "routes/api.faucet.ts"),
-    route("api/oracle", "routes/api.oracle.ts"),
 ] satisfies RouteConfig;
