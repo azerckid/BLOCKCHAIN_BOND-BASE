@@ -118,6 +118,7 @@ async function main() {
 
     // Polling Loop
     setInterval(async () => {
+        let revenue = null;
         try {
             // 1. Fetch Pending Revenue (on_chain_tx_hash IS NULL)
             const result = await db.execute("SELECT * FROM choonsim_revenue WHERE on_chain_tx_hash IS NULL LIMIT 1");
@@ -126,11 +127,19 @@ async function main() {
                 return;
             }
 
-            const revenue = result.rows[0];
+            revenue = result.rows[0];
             const amountVal = revenue.amount;
             const amountWei = parseUnits(amountVal.toString(), 18);
 
             console.log(`[Oracle] Found Pending Revenue: ${amountVal} USDC (ID: ${revenue.id})`);
+
+            // 1.5. Mark as processing to prevent duplicate processing
+            // Use a temporary hash to lock this record
+            const tempHash = `processing_${Date.now()}_${revenue.id}`;
+            await db.execute({
+                sql: "UPDATE choonsim_revenue SET on_chain_tx_hash = ? WHERE id = ? AND on_chain_tx_hash IS NULL",
+                args: [tempHash, revenue.id]
+            });
 
             // 2. Ensure Approval (Relayer -> Distributor)
             const allowance = await publicClient.readContract({
@@ -161,6 +170,13 @@ async function main() {
                 args: [CHOONSIM_BOND_ID, amountWei]
             });
 
+            // 3.5. Update DB immediately with depositTxHash to prevent duplicate processing
+            console.log(`[Oracle] Updating DB with depositTxHash to prevent duplicates: ${depositTxHash}`);
+            await db.execute({
+                sql: "UPDATE choonsim_revenue SET on_chain_tx_hash = ? WHERE id = ?",
+                args: [depositTxHash, revenue.id]
+            });
+
             console.log(`[Oracle] Waiting for depositYield confirmation: ${depositTxHash}`);
             await publicClient.waitForTransactionReceipt({ hash: depositTxHash });
 
@@ -176,17 +192,34 @@ async function main() {
             console.log(`[Oracle] Waiting for verifyYield confirmation: ${verifyTxHash}`);
             await publicClient.waitForTransactionReceipt({ hash: verifyTxHash });
 
-            // 5. Update DB
-            console.log(`[Oracle] Updating DB with Tx Hash...`);
-            await db.execute({
-                sql: "UPDATE choonsim_revenue SET on_chain_tx_hash = ? WHERE id = ?",
-                args: [depositTxHash, revenue.id]
-            });
-
             console.log(`[Oracle] Process Complete! Yield deposited and verified.`);
 
         } catch (error) {
             console.error("[ERROR] Oracle Loop Error:", error);
+            // On error, reset the hash to allow retry (only if it's a processing hash, not a real tx hash)
+            try {
+                if (revenue && revenue.id) {
+                    // Check if current hash is a processing hash (starts with 'processing_')
+                    const checkResult = await db.execute({
+                        sql: "SELECT on_chain_tx_hash FROM choonsim_revenue WHERE id = ?",
+                        args: [revenue.id]
+                    });
+
+                    if (checkResult.rows.length > 0) {
+                        const currentHash = checkResult.rows[0].on_chain_tx_hash;
+                        // Only reset if it's a processing hash, not a real transaction hash
+                        if (currentHash && currentHash.toString().startsWith('processing_')) {
+                            await db.execute({
+                                sql: "UPDATE choonsim_revenue SET on_chain_tx_hash = NULL WHERE id = ?",
+                                args: [revenue.id]
+                            });
+                            console.log(`[Oracle] Reset processing flag for revenue ID: ${revenue.id}`);
+                        }
+                    }
+                }
+            } catch (resetError) {
+                console.error("[ERROR] Failed to reset processing flag:", resetError);
+            }
         }
     }, parseInt(process.env.ORACLE_POLL_INTERVAL || "5000", 10)); // Check interval (default: 5 seconds)
 }

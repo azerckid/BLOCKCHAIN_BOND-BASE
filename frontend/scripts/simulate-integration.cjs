@@ -7,8 +7,12 @@ const envFile = process.env.NODE_ENV === 'production'
     : path.join(__dirname, '../.env.development');
 dotenv.config({ path: envFile });
 
+// API URL: 명시적 API_URL이 있으면 사용, 없으면 BETTER_AUTH_URL 기반으로 생성
+// 로컬 실행 시에도 프로덕션 서버로 요청 (배포 환경 테스트용)
 const API_URL = process.env.API_URL
-    || (process.env.BETTER_AUTH_URL ? `${process.env.BETTER_AUTH_URL}/api/revenue` : null)
+    || (process.env.BETTER_AUTH_URL && process.env.BETTER_AUTH_URL.includes('vercel.app')
+        ? `${process.env.BETTER_AUTH_URL}/api/revenue`
+        : null)
     || "https://blockchain-bond-base.vercel.app/api/revenue";
 const API_KEY = process.env.CHOONSIM_API_KEY || process.env.API_KEY || "test_secret_key_1234";
 
