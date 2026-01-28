@@ -12,4 +12,5 @@ export default [
     route("api/auth/*", "routes/auth.ts"),
     route("api/chat", "routes/api.chat.ts"),
     route("api/revenue", "routes/api.revenue.ts"),
+    route("api/faucet", "routes/api.faucet.ts"),
 ] satisfies RouteConfig;
