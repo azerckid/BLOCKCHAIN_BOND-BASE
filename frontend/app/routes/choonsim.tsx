@@ -9,11 +9,9 @@ import { publicClient, getWalletClient, getRelayerAccount } from "@/lib/relayer"
 import { CONTRACTS } from "@/config/contracts";
 import { creditcoinTestnet } from "@/config/wagmi";
 import { formatUnits } from "viem";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
-
-// Use the tester address as the "Logged in Provider" for demo
-const TEST_USER_ADDRESS = "0xf42138298fa1Fc8514BC17D59eBB451AceF3cDBa";
+import { useAccount, useReadContract } from "wagmi";
 
 export async function loader() {
     const CHOONSIM_BOND_ID = 101;
@@ -23,63 +21,21 @@ export async function loader() {
         where: eq(choonsimProjects.id, "choonsim-main")
     });
 
-    // 2. Fetch On-chain Global Data
-    let isAuditEnabled = false;
-    let pendingYield = 0;
-    let userEarnedYield = 0;
-    let userBondBalance = 0;
-
-    try {
-        const [auditEnabled, pending, earned, balance] = await Promise.all([
-            publicClient.readContract({
-                address: CONTRACTS.YieldDistributor.address as `0x${string}`,
-                abi: CONTRACTS.YieldDistributor.abi,
-                functionName: 'requiresAudit',
-                args: [BigInt(CHOONSIM_BOND_ID)]
-            }),
-            publicClient.readContract({
-                address: CONTRACTS.YieldDistributor.address as `0x${string}`,
-                abi: CONTRACTS.YieldDistributor.abi,
-                functionName: 'pendingYield',
-                args: [BigInt(CHOONSIM_BOND_ID)]
-            }),
-            publicClient.readContract({
-                address: CONTRACTS.YieldDistributor.address as `0x${string}`,
-                abi: CONTRACTS.YieldDistributor.abi,
-                functionName: 'earned',
-                args: [TEST_USER_ADDRESS, BigInt(CHOONSIM_BOND_ID)]
-            }),
-            publicClient.readContract({
-                address: CONTRACTS.BondToken.address as `0x${string}`,
-                abi: CONTRACTS.BondToken.abi,
-                functionName: 'balanceOf',
-                args: [TEST_USER_ADDRESS, BigInt(CHOONSIM_BOND_ID)]
-            })
-        ]);
-
-        isAuditEnabled = Boolean(auditEnabled);
-        pendingYield = Number(formatUnits(pending as bigint, 18));
-        userEarnedYield = Number(formatUnits(earned as bigint, 18));
-        userBondBalance = Number(formatUnits(balance as bigint, 18));
-    } catch (e) {
-        console.error("Failed to fetch on-chain data:", e);
-    }
-
-    // 3. Fetch History for Charts
+    // 2. Fetch History for Charts
     const rawHistory = await db.query.choonsimMetricsHistory.findMany({
         where: eq(choonsimMetricsHistory.projectId, "choonsim-main"),
         orderBy: [desc(choonsimMetricsHistory.recordedAt)],
         limit: 7
     });
 
-    // 4. Fetch Total Revenue
+    // 3. Fetch Total Revenue
     const revenueResult = await db.select({
         total: sql<number>`sum(${choonsimRevenue.amount})`
     })
         .from(choonsimRevenue)
         .where(eq(choonsimRevenue.projectId, "choonsim-main"));
 
-    // 5. Fetch Milestones
+    // 4. Fetch Milestones
     const milestonesList = await db.query.choonsimMilestones.findMany({
         where: eq(choonsimMilestones.projectId, "choonsim-main"),
         orderBy: [desc(choonsimMilestones.achievedAt)]
@@ -96,10 +52,6 @@ export async function loader() {
             ...project,
             totalRevenue: Number(revenueResult[0]?.total || 0),
             currentApr: 18.5,
-            pendingYield,
-            isAuditEnabled,
-            userEarnedYield,
-            userBondBalance
         },
         history: formattedHistory,
         milestones: milestonesList.map(m => ({
@@ -107,7 +59,8 @@ export async function loader() {
             title: m.description,
             date: DateTime.fromMillis(m.achievedAt).toISODate() || "",
             status: "ACHIEVED"
-        }))
+        })),
+        BOND_ID: CHOONSIM_BOND_ID
     };
 }
 
@@ -115,6 +68,50 @@ export default function ChoonsimRoute() {
     const data = useLoaderData<typeof loader>();
     const revalidator = useRevalidator();
     const [isPending, setIsPending] = useState(false);
+    const { address } = useAccount();
+
+    const CHOONSIM_BOND_ID = BigInt(data.BOND_ID);
+
+    // Dynamic On-chain Data Fetching
+    const { data: requiresAudit } = useReadContract({
+        address: CONTRACTS.YieldDistributor.address as `0x${string}`,
+        abi: CONTRACTS.YieldDistributor.abi,
+        functionName: 'requiresAudit',
+        args: [CHOONSIM_BOND_ID],
+        query: { refetchInterval: 10000 }
+    });
+
+    const { data: pendingYieldOnChain } = useReadContract({
+        address: CONTRACTS.YieldDistributor.address as `0x${string}`,
+        abi: CONTRACTS.YieldDistributor.abi,
+        functionName: 'pendingYield',
+        args: [CHOONSIM_BOND_ID],
+        query: { refetchInterval: 10000 }
+    });
+
+    const { data: earnedYield } = useReadContract({
+        address: CONTRACTS.YieldDistributor.address as `0x${string}`,
+        abi: CONTRACTS.YieldDistributor.abi,
+        functionName: 'earned',
+        args: address ? [address as `0x${string}`, CHOONSIM_BOND_ID] : undefined,
+        query: { enabled: !!address, refetchInterval: 5000 }
+    });
+
+    const { data: bondBalance } = useReadContract({
+        address: CONTRACTS.BondToken.address as `0x${string}`,
+        abi: CONTRACTS.BondToken.abi,
+        functionName: 'balanceOf',
+        args: address ? [address as `0x${string}`, CHOONSIM_BOND_ID] : undefined,
+        query: { enabled: !!address, refetchInterval: 5000 }
+    });
+
+    const enrichedProject = useMemo(() => ({
+        ...data.project,
+        isAuditEnabled: Boolean(requiresAudit),
+        pendingYield: pendingYieldOnChain ? Number(formatUnits(pendingYieldOnChain as bigint, 18)) : 0,
+        userEarnedYield: earnedYield ? Number(formatUnits(earnedYield as bigint, 18)) : 0,
+        userBondBalance: bondBalance ? Number(formatUnits(bondBalance as bigint, 18)) : 0,
+    }), [data.project, requiresAudit, pendingYieldOnChain, earnedYield, bondBalance]);
 
     const handleClaim = async () => {
         setIsPending(true);
@@ -123,7 +120,7 @@ export default function ChoonsimRoute() {
                 address: CONTRACTS.YieldDistributor.address as `0x${string}`,
                 abi: CONTRACTS.YieldDistributor.abi,
                 functionName: 'claimYield',
-                args: [BigInt(101)],
+                args: [CHOONSIM_BOND_ID],
                 account: getRelayerAccount(),
                 chain: creditcoinTestnet
             });
@@ -147,7 +144,7 @@ export default function ChoonsimRoute() {
                 address: CONTRACTS.YieldDistributor.address as `0x${string}`,
                 abi: CONTRACTS.YieldDistributor.abi,
                 functionName: 'reinvest',
-                args: [BigInt(101)],
+                args: [CHOONSIM_BOND_ID],
                 account: getRelayerAccount(),
                 chain: creditcoinTestnet
             });
@@ -167,7 +164,7 @@ export default function ChoonsimRoute() {
     return (
         <DashboardLayout>
             <ChoonsimDashboard
-                project={data.project as any}
+                project={enrichedProject as any}
                 history={data.history}
                 milestones={data.milestones}
                 onClaim={handleClaim}
