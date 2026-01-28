@@ -40,10 +40,7 @@ function getValidPrivateKey(): `0x${string}` {
 
     // Ensure proper format
     const cleanKey = privateKey.trim();
-    if (!cleanKey.startsWith('0x')) {
-        return `0x${cleanKey}` as `0x${string}`;
-    }
-    return cleanKey as `0x${string}`;
+    return (cleanKey.startsWith('0x') ? cleanKey : `0x${cleanKey}`) as `0x${string}`;
 }
 
 export function getRelayerAccount() {
