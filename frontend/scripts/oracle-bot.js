@@ -98,22 +98,13 @@ const creditcoinTestnet = {
 // DB Client with reconnection logic
 let dbClient = null;
 
-// Convert libsql:// URL to https:// URL for Node.js compatibility
-function normalizeTursoUrl(url) {
-    if (url && url.startsWith('libsql://')) {
-        // Convert libsql://database-name.turso.io to https://database-name.turso.io
-        return url.replace('libsql://', 'https://');
-    }
-    return url;
-}
-
 function getDbClient() {
     if (!dbClient) {
         console.log(`[Oracle] Creating new DB client connection...`);
-        const normalizedUrl = normalizeTursoUrl(TURSO_URL);
-        console.log(`[Oracle] Using URL: ${normalizedUrl}`);
+        console.log(`[Oracle] Using URL: ${TURSO_URL}`);
+        // @libsql/client supports libsql:// protocol directly (same as app/db/index.ts)
         dbClient = createClient({
-            url: normalizedUrl,
+            url: TURSO_URL,
             authToken: TURSO_TOKEN
         });
     }

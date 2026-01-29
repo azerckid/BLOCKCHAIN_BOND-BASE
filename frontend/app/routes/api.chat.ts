@@ -63,7 +63,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         // Upgraded to Gemini 2.0 Flash as per user request
         const modelInstance = model === "openai"
             ? openai("gpt-4o")
-            : googleProvider("gemini-2.0-flash-exp");
+            : googleProvider("gemini-2.5-flash"); // Changed to gemini-2.5-flash as per user request
 
         // Initialize Viem Client for Creditcoin Testnet
         const { createPublicClient, http, defineChain } = await import("viem");
