@@ -118,7 +118,7 @@ function InvestmentRow({ inv, address }: { inv: any, address: `0x${string}` }) {
                     {/* Oracle Performance Section */}
                     <div className="hidden lg:flex flex-col gap-2 min-w-[200px]">
                         <div className="flex items-center justify-between px-1">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Principal Repaid</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Revenue Share</p>
                             <span className="text-[10px] font-black text-indigo-600">
                                 {assetPerformance ? Math.min(100, Math.round((Number(formatUnits((assetPerformance as any).principalPaid, 18)) / inv.loanAmount) * 100)) : 0}%
                             </span>
@@ -183,11 +183,11 @@ function InvestmentRow({ inv, address }: { inv: any, address: `0x${string}` }) {
                             <div className="flex flex-col items-end justify-center px-1">
                                 {assetPerformance && (assetPerformance as any).status === 2 ? (
                                     <Badge variant="destructive" className="bg-red-100 text-red-700 hover:bg-red-100 border-none font-black text-[9px] py-1 rounded-md">
-                                        ASSET DEFAULTED
+                                        REVENUE PAUSED
                                     </Badge>
                                 ) : assetPerformance && (assetPerformance as any).status === 1 ? (
                                     <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none font-black text-[9px] py-1 rounded-md">
-                                        COMPLETELY REPAID
+                                        FULLY DISTRIBUTED
                                     </Badge>
                                 ) : (
                                     <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100 border-none font-black text-[9px] py-1 rounded-md">
@@ -253,7 +253,7 @@ export function InvestmentList() {
         return (
             <div className="p-12 text-center bg-neutral-50 rounded-2xl border border-dashed border-neutral-200">
                 <p className="text-neutral-900 font-bold mb-1">No active investments</p>
-                <p className="text-sm text-neutral-500">Visit the Bond Market to start earning yield.</p>
+                <p className="text-sm text-neutral-500">Visit the Growth Market to start earning yield.</p>
             </div>
         );
     }

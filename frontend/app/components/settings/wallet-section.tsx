@@ -112,7 +112,7 @@ export function WalletSection() {
                         <div className="space-y-1">
                             <h4 className="font-bold text-lg text-neutral-900">No Wallet Connected</h4>
                             <p className="text-sm text-neutral-500 max-w-xs mx-auto">
-                                Connect your wallet to view your assets and start investing in RWA bonds.
+                                Connect your wallet to view your assets and start investing in IP Growth Bonds.
                             </p>
                         </div>
                         <Button

@@ -61,14 +61,14 @@
 
 | # | 파일 경로 | 현재 | 변경 목표 | 완료 기준 | 완료 |
 |---|-----------|------|-----------|-----------|------|
-| B-1 | `frontend/app/components/layout/help-guide.tsx` | `title: "Bond Market"` | `title: "Growth Market"` | Help Guide에서 시장 메뉴가 "Growth Market"으로 표시됨 | [ ] |
-| B-2 | `frontend/app/components/layout/help-guide.tsx` | market 섹션 `content`가 실물 자산(RWA) 채권·Approve·Deposit 중심 | 춘심 IP·수익 공유(Revenue Share) 중심 문구로 수정 | 동일 섹션 설명이 춘심 성장 채권·Revenue Share 맥락으로 읽힘 | [ ] |
-| B-3 | `frontend/app/components/portfolio/investment-list.tsx` | `"Visit the Bond Market to start earning yield."` | `"Visit the Growth Market to start earning yield."` | Portfolio 빈 상태 문구가 "Growth Market"으로 표시됨 | [ ] |
-| B-4 | 전체 앱 | "Bond Market" 문자열 잔존 | "Growth Market" 또는 문맥에 맞는 용어로 통일 | "Bond Market" 검색 시 사용자 노출 문구에 잔존 없음 (knowledge.json 등 내부 참조 제외 시 문서화) | [ ] |
-| B-5 | 전체 앱 | Loan, Borrower, Repayment 노출 | Subscription, IP Owner, Revenue Share로 점검·교체 | 사용자 대면 문구에 Loan/Borrower/Repayment 잔존 없음 | [ ] |
-| B-6 | 레거시 이미지·카피 | 태국 소상공인 관련 더미 | 제거 또는 춘심 글로벌 톤으로 교체 | 08 계획 기준으로 점검 후 목록 정리 또는 교체 완료 | [ ] |
-| B-7 | `frontend/app/routes/ai-guide.tsx` | 레거시 태국 대출 설명 가능성 | IP RWA·춘심 투자 가이드라인으로 정리 | AI Guide 페이지 문구가 춘심·IP RWA 기준으로만 읽힘 | [ ] |
-| B-8 | 설정·Faucet 등 | 테스트넷·춘심 맥락 불명확 | "테스트넷·춘심 성장 채권" 맥락에 맞게 설명 점검 | 설정/Faucet 관련 문구가 현행 서비스와 일치함 | [ ] |
+| B-1 | `frontend/app/components/layout/help-guide.tsx` | `title: "Bond Market"` | `title: "Growth Market"` | Help Guide에서 시장 메뉴가 "Growth Market"으로 표시됨 | [x] |
+| B-2 | `frontend/app/components/layout/help-guide.tsx` | market 섹션 `content`가 실물 자산(RWA) 채권·Approve·Deposit 중심 | 춘심 IP·수익 공유(Revenue Share) 중심 문구로 수정 | 동일 섹션 설명이 춘심 성장 채권·Revenue Share 맥락으로 읽힘 | [x] |
+| B-3 | `frontend/app/components/portfolio/investment-list.tsx` | `"Visit the Bond Market to start earning yield."` | `"Visit the Growth Market to start earning yield."` | Portfolio 빈 상태 문구가 "Growth Market"으로 표시됨 | [x] |
+| B-4 | 전체 앱 | "Bond Market" 문자열 잔존 | "Growth Market" 또는 문맥에 맞는 용어로 통일 | "Bond Market" 검색 시 사용자 노출 문구에 잔존 없음 (knowledge.json 등 내부 참조 제외 시 문서화) | [x] |
+| B-5 | 전체 앱 | Loan, Borrower, Repayment 노출 | Subscription, IP Owner, Revenue Share로 점검·교체 | 사용자 대면 문구에 Loan/Borrower/Repayment 잔존 없음 | [x] |
+| B-6 | 레거시 이미지·카피 | 태국 소상공인 관련 더미 | 제거 또는 춘심 글로벌 톤으로 교체 | 08 계획 기준으로 점검 후 목록 정리 또는 교체 완료 | [x] |
+| B-7 | `frontend/app/routes/ai-guide.tsx` | 레거시 태국 대출 설명 가능성 | IP RWA·춘심 투자 가이드라인으로 정리 | AI Guide 페이지 문구가 춘심·IP RWA 기준으로만 읽힘 | [x] |
+| B-8 | 설정·Faucet 등 | 테스트넷·춘심 맥락 불명확 | "테스트넷·춘심 성장 채권" 맥락에 맞게 설명 점검 | 설정/Faucet 관련 문구가 현행 서비스와 일치함 | [x] |
 
 ### B.3 용어 정제 참고 (08 계획)
 
@@ -94,8 +94,8 @@
 ## 5. 마스터 체크리스트
 
 - [ ] Part A: A-1 ~ A-5 중 해당 항목 완료
-- [ ] Part B: B-1 ~ B-8 완료 기준 충족
-- [ ] 본 문서 체크리스트 및 참조 문서와 불일치 없음
+- [x] Part B: B-1 ~ B-8 완료 기준 충족 (2026-02-01 코드 검증 완료)
+- [x] 본 문서 체크리스트 및 참조 문서와 불일치 없음
 
 ---
 
@@ -121,7 +121,7 @@ B.2 체크리스트 작업을 실행하기 위해 실제 소스를 스캔한 결
 
 ### 7.1 B-1 · B-2 세부: `help-guide.tsx` 전체 수정 범위
 
-B-1과 B-2 대상 파일이 동일하므iberge, 한 번에 수정할 문구 4곳을 정리합니다.
+B-1과 B-2 대상 파일이 동일하므로, 한 번에 수정할 문구 4곳을 정리합니다.
 
 | 위치 | 현재 문구 | 변경 목표 | 비고 |
 |------|-----------|-----------|------|

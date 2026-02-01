@@ -25,11 +25,11 @@ const GUIDE_SECTIONS = [
     },
     {
         id: "market",
-        title: "Bond Market",
+        title: "Growth Market",
         icon: Database01Icon,
         color: "text-indigo-600",
         bg: "bg-indigo-50",
-        content: "실물 자산(RWA) 기반 채권을 탐색하고 투자하는 곳입니다. 'Approve(승인)' 단계를 거쳐 'Deposit(투자)'을 실행하면 Bond 토큰을 지급받게 됩니다. 필터를 통해 원하는 분야의 채권을 찾아보세요."
+        content: "춘심 IP의 미래 수익권(Growth Bond)을 탐색하고 투자하는 곳입니다. 'Approve(승인)' 단계를 거쳐 'Deposit(투자)'을 실행하면 Growth Bond 토큰을 지급받게 됩니다. Revenue Share로 발생하는 수익을 자동으로 누적받습니다."
     },
     {
         id: "portfolio",
@@ -37,7 +37,7 @@ const GUIDE_SECTIONS = [
         icon: Wallet01Icon,
         color: "text-green-600",
         bg: "bg-green-50",
-        content: "오라클이 검증한 실시간 '원금 상환 트래커'를 통해 내 투자의 안전성을 확인하세요. 'Claim'으로 수익을 지갑으로 인출하거나, 'Reinvest'로 복리 효과를 누릴 수 있습니다. 'PROOF' 링크로 실제 증빙 자료도 열람 가능합니다."
+        content: "오라클이 검증한 실시간 'Revenue Share 트래커'를 통해 내 수익 배분 현황을 확인하세요. 'Claim'으로 수익을 지갑으로 인출하거나, 'Reinvest'로 복리 효과를 누릴 수 있습니다. 'PROOF' 링크로 오라클 검증 증빙도 열람 가능합니다."
     },
     {
         id: "settings",
@@ -134,7 +134,7 @@ export function HelpGuide() {
                             <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Technical Support</p>
                             <h4 className="text-lg font-bold">오라클 투명성 엔진</h4>
                             <p className="text-xs text-neutral-400 font-medium opacity-80 leading-relaxed">
-                                본드베이스의 모든 원금 상환 데이터는 검증된 오라클 노드에 의해 온체인에 기록되며, 투자자는 언제든지 증빙(Proof)을 확인할 수 있습니다.
+                                본드베이스의 모든 수익 배분(Revenue Share) 데이터는 검증된 오라클 노드에 의해 온체인에 기록되며, 투자자는 언제든지 증빙(Proof)을 확인할 수 있습니다.
                             </p>
                         </div>
                         <div className="absolute -bottom-8 -right-8 opacity-10">
