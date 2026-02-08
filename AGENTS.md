@@ -3,9 +3,9 @@
 ## 0. 프로젝트 초기화 표준 (Project Initialization SOP)
 새로운 프로젝트를 시작하거나 대규모 기능 개발 착수 시, 반드시 다음의 **4단계 거버넌스 프로세스**를 이행해야 한다.
 1.  **규칙 수립**: 최신 `AGENTS.md`를 프로젝트 루트에 복사하여 AI의 사고 필터를 선제 구축한다.
-2.  **컨셉 명문화**: 프로젝트의 목표와 핵심 컨셉을 논의하고 `docs/core/`에 문서로 기록한다.
-3.  **시스템 설계**: 구현을 위한 인프라, DB 스키마, 기술 스택을 확정하고 `docs/core/` 또는 `docs/features/`에 기록한다.
-4.  **계획 수립**: 구현을 위한 단계별 전체 계획(Phase)을 수립하고 `docs/roadmap/`에 기록한다.
+2.  **컨셉 명문화**: 프로젝트의 목표와 핵심 컨셉을 논의하고 `docs/01_Foundation/`에 문서로 기록한다.
+3.  **시스템 설계**: 구현을 위한 인프라, DB 스키마, 기술 스택을 확정하고 `docs/03_Specs/` 및 `docs/04_Logic/`에 기록한다.
+4.  **계획 수립**: 구현을 위한 단계별 전체 계획(Phase)을 `docs/01_Foundation/03_ROADMAP.md` 등에 수립한다.
 5.  **실행 지침**: 위 3가지 문서화가 완료되기 전까지는 어떠한 실제 코드 구현(Implementation)도 시작할 수 없다.
 
 ## 1. 커뮤니케이션 및 승인 원칙 (Strict Approval & Communication)
@@ -35,12 +35,15 @@
 ## 4. 문서 관리 표준 (Document Management)
 - **[Strict Document Integrity]** 문서 수정 시 기존 구조와 세부 기술 명세를 보존하며, 전체 덮어쓰기를 금지한다.
 - **[Strict Document Persistence]** 과거의 결정 사항과 이력을 추적할 수 있도록 기존 내용을 삭제하지 않고 점진적으로 업데이트한다.
-- **[Structured Hierarchy]** `docs/` 하위의 **실전형 5대 디렉토리** 구조를 엄격히 준수하여 정보의 파편화를 막는다.
-  - `core/`: 프로젝트 비전, 인프라 설정, 데이터 무결성 설계 등 **시스템의 근간**
-  - `features/`: 개별 기능 명세서, 스마트 컨트랙트 로직, API 사양 등 **구현의 상세**
-  - `roadmap/`: 전체 일정 및 Phase별 실행 계획(Plans 통합) 등 **미래의 방향**
-  - `reports/`: 각 Phase 완료 보고서, QA 결과 및 발견된 이슈 내역 등 **현재의 성과**
-  - `archive/`: 레거시(Legacy) 및 폐기된 문서를 격리하여 **AI의 환각(Hallucination) 방지**
+- **[Standardized 5-Layer Structure]** `docs/` 하위의 **5단계 문서 표준**을 엄격히 준수하여 정보의 파편화를 막는다. (skill: manage-docs 기반)
+  - `01_Foundation/`: 비전, 목적, 전략, UI 디자인 원칙 (Constitutions)
+  - `02_Prototype/`: UI 결과 및 프로토타입 리뷰, 화면 플로우 (Visual Proof)
+  - `03_Specs/`: 상세 기술 명세, 데이터 모델, API I/O (Blueprints)
+  - `04_Logic/`: 비즈니스 로직, 알고리즘, 백로그(00_BACKLOG.md) 등 (The Brain)
+  - `05_Test/`: 테스트 케이스, QA 체크리스트, 완료 보고서 (Audit Trails)
+- **[Mandatory Metadata]** 모든 문서의 상단에는 `Created`, `Last Updated` 메타데이터를 필수적으로 포함한다.
+- **[Context Continuity]** 모든 문서는 하단에 **'Related Documents'** 섹션을 두어 타 레이어 문서와의 상호 참조를 명문화한다. (Context Linking 규칙 준수)
+- **[Interactive Process]** 주요 문서(Foundation, Specs 등) 작성 전, 반드시 `manage-docs` 스킬의 핵심 질문을 통해 사용자의 의도를 확인하고 승인을 얻는다.
 
 ## 5. 단계별 품질 보증 및 완료 조건 (Phase-Exit QA & DoD)
 - **[Mandatory QA Cycle]** 각 구현 단계(Phase)를 종료하기 전, 반드시 해당 Phase의 핵심 기능에 대한 **'통합 사용자 시나리오 테스트(End-to-End User Journey Test)'**를 수행해야 한다.
@@ -88,5 +91,5 @@
 - **[Strict Instruction]** 중요한 것은 무엇이라도 임의로 처리하지 말 것. 처리해야 할 것이 생기면 사용자에게 반드시 물어보고 설명하고 사용자의 승인을 얻어 진행할 것.
 
 ## 11. Reference Documents (참조 문서)
-- **프로젝트 개요 및 비전**: [00_PROJECT_OVERVIEW.md](docs/core/00_PROJECT_OVERVIEW.md)
-- **현재 진행 상황**: `docs/roadmap/` 및 `docs/reports/` 내 최신 파일 참조
+- **프로젝트 개요 및 비전**: [00_PROJECT_OVERVIEW.md](docs/01_Foundation/00_PROJECT_OVERVIEW.md)
+- **현재 진행 상황**: `docs/01_Foundation/03_ROADMAP.md` 및 `docs/05_Test/` 내 보고서 참조
