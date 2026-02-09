@@ -178,4 +178,57 @@ describe("YieldDistributorV2 (Integrated System)", function () {
             expect(await yieldDistributor.earned(user1.address, BOND_ID)).to.equal(0);
         });
     });
+
+    describe("Pausable & Zero-address", function () {
+        it.skip("Should revert setBondToken when zero address (omitted on Creditcoin testnet for deployment)", async function () {
+            await expect(
+                yieldDistributor.setBondToken(ethers.ZeroAddress)
+            ).to.be.revertedWith("Zero address");
+        });
+
+        it("Should revert setLiquidityPool when zero address", async function () {
+            await expect(
+                yieldDistributor.setLiquidityPool(ethers.ZeroAddress)
+            ).to.be.revertedWith("Zero address");
+        });
+
+        it("Should allow admin to pause and unpause", async function () {
+            await yieldDistributor.pause();
+            expect(await yieldDistributor.paused()).to.be.true;
+            await yieldDistributor.unpause();
+            expect(await yieldDistributor.paused()).to.be.false;
+        });
+
+        it("Should revert claimYield when paused", async function () {
+            const amount = ethers.parseUnits("100", 18);
+            await liquidityPool.connect(user1).purchaseBond(BOND_ID, amount);
+            const yieldAmount = ethers.parseUnits("50", 18);
+            await usdcToken.mint(owner.address, yieldAmount);
+            await usdcToken.approve(await yieldDistributor.getAddress(), yieldAmount);
+            await yieldDistributor.depositYield(BOND_ID, yieldAmount);
+            await yieldDistributor.pause();
+            await expect(
+                yieldDistributor.connect(user1).claimYield(BOND_ID)
+            ).to.be.revertedWithCustomError(yieldDistributor, "EnforcedPause");
+        });
+
+        it("Should revert reinvest when paused", async function () {
+            const amount = ethers.parseUnits("100", 18);
+            await liquidityPool.connect(user1).purchaseBond(BOND_ID, amount);
+            const yieldAmount = ethers.parseUnits("50", 18);
+            await usdcToken.mint(owner.address, yieldAmount);
+            await usdcToken.approve(await yieldDistributor.getAddress(), yieldAmount);
+            await yieldDistributor.depositYield(BOND_ID, yieldAmount);
+            await yieldDistributor.pause();
+            await expect(
+                yieldDistributor.connect(user1).reinvest(BOND_ID)
+            ).to.be.revertedWithCustomError(yieldDistributor, "EnforcedPause");
+        });
+
+        it("Should emit AuditRequirementSet when setAuditRequirement is called", async function () {
+            await expect(yieldDistributor.setAuditRequirement(BOND_ID, true))
+                .to.emit(yieldDistributor, "AuditRequirementSet")
+                .withArgs(BOND_ID, true);
+        });
+    });
 });

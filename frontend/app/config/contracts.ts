@@ -1,13 +1,13 @@
 
 // Deployed on Creditcoin Testnet
-// Integrated V2 System (Real-time Yield + Multi-Bond)
-// Date: 2026-01-16
+// Integrated V3 (Phase 3: Pausable, SafeERC20, bond registration check)
+// Date: 2026-02-09
 
 import { type Abi } from "viem";
 
 export const CONTRACTS = {
     MockUSDC: {
-        address: "0xf11806bF4c798841b917217338F5b7907dB8938f",
+        address: "0x03E7d375e76A105784BFF5867f608541e89D311B",
         abi: [
             { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" },
             { "inputs": [{ "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "allowance", "type": "uint256" }, { "internalType": "uint256", "name": "needed", "type": "uint256" }], "name": "ERC20InsufficientAllowance", "type": "error" },
@@ -37,7 +37,7 @@ export const CONTRACTS = {
         ] as Abi
     },
     BondToken: {
-        address: "0xcD8BdED91974cee972fd39f1A9471490E1F1C504",
+        address: "0x01607c3Ff57e3234702f55156E4356e3036f8D4E",
         abi: [
             { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" },
             { "inputs": [], "name": "AccessControlBadConfirmation", "type": "error" },
@@ -82,7 +82,7 @@ export const CONTRACTS = {
         ] as Abi
     },
     LiquidityPool: {
-        address: "0xdd797Bd099569b982A505cAC3064f1FF3c0A4ea9",
+        address: "0xC86F94d895331855C9ac7E43a9d96cf285512B31",
         abi: [
             { "inputs": [{ "internalType": "address", "name": "_usdcToken", "type": "address" }, { "internalType": "address", "name": "_bondToken", "type": "address" }], "stateMutability": "nonpayable", "type": "constructor" },
             { "inputs": [], "name": "AccessControlBadConfirmation", "type": "error" },
@@ -99,16 +99,19 @@ export const CONTRACTS = {
             { "inputs": [{ "internalType": "bytes32", "name": "role", "type": "bytes32" }], "name": "getRoleAdmin", "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }], "stateMutability": "view", "type": "function" },
             { "inputs": [{ "internalType": "bytes32", "name": "role", "type": "bytes32" }, { "internalType": "address", "name": "account", "type": "address" }], "name": "grantRole", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
             { "inputs": [{ "internalType": "bytes32", "name": "role", "type": "bytes32" }, { "internalType": "address", "name": "account", "type": "address" }], "name": "hasRole", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" },
+            { "inputs": [], "name": "pause", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+            { "inputs": [], "name": "paused", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" },
             { "inputs": [{ "internalType": "uint256", "name": "bondId", "type": "uint256" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "purchaseBond", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
             { "inputs": [{ "internalType": "bytes32", "name": "role", "type": "bytes32" }, { "internalType": "address", "name": "callerConfirmation", "type": "address" }], "name": "renounceRole", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
             { "inputs": [{ "internalType": "bytes32", "name": "role", "type": "bytes32" }, { "internalType": "address", "name": "account", "type": "address" }], "name": "revokeRole", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
             { "inputs": [{ "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }], "name": "supportsInterface", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" },
+            { "inputs": [], "name": "unpause", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
             { "inputs": [], "name": "usdcToken", "outputs": [{ "internalType": "contract IERC20", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" },
             { "inputs": [{ "internalType": "address", "name": "to", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "withdrawFunds", "outputs": [], "stateMutability": "nonpayable", "type": "function" }
         ] as Abi
     },
     YieldDistributor: {
-        address: "0xcF427f89B38dbfd3fB230B63B17f5C0aa6362700",
+        address: "0x0D38d19dA1dC7F018d9B31963860A39329bf6974",
         abi: [
             { "inputs": [{ "internalType": "address", "name": "_usdcToken", "type": "address" }], "stateMutability": "nonpayable", "type": "constructor" },
             { "inputs": [], "name": "AccessControlBadConfirmation", "type": "error" },
@@ -143,11 +146,14 @@ export const CONTRACTS = {
             { "inputs": [{ "internalType": "bytes32", "name": "role", "type": "bytes32" }, { "internalType": "address", "name": "callerConfirmation", "type": "address" }], "name": "renounceRole", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
             { "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "name": "requiresAudit", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" },
             { "inputs": [{ "internalType": "bytes32", "name": "role", "type": "bytes32" }, { "internalType": "address", "name": "account", "type": "address" }], "name": "revokeRole", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+            { "inputs": [], "name": "pause", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+            { "inputs": [], "name": "paused", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" },
             { "inputs": [{ "internalType": "uint256", "name": "bondId", "type": "uint256" }], "name": "rewardPerToken", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
             { "inputs": [{ "internalType": "uint256", "name": "bondId", "type": "uint256" }, { "internalType": "bool", "name": "required", "type": "bool" }], "name": "setAuditRequirement", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
             { "inputs": [{ "internalType": "address", "name": "_bondToken", "type": "address" }], "name": "setBondToken", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
             { "inputs": [{ "internalType": "address", "name": "_pool", "type": "address" }], "name": "setLiquidityPool", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
             { "inputs": [{ "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }], "name": "supportsInterface", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" },
+            { "inputs": [], "name": "unpause", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
             { "inputs": [], "name": "usdcToken", "outputs": [{ "internalType": "contract IERC20", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" },
             { "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }, { "internalType": "address", "name": "", "type": "address" }], "name": "userRewards", "outputs": [{ "internalType": "uint256", "name": "rewardPerTokenPaid", "type": "uint256" }, { "internalType": "uint256", "name": "rewards", "type": "uint256" }], "stateMutability": "view", "type": "function" },
             { "inputs": [{ "internalType": "uint256", "name": "bondId", "type": "uint256" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "verifyYield", "outputs": [], "stateMutability": "nonpayable", "type": "function" }
@@ -178,7 +184,7 @@ export const CONTRACTS = {
         ] as Abi
     },
     OracleAdapter: {
-        address: "0xE666695145795D8D83C3b373eDd579bDD59994A6",
+        address: "0xDaD165Ba828bD90f0e4897D92005bb1660f4785f",
         abi: [
             { "inputs": [{ "internalType": "address", "name": "_yieldDistributor", "type": "address" }, { "internalType": "address", "name": "_usdcToken", "type": "address" }], "stateMutability": "nonpayable", "type": "constructor" },
             { "inputs": [], "name": "AccessControlBadConfirmation", "type": "error" },

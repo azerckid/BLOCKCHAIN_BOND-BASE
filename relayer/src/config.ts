@@ -10,8 +10,8 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
 export const CONFIG = {
     RPC_URL: "https://rpc.cc3-testnet.creditcoin.network",
     CHAIN_ID: 102031,
-    ORACLE_ADAPTER_ADDRESS: "0xE666695145795D8D83C3b373eDd579bDD59994A6",
-    MOCK_USDC_ADDRESS: "0x97A41Ff77f70e9328A20b62b393F8Fb0E7e49364",
+    ORACLE_ADAPTER_ADDRESS: "0xDaD165Ba828bD90f0e4897D92005bb1660f4785f",
+    MOCK_USDC_ADDRESS: "0x03E7d375e76A105784BFF5867f608541e89D311B",
     PRIVATE_KEY: process.env.PRIVATE_KEY || "",
     SYNC_INTERVAL_MS: 30000, // 30 seconds
 };

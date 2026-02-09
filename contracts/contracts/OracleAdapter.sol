@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./IOracleAdapter.sol";
 import "./YieldDistributor.sol";
 
@@ -11,10 +12,14 @@ import "./YieldDistributor.sol";
  * @dev Official gateway for off-chain asset data. Securely updates YieldDistributor.
  */
 contract OracleAdapter is IOracleAdapter, AccessControl {
+    using SafeERC20 for IERC20;
+
     bytes32 public constant ORACLE_ROLE = keccak256("ORACLE_ROLE");
 
     YieldDistributor public yieldDistributor;
     IERC20 public usdcToken;
+
+    event YieldDistributorSet(address indexed newDistributor);
 
     // History of asset performances per bondId
     mapping(uint256 => AssetPerformance) private _assetPerformances;
@@ -35,7 +40,9 @@ contract OracleAdapter is IOracleAdapter, AccessControl {
      * @dev Sets or updates the YieldDistributor address.
      */
     function setYieldDistributor(address _newDistributor) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(_newDistributor != address(0), "Zero address");
         yieldDistributor = YieldDistributor(_newDistributor);
+        emit YieldDistributorSet(_newDistributor);
     }
 
     /**
@@ -59,11 +66,9 @@ contract OracleAdapter is IOracleAdapter, AccessControl {
         // 2. Logic for interest distribution
         if (perf.interestPaid > _assetPerformances[bondId].interestPaid) {
             uint256 newInterest = perf.interestPaid - _assetPerformances[bondId].interestPaid;
-            
-            bool success = usdcToken.transferFrom(msg.sender, address(this), newInterest);
-            require(success, "USDC transfer from Oracle failed");
 
-            usdcToken.approve(address(yieldDistributor), newInterest);
+            usdcToken.safeTransferFrom(msg.sender, address(this), newInterest);
+            usdcToken.forceApprove(address(yieldDistributor), newInterest);
             yieldDistributor.depositYield(bondId, newInterest);
         }
 

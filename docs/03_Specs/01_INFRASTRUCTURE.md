@@ -1,6 +1,6 @@
 # 인프라 및 개발 환경 (Infrastructure & Environment)
 > Created: 2026-01-24 23:38
-> Last Updated: 2026-02-09
+> Last Updated: 2026-01-24
 
 본 문서는 BondBase 프로젝트의 네트워크 설정, 외부 서비스 엔드포인트 및 배포 환경에 대한 최신 정보를 관리합니다.
 
@@ -51,9 +51,21 @@
 
 | Module | Env | Status | Last Deployment |
 | :--- | :--- | :--- | :--- |
-| Smart Contracts | Testnet | Active (v2) | 2026-01-24 |
+| Smart Contracts | Testnet | Active (v3) | 2026-02-09 |
 | Dashboard App | Dev | Active | 2026-01-24 |
 | RAG Engine | Dev | Integrated | 2026-01-24 |
+
+## 7. V3 Contract Addresses (Creditcoin Testnet)
+
+| Contract | Address | 비고 |
+| :--- | :--- | :--- |
+| MockUSDC (V3) | `0x03E7d375e76A105784BFF5867f608541e89D311B` | 프론트/릴레이어 기본 USDC |
+| BondToken (V3) | `0x01607c3Ff57e3234702f55156E4356e3036f8D4E` | ERC-1155 |
+| YieldDistributor (V3) | `0x0D38d19dA1dC7F018d9B31963860A39329bf6974` | Bond 101 등록·DISTRIBUTOR_ROLE 설정 완료 |
+| LiquidityPool (V3) | `0xC86F94d895331855C9ac7E43a9d96cf285512B31` | |
+| OracleAdapter (V3) | `0xDaD165Ba828bD90f0e4897D92005bb1660f4785f` | 선택 B 적용, V3 YD + V3 MockUSDC |
+
+완료 항목·잔여 작업·OracleAdapter 선택 A/B는 [05_V3_DEPLOYMENT_STATUS.md](./05_V3_DEPLOYMENT_STATUS.md) 참조.
 
 ---
 
@@ -61,3 +73,4 @@
 - **Foundation**: [Project Overview](../01_Foundation/00_PROJECT_OVERVIEW.md) - 전체 프로젝트 비전
 - **Foundation**: [Roadmap](../01_Foundation/03_ROADMAP.md) - 개발 단계 로드맵
 - **Specs**: [Revenue Bridge Spec](./02_REVENUE_BRIDGE_SPEC.md) - 수익 연동 API 명세
+- **Specs**: [V3 배포 완료 항목 및 잔여 작업](./05_V3_DEPLOYMENT_STATUS.md) - 완료/잔여 체크리스트, OracleAdapter 선택

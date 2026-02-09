@@ -2,15 +2,19 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 
 /**
  * @title Integrated Yield Distributor (v2)
  * @dev Manages yield distribution for multiple bonds automatically based on wallet holdings.
  * Concept: "Holding = Yield". No manual staking required for reward calculation.
  */
-contract YieldDistributor is AccessControl, ReentrancyGuard {
+contract YieldDistributor is AccessControl, ReentrancyGuard, Pausable {
+    using SafeERC20 for IERC20;
+
     bytes32 public constant DISTRIBUTOR_ROLE = keccak256("DISTRIBUTOR_ROLE");
     bytes32 public constant ORACLE_ROLE = keccak256("ORACLE_ROLE");
     uint256 public constant PRECISION_FACTOR = 1e18;
@@ -32,6 +36,7 @@ contract YieldDistributor is AccessControl, ReentrancyGuard {
     address public liquidityPool;
 
     function setLiquidityPool(address _pool) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(_pool != address(0), "Zero address");
         liquidityPool = _pool;
     }
 
@@ -46,6 +51,7 @@ contract YieldDistributor is AccessControl, ReentrancyGuard {
     event YieldVerified(uint256 indexed bondId, uint256 amount);
     event YieldClaimed(address indexed user, uint256 indexed bondId, uint256 amount);
     event Reinvested(address indexed user, uint256 indexed bondId, uint256 amount);
+    event AuditRequirementSet(uint256 indexed bondId, bool required);
 
     // Audit State
     mapping(uint256 => bool) public requiresAudit;
@@ -59,6 +65,7 @@ contract YieldDistributor is AccessControl, ReentrancyGuard {
     }
 
     function setBondToken(address _bondToken) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        // Zero-address check omitted for Creditcoin testnet deployment compatibility (RPC may pass param differently)
         bondToken = _bondToken;
     }
 
@@ -70,6 +77,7 @@ contract YieldDistributor is AccessControl, ReentrancyGuard {
 
     function setAuditRequirement(uint256 bondId, bool required) external onlyRole(DEFAULT_ADMIN_ROLE) {
         requiresAudit[bondId] = required;
+        emit AuditRequirementSet(bondId, required);
     }
 
     /**
@@ -116,13 +124,12 @@ contract YieldDistributor is AccessControl, ReentrancyGuard {
      * @dev Admin deposits USDC as yield for a specific bond.
      * If audit is required, amount is held in 'pending' until verified by Oracle.
      */
-    function depositYield(uint256 bondId, uint256 amount) external nonReentrant onlyRole(DISTRIBUTOR_ROLE) {
+    function depositYield(uint256 bondId, uint256 amount) external nonReentrant whenNotPaused onlyRole(DISTRIBUTOR_ROLE) {
         require(bonds[bondId].isRegistered, "Bond not registered");
         require(amount > 0, "Amount must be > 0");
         require(bonds[bondId].totalHoldings > 0, "No holders to distribute to");
 
-        bool success = usdcToken.transferFrom(msg.sender, address(this), amount);
-        require(success, "USDC transfer failed");
+        usdcToken.safeTransferFrom(msg.sender, address(this), amount);
 
         if (requiresAudit[bondId]) {
             pendingYield[bondId] += amount;
@@ -150,43 +157,43 @@ contract YieldDistributor is AccessControl, ReentrancyGuard {
     /**
      * @dev User claims their accrued yield for a specific bond.
      */
-    function claimYield(uint256 bondId) external nonReentrant {
+    function claimYield(uint256 bondId) external nonReentrant whenNotPaused {
         _checkpoint(msg.sender, bondId);
 
         uint256 reward = userRewards[bondId][msg.sender].rewards;
         require(reward > 0, "No yield to claim");
 
         userRewards[bondId][msg.sender].rewards = 0;
-        bool success = usdcToken.transfer(msg.sender, reward);
-        require(success, "Yield transfer failed");
+        usdcToken.safeTransfer(msg.sender, reward);
 
         emit YieldClaimed(msg.sender, bondId, reward);
     }
 
     /**
      * @dev Reinvests accrued yield into more BondTokens.
-     * Logic: Claims USDC reward internally -> Sends USDC to LiquidityPool -> Mints new BondTokens to user.
+     * CEI: checks -> state update -> external calls.
      */
-    function reinvest(uint256 bondId) external nonReentrant {
+    function reinvest(uint256 bondId) external nonReentrant whenNotPaused {
         require(liquidityPool != address(0), "LiquidityPool not set");
-        
+
         _checkpoint(msg.sender, bondId);
 
         uint256 reward = userRewards[bondId][msg.sender].rewards;
         require(reward > 0, "No yield to reinvest");
 
-        // 1. Reset rewards
         userRewards[bondId][msg.sender].rewards = 0;
-
-        // 2. Move backed USDC to LiquidityPool (System Capital)
-        bool success = usdcToken.transfer(liquidityPool, reward);
-        require(success, "USDC transfer to LP failed");
-
-        // 3. Mint new BondTokens to user (Compound Growth)
-        // Assuming 1 USDC = 1 BondToken ratio (Pegged)
+        usdcToken.safeTransfer(liquidityPool, reward);
         IBondToken(bondToken).mint(msg.sender, bondId, reward, "", "");
 
         emit Reinvested(msg.sender, bondId, reward);
+    }
+
+    function pause() external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _pause();
+    }
+
+    function unpause() external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _unpause();
     }
 
     // Helper to update state

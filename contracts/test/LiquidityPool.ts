@@ -93,4 +93,31 @@ describe("LiquidityPool", function () {
             ).to.be.revertedWithCustomError(liquidityPool, "AccessControlUnauthorizedAccount");
         });
     });
+
+    describe("Pausable", function () {
+        it("Should allow admin to pause and unpause", async function () {
+            await liquidityPool.pause();
+            expect(await liquidityPool.paused()).to.be.true;
+            await liquidityPool.unpause();
+            expect(await liquidityPool.paused()).to.be.false;
+        });
+
+        it("Should revert purchaseBond when paused", async function () {
+            await liquidityPool.pause();
+            await usdcToken.connect(investor).approve(await liquidityPool.getAddress(), INVEST_AMOUNT);
+            await expect(
+                liquidityPool.connect(investor).purchaseBond(BOND_ID, INVEST_AMOUNT)
+            ).to.be.revertedWithCustomError(liquidityPool, "EnforcedPause");
+            await liquidityPool.unpause();
+        });
+
+        it("Should revert withdrawFunds when paused", async function () {
+            await usdcToken.connect(investor).approve(await liquidityPool.getAddress(), INVEST_AMOUNT);
+            await liquidityPool.connect(investor).purchaseBond(BOND_ID, INVEST_AMOUNT);
+            await liquidityPool.pause();
+            await expect(
+                liquidityPool.withdrawFunds(borrower.address, INVEST_AMOUNT)
+            ).to.be.revertedWithCustomError(liquidityPool, "EnforcedPause");
+        });
+    });
 });

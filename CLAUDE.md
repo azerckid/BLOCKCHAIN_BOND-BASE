@@ -89,14 +89,14 @@ Core: `bonds`, `investors`, `investments`, `yieldDistributions`, `repayments`
 ChoonSim: `choonsimProjects`, `choonsimMetricsHistory`, `choonsimRevenue`, `choonsimMilestones`
 Auth: `user`, `session`, `account`, `verification` (managed by Better Auth)
 
-## Key Contract Addresses (Creditcoin Testnet)
+## Key Contract Addresses (Creditcoin Testnet, V3 Phase 3)
 ```
-MockUSDC:        0xf11806bF4c798841b917217338F5b7907dB8938f
-BondToken:       0xcD8BdED91974cee972fd39f1A9471490E1F1C504
-LiquidityPool:   0xdd797Bd099569b982A505cAC3064f1FF3c0A4ea9
-YieldDistributor:0xcF427f89B38dbfd3fB230B63B17f5C0aa6362700
+MockUSDC:        0x03E7d375e76A105784BFF5867f608541e89D311B
+BondToken:       0x01607c3Ff57e3234702f55156E4356e3036f8D4E
+LiquidityPool:   0xC86F94d895331855C9ac7E43a9d96cf285512B31
+YieldDistributor:0x0D38d19dA1dC7F018d9B31963860A39329bf6974
 MockOracle:      0x4022BC37a1F9030f9c0dCA179cb1fFaF26E59bcE
-OracleAdapter:   0xE666695145795D8D83C3b373eDd579bDD59994A6
+OracleAdapter:   0xDaD165Ba828bD90f0e4897D92005bb1660f4785f
 ```
 
 ## Governance Rules (from AGENTS.md)

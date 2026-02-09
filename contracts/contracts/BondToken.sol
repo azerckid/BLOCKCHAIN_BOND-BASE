@@ -30,6 +30,7 @@ contract BondToken is ERC1155, AccessControl, ERC1155Supply {
     }
 
     function setYieldDistributor(address _distributor) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(_distributor != address(0), "Zero address");
         yieldDistributor = _distributor;
     }
 

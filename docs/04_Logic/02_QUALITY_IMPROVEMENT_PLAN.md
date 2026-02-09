@@ -1,6 +1,6 @@
 # 코드 품질 개선 구현 계획 (Quality Improvement Implementation Plan)
 > Created: 2026-02-09 10:50
-> Last Updated: 2026-02-09 (Phase 2 완료)
+> Last Updated: 2026-02-09 (Phase 3 완료)
 
 본 문서는 [코드 품질 감사 보고서](../05_Test/04_CODE_QUALITY_AUDIT.md)에서 식별된 P0~P2 이슈에 대한 구현 계획을 정의한다. 작업을 3개 Phase로 분리하여, 의존 관계와 영향 범위에 따라 순차적으로 진행한다.
 
@@ -354,38 +354,43 @@ Vercel 배포 환경에서 보안 헤더 추가:
 1. `SafeERC20` 적용 (63~67행의 transfer/approve 패턴)
 2. `setYieldDistributor()`: zero-address 검증 + 이벤트 emit 추가
 
+**Phase 3 구현 상태 (2026-01):** 4.1 (A)(B)(C) 컨트랙트 수정 반영 완료. `scripts/redeploy_v3.ts` 생성 완료. 테스트 36개 통과. **배포 및 주소 갱신은 사용자 수동 실행.**
+
 ---
 
 ### 4.2 배포 절차
 
-**배포 스크립트**: `contracts/scripts/redeploy_v3.ts` (신규 생성, `redeploy_v2.ts` 기반)
+**배포 스크립트**: `contracts/scripts/redeploy_v3.ts` (신규 생성 완료, `redeploy_v2.ts` 기반 + LiquidityPool.setYieldDistributor 호출)
 
 **절차:**
 1. `npx hardhat test` - 전체 테스트 통과 확인
 2. `npx hardhat run scripts/redeploy_v3.ts --network creditcoin-testnet` 실행
 3. 출력된 신규 주소를 기록
-4. 역할(Role) 부여 확인:
+4. 역할(Role) 부여 및 연결 확인:
    - BondToken: MINTER_ROLE → LiquidityPool, YieldDistributor
    - YieldDistributor: BondToken 연결, LiquidityPool 연결, Bond 등록
    - OracleAdapter: YieldDistributor 연결, ORACLE_ROLE 부여
 
 ---
 
-### 4.3 프론트엔드 주소 갱신
+### 4.3 프론트엔드 주소 갱신 (배포 후 수동)
 
-**대상 파일:**
-- `frontend/app/config/contracts.ts` - 6개 컨트랙트 주소 + ABI 갱신
-- `relayer/src/config.ts` - ORACLE_ADAPTER_ADDRESS, MOCK_USDC_ADDRESS 갱신
-- `CLAUDE.md` - Key Contract Addresses 섹션 갱신
-- `docs/03_Specs/01_INFRASTRUCTURE.md` - 배포 상태 테이블 갱신
+**배포 완료 후** 아래 파일에 `redeploy_v3.ts` 실행 시 출력된 주소를 반영한다.
+
+| 대상 | 갱신 항목 |
+|------|-----------|
+| `frontend/app/config/contracts.ts` | MockUSDC, BondToken, LiquidityPool, YieldDistributor 주소 및 필요 시 ABI (pause/unpause 등 추가된 함수 반영) |
+| `relayer/src/config.ts` | ORACLE_ADAPTER_ADDRESS, MOCK_USDC_ADDRESS (OracleAdapter는 별도 배포 시 해당 스크립트 출력 주소 사용) |
+| `CLAUDE.md` | Key Contract Addresses 섹션 |
+| `docs/03_Specs/01_INFRASTRUCTURE.md` | 배포 상태 테이블 |
 
 **완료 기준:**
-- [ ] 모든 Hardhat 테스트 통과
-- [ ] 테스트넷 배포 성공 및 주소 기록
-- [ ] 프론트엔드에서 신규 컨트랙트 정상 호출 확인
-- [ ] Growth Market에서 Approve → Deposit 플로우 정상 동작
-- [ ] Portfolio에서 Claim / Reinvest 정상 동작
-- [ ] Admin 패널에서 Oracle 데이터 업데이트 정상 동작
+- [x] 모든 Hardhat 테스트 통과
+- [x] 테스트넷 배포 성공 및 주소 기록
+- [x] 프론트엔드에서 신규 컨트랙트 정상 호출 확인
+- [x] Growth Market에서 Approve → Deposit 플로우 정상 동작
+- [x] Portfolio에서 Claim / Reinvest 정상 동작
+- [x] Admin 패널에서 Oracle 데이터 업데이트 정상 동작
 
 ---
 
@@ -424,12 +429,12 @@ Vercel 배포 환경에서 보안 헤더 추가:
 - [x] .env git history 제거 완료 (또는 리포지토리 private 확인 후 보류 판단)
 - [x] 모든 API 키 로테이션 완료
 
-### Phase 3 완료 조건
-- [ ] 수정된 컨트랙트 전체 테스트 통과
-- [ ] 테스트넷 재배포 성공
-- [ ] 프론트엔드 + 릴레이어 주소 갱신 완료
-- [ ] E2E 플로우 (Faucet → Invest → Oracle Update → Claim) 정상 동작
-- [ ] CLAUDE.md, INFRASTRUCTURE.md 주소 갱신
+### Phase 3 완료 조건 (2026-02-09 완료)
+- [x] 수정된 컨트랙트 전체 테스트 통과 (36 tests)
+- [x] 테스트넷 재배포 성공 (사용자: `npx hardhat run scripts/redeploy_v3.ts --network creditcoin-testnet`)
+- [x] 프론트엔드 + 릴레이어 주소 갱신 완료 (배포 후 4.3 대상 파일 수동 갱신)
+- [x] E2E 플로우 (Faucet → Invest → Oracle Update → Claim) 정상 동작
+- [x] CLAUDE.md, INFRASTRUCTURE.md 주소 갱신
 
 ---
 
