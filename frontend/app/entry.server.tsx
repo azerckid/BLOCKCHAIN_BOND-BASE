@@ -1,4 +1,5 @@
 import { PassThrough } from "node:stream";
+import "@/lib/env";
 
 import type { EntryContext } from "react-router";
 import { createReadableStreamFromReadable } from "@react-router/node";
