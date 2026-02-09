@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs } from "react-router";
 import { z } from "zod";
+import { getEnv } from "@/lib/env";
 import { db } from "@/db";
 import { choonsimRevenue, choonsimProjects, choonsimMilestones, choonsimMetricsHistory } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -47,7 +48,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     const authHeader = request.headers.get("Authorization");
-    const apiKey = process.env.CHOONSIM_API_KEY;
+    const apiKey = getEnv("CHOONSIM_API_KEY");
 
     if (!apiKey || authHeader !== `Bearer ${apiKey}`) {
         return new Response("Unauthorized", { status: 401 });

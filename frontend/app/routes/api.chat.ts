@@ -3,11 +3,12 @@ import { z } from "zod";
 import { streamText, smoothStream } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { getEnv } from "@/lib/env";
 
 import knowledgeBase from "../lib/knowledge.json";
 
 const googleProvider = createGoogleGenerativeAI({
-    apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+    apiKey: (getEnv("GEMINI_API_KEY") || getEnv("GOOGLE_GENERATIVE_AI_API_KEY")) ?? "",
 });
 
 const chatBodySchema = z.object({
@@ -23,6 +24,15 @@ const chatBodySchema = z.object({
 
 export const action = async ({ request }: ActionFunctionArgs) => {
     try {
+        const origin = request.headers.get("origin");
+        const allowedOrigin = new URL(request.url).origin;
+        if (origin && origin !== allowedOrigin) {
+            return new Response(JSON.stringify({ error: "Forbidden" }), {
+                status: 403,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+
         const body = await request.json();
         const parsed = chatBodySchema.safeParse(body);
         if (!parsed.success) {

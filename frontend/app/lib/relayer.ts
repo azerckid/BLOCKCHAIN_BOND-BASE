@@ -2,20 +2,12 @@ import { createWalletClient, createPublicClient, http, parseUnits } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { creditcoinTestnet } from '@/config/wagmi';
 import { CONTRACTS } from '@/config/contracts';
+import { getEnv } from '@/lib/env';
 
 /**
  * On-chain Relayer Logic
  * Responsible for executing transactions from the BondBase backend to Creditcoin.
  */
-
-// Helper to safely get environment variables in both Node and Browser (Vite)
-const getEnv = (key: string): string | undefined => {
-    if (typeof process !== 'undefined' && process.env) {
-        return process.env[key];
-    }
-    // @ts-ignore - Vite specific
-    return import.meta.env[key] || import.meta.env[`VITE_${key}`];
-};
 
 /**
  * Lazy initialization for relayer account

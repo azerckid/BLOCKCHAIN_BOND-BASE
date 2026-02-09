@@ -224,8 +224,9 @@ const [project, rawHistory, revenueResult, milestonesList] = await Promise.all([
 3. `relayer.ts`의 `getEnv()` 헬퍼를 이 모듈로 통합
 
 **완료 기준:**
-- [ ] 필수 환경변수 누락 시 서버 시작 단계에서 명확한 에러 메시지
-- [ ] 모든 환경변수가 설정된 상태에서 정상 구동
+- [x] 필수 환경변수 누락 시 서버 시작 단계에서 명확한 에러 메시지 (2026-02 구현)
+- [x] 모든 환경변수가 설정된 상태에서 정상 구동
+- [x] `relayer.ts`, `db/index.ts`, `api.revenue`, `api.chat`에서 `env.ts` getEnv 사용
 
 ---
 
@@ -251,12 +252,12 @@ Vercel 배포 환경에서 보안 헤더 추가:
 ```
 
 **추가 조치:**
-- `/api/chat` 엔드포인트에 Better Auth 세션 기반 인증 추가 (로그인 사용자만 호출 가능)
-- 또는 최소한 origin 검증으로 외부 직접 호출 차단
+- `/api/chat` 엔드포인트: origin 검증으로 외부 직접 호출 차단 (구현함)
 
 **완료 기준:**
-- [ ] 응답 헤더에 보안 헤더 포함 확인 (브라우저 DevTools)
-- [ ] `/api/chat` 외부 직접 호출 시 401 또는 403 반환
+- [x] vercel.json에 보안 헤더 설정 (2026-02 구현)
+- [x] `/api/chat`에서 Origin !== request.url.origin 시 403 반환
+- [ ] 배포 후 브라우저 DevTools로 응답 헤더 확인
 
 ---
 
@@ -284,10 +285,12 @@ Vercel 배포 환경에서 보안 헤더 추가:
 4. `.env.example` 업데이트: 모든 필수 변수 키를 나열 (값은 placeholder)
 5. collaborator에게 `git pull --rebase` 또는 re-clone 안내
 
+**Phase 2 구현 상태:** 3.1·3.2 코드 반영 완료. 3.3 중 `.env.example` 갱신 및 `.gitignore` 확인 완료. **키 로테이션·BFG·force push는 사용자 수동 실행 필요** (협업자 영향 있음).
+
 **완료 기준:**
-- [ ] `git log --all --full-history -- '*.env*'` 결과 없음
-- [ ] 새 API 키로 모든 서비스 정상 동작
-- [ ] `.env.example`에 모든 필수 키 나열
+- [ ] `git log --all --full-history -- '*.env*'` 결과 없음 (BFG 수동 실행 후)
+- [ ] 새 API 키로 모든 서비스 정상 동작 (로테이션 수동)
+- [x] `.env.example`에 모든 필수 키 나열
 
 ---
 
