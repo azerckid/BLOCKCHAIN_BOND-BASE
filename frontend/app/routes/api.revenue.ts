@@ -1,4 +1,5 @@
 import type { ActionFunctionArgs } from "react-router";
+import { z } from "zod";
 import { db } from "@/db";
 import { choonsimRevenue, choonsimProjects, choonsimMilestones, choonsimMetricsHistory } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -7,9 +8,42 @@ import { relayDepositYield } from "@/lib/relayer";
 
 const CHOONSIM_BOND_ID = 101; // Defined in smart contract deployment/tests
 
+const REVENUE_AMOUNT_MAX = 1_000_000;
+
+const revenueDataSchema = z.object({
+    amount: z.string().regex(/^\d+(\.\d+)?$/, "amount must be a non-negative number string").transform((s) => parseFloat(s)).pipe(z.number().min(0.01).max(REVENUE_AMOUNT_MAX)),
+    source: z.string().min(1),
+    description: z.string(),
+});
+const milestoneDataSchema = z.object({
+    key: z.string().min(1),
+    description: z.string(),
+    achievedAt: z.number().optional(),
+    bonusAmount: z.string().optional(),
+});
+const metricsDataSchema = z.object({
+    followers: z.number().int().min(0),
+    subscribers: z.number().int().min(0),
+    shares: z.object({
+        southAmerica: z.number().optional(),
+        japan: z.number().optional(),
+        other: z.number().optional(),
+    }).optional(),
+});
+
+const apiRevenueBodySchema = z.discriminatedUnion("type", [
+    z.object({ type: z.literal("REVENUE"), data: revenueDataSchema }),
+    z.object({ type: z.literal("MILESTONE"), data: milestoneDataSchema }),
+    z.object({ type: z.literal("METRICS"), data: metricsDataSchema }),
+]);
+
+function jsonResponse(body: object, status: number) {
+    return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
+}
+
 export async function action({ request }: ActionFunctionArgs) {
     if (request.method !== "POST") {
-        return new Response("Method Not Allowed", { status: 405 });
+        return jsonResponse({ error: "Method Not Allowed" }, 405);
     }
 
     const authHeader = request.headers.get("Authorization");
@@ -21,7 +55,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
     try {
         const body = await request.json();
-        const { type, data } = body;
+        const parsed = apiRevenueBodySchema.safeParse(body);
+        if (!parsed.success) {
+            return jsonResponse({ success: false, error: "Invalid request", details: parsed.error.flatten() }, 400);
+        }
+        const { type, data } = parsed.data;
 
         // Ensure Choonsim project exists
         const project = await db.query.choonsimProjects.findFirst({
@@ -37,21 +75,12 @@ export async function action({ request }: ActionFunctionArgs) {
         }
 
         if (type === "REVENUE") {
-            const { amount, source, description } = data;
-
-            // 1. [REMOVED] Direct Relay Deposit
-            // We only record in DB. The external oracle bot (verify-bot.js) will pick this up and execute on-chain.
-            console.log(`[API] Recorded revenue event: ${amount} USDC. Waiting for Oracle.`);
-
-            // 2. Record in DB with On-chain Hash
-            // Convert amount to number (USDC amount as string "11.27" -> number for DB storage)
-            // Note: DB stores as integer, but we store the USDC amount value (will be converted to wei in oracle-bot.js)
-            const amountNum = typeof amount === 'string' ? parseFloat(amount) : Number(amount);
+            const { amount: amountNum, source, description } = data;
 
             await db.insert(choonsimRevenue).values({
                 id: randomUUID(),
                 projectId: "choonsim-main",
-                amount: amountNum,
+                amount: Math.round(amountNum),
                 source,
                 description,
                 receivedAt: new Date().getTime(),
@@ -68,12 +97,7 @@ export async function action({ request }: ActionFunctionArgs) {
                     .where(eq(choonsimProjects.id, "choonsim-main"));
             }
 
-            return new Response(JSON.stringify({
-                success: true,
-                onChainHash: null
-            }), {
-                headers: { "Content-Type": "application/json" },
-            });
+            return jsonResponse({ success: true, onChainHash: null });
 
         } else if (type === "MILESTONE") {
             const { key, description, achievedAt, bonusAmount } = data;
@@ -115,17 +139,9 @@ export async function action({ request }: ActionFunctionArgs) {
             });
         }
 
-        return new Response(JSON.stringify({ success: true }), {
-            headers: { "Content-Type": "application/json" },
-        });
-    } catch (error: any) {
-        console.error("API Revenue Error:", error);
-        return new Response(JSON.stringify({
-            success: false,
-            error: error?.message || "Internal Server Error"
-        }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
-        });
+        return jsonResponse({ success: true });
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Internal Server Error";
+        return jsonResponse({ success: false, error: message }, 500);
     }
 }

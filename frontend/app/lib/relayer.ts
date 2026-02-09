@@ -17,9 +17,6 @@ const getEnv = (key: string): string | undefined => {
     return import.meta.env[key] || import.meta.env[`VITE_${key}`];
 };
 
-// Development fallback: Hardhat #0 account
-const DEV_FALLBACK_KEY = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
-
 /**
  * Lazy initialization for relayer account
  * Only validates and creates account when actually needed
@@ -30,15 +27,10 @@ let _walletClient: ReturnType<typeof createWalletClient> | null = null;
 function getValidPrivateKey(): `0x${string}` {
     const privateKey = getEnv('RELAYER_PRIVATE_KEY');
 
-    if (!privateKey) {
-        // In production, log warning but use fallback to prevent crash
-        if (typeof process !== 'undefined' && process.env.NODE_ENV === 'production') {
-            console.warn('[Relayer] RELAYER_PRIVATE_KEY not set. Using development fallback.');
-        }
-        return DEV_FALLBACK_KEY as `0x${string}`;
+    if (!privateKey || privateKey.trim() === '') {
+        throw new Error('[Relayer] RELAYER_PRIVATE_KEY 환경변수가 설정되지 않았습니다.');
     }
 
-    // Ensure proper format
     const cleanKey = privateKey.trim();
     return (cleanKey.startsWith('0x') ? cleanKey : `0x${cleanKey}`) as `0x${string}`;
 }

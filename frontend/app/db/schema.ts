@@ -137,3 +137,11 @@ export const choonsimMilestones = sqliteTable("choonsim_milestones", {
     achievedAt: integer("achieved_at").notNull(), // Timestamp
     bonusAmount: integer("bonus_amount"),
 });
+
+export const faucetRequests = sqliteTable("faucet_requests", {
+    id: text("id").primaryKey(),
+    address: text("address").notNull(),
+    requestedAt: integer("requested_at").notNull(),
+    amountUsdc: integer("amount_usdc").notNull(),
+    txHash: text("tx_hash"),
+});

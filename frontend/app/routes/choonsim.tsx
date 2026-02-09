@@ -16,30 +16,24 @@ import { useAccount, useReadContract, useWriteContract } from "wagmi";
 export async function loader() {
     const CHOONSIM_BOND_ID = 101;
 
-    // 1. Fetch Project Main Data
-    const project = await db.query.choonsimProjects.findFirst({
-        where: eq(choonsimProjects.id, "choonsim-main")
-    });
-
-    // 2. Fetch History for Charts
-    const rawHistory = await db.query.choonsimMetricsHistory.findMany({
-        where: eq(choonsimMetricsHistory.projectId, "choonsim-main"),
-        orderBy: [desc(choonsimMetricsHistory.recordedAt)],
-        limit: 7
-    });
-
-    // 3. Fetch Total Revenue
-    const revenueResult = await db.select({
-        total: sql<number>`sum(${choonsimRevenue.amount})`
-    })
-        .from(choonsimRevenue)
-        .where(eq(choonsimRevenue.projectId, "choonsim-main"));
-
-    // 4. Fetch Milestones
-    const milestonesList = await db.query.choonsimMilestones.findMany({
-        where: eq(choonsimMilestones.projectId, "choonsim-main"),
-        orderBy: [desc(choonsimMilestones.achievedAt)]
-    });
+    const [project, rawHistory, revenueResult, milestonesList] = await Promise.all([
+        db.query.choonsimProjects.findFirst({
+            where: eq(choonsimProjects.id, "choonsim-main"),
+        }),
+        db.query.choonsimMetricsHistory.findMany({
+            where: eq(choonsimMetricsHistory.projectId, "choonsim-main"),
+            orderBy: [desc(choonsimMetricsHistory.recordedAt)],
+            limit: 7,
+        }),
+        db
+            .select({ total: sql<number>`sum(${choonsimRevenue.amount})` })
+            .from(choonsimRevenue)
+            .where(eq(choonsimRevenue.projectId, "choonsim-main")),
+        db.query.choonsimMilestones.findMany({
+            where: eq(choonsimMilestones.projectId, "choonsim-main"),
+            orderBy: [desc(choonsimMilestones.achievedAt)],
+        }),
+    ]);
 
     const formattedHistory = rawHistory.reverse().map(h => ({
         name: DateTime.fromMillis(h.recordedAt).toFormat("LLL dd"),
