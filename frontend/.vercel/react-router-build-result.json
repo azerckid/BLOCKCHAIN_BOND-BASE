@@ -21,7 +21,8 @@
       "routes/auth": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/api.chat": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/api.revenue": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/api.faucet": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0"
+      "routes/api.faucet": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/not-found": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0"
     },
     "routes": {
       "root": {
@@ -137,6 +138,15 @@
         "config": {
           "runtime": "nodejs"
         }
+      },
+      "routes/not-found": {
+        "id": "routes/not-found",
+        "parentId": "root",
+        "file": "app/routes/not-found.tsx",
+        "path": "*",
+        "config": {
+          "runtime": "nodejs"
+        }
       }
     }
   },
@@ -229,6 +239,12 @@
         "parentId": "root",
         "file": "routes/api.faucet.ts",
         "path": "api/faucet"
+      },
+      "routes/not-found": {
+        "id": "routes/not-found",
+        "parentId": "root",
+        "file": "routes/not-found.tsx",
+        "path": "*"
       }
     },
     "routeDiscovery": {
@@ -292,6 +308,10 @@
           {
             "file": "routes/api.faucet.ts",
             "path": "api/faucet"
+          },
+          {
+            "file": "routes/not-found.tsx",
+            "path": "*"
           }
         ]
       }
