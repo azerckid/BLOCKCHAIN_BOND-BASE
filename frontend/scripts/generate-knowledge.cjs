@@ -3,7 +3,14 @@ const path = require('path');
 
 const docsDir = path.join(__dirname, '../../docs');
 const outputFile = path.join(__dirname, '../app/lib/knowledge.json');
-const ignoreDirs = ['archive', 'stitch', 'templates', 'legacy'];
+
+// 제외할 디렉토리 키워드 (대소문자 무시, 부분 일치)
+const ignoreKeywords = ['archive', 'stitch', 'templates', 'legacy', 'plans', 'roadmap'];
+
+const shouldIgnoreDir = (dirName) => {
+    const lower = dirName.toLowerCase();
+    return ignoreKeywords.some(keyword => lower.includes(keyword));
+};
 
 const getAllFiles = (dir, fileList = []) => {
     if (!fs.existsSync(dir)) return fileList;
@@ -11,8 +18,10 @@ const getAllFiles = (dir, fileList = []) => {
     files.forEach(file => {
         const filePath = path.join(dir, file);
         if (fs.statSync(filePath).isDirectory()) {
-            if (!ignoreDirs.includes(file)) {
+            if (!shouldIgnoreDir(file)) {
                 getAllFiles(filePath, fileList);
+            } else {
+                console.log('  [SKIP] Directory:', path.relative(docsDir, filePath));
             }
         } else if (file.endsWith('.md')) {
             fileList.push(filePath);

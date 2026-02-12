@@ -12,5 +12,7 @@ Creditcoin Universal Oracle을 활용하여 오프체인 매출 데이터를 검
 
 ---
 ## X. Related Documents
-- **Logic**: [Audit Logic](../04_Logic/01_AUDIT_LOGIC.md)
-- **Test**: [Completion Summary](./01_PHASE_COMPLETION_SUMMARY.md)
+- **Foundation**: [Integration Plan](../01_Foundation/01_INTEGRATION_PLAN.md) - 오라클 감사 기획 원칙
+- **Specs**: [Revenue Bridge Spec](../03_Specs/02_REVENUE_BRIDGE_SPEC.md) - 매출 데이터 전송 명세
+- **Logic**: [Audit Logic](../04_Logic/01_AUDIT_LOGIC.md) - 오라클 데이터 검증 로직 상세
+- **Test**: [Completion Summary](./01_PHASE_COMPLETION_SUMMARY.md) - 전체 Phase 이행 요약

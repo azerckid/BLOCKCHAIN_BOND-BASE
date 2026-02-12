@@ -1,15 +1,13 @@
 # 프로젝트 작업 백로그 (Backlog)
 > Created: 2026-02-01 15:14
-> Last Updated: 2026-02-09
+> Last Updated: 2026-02-13
 
 ## 1. 현재 진행 상황 (Kanban)
 
 ### 🔴 Todo (할 일)
 
 #### 높음 (High)
-- [ ] **[V3 E2E 플로우 검증]** Faucet → Growth Market Invest → Oracle Update → Claim/Reinvest 전체 흐름을 테스트넷에서 검증. 코드 변경 없이 기능 확인. → [V3 배포 상태](../03_Specs/05_V3_DEPLOYMENT_STATUS.md)
-- [ ] **[Relayer 안정성 강화]** 재시도 로직(exponential backoff), `setInterval` → `setTimeout` 재귀 패턴 전환, Provider health check + fallback RPC. → [감사 P1 4.3](../05_Test/04_CODE_QUALITY_AUDIT.md)
-- [ ] **[BFG + 키 로테이션]** .env git history 제거(BFG Repo-Cleaner) 및 노출된 API 키 로테이션. collaborator 사전 공지 필요. → [구현 계획 3.3절](./02_QUALITY_IMPROVEMENT_PLAN.md)
+- (현재 High 우선순위 항목 없음)
 
 #### 중간 (Medium)
 - [ ] **[`as any` 타입 개선]** V3 ABI 갱신 완료에 따라, `choonsim.tsx`, `admin/` 모듈의 `as any` 캐스팅 제거 및 타입 추론 적용. → [감사 P2 5.2](../05_Test/04_CODE_QUALITY_AUDIT.md)
@@ -31,10 +29,13 @@
 - [ ] AI 에이전트 온체인 툴링(Tooling) 고도화
 
 ### 🟡 Doing (진행 중)
-- [ ] **문서 체계 현대화**: `manage-docs` 스킬 기반 5단계 레이어 리팩토링 및 이관 (70% 완료)
-- [ ] AI 지식 베이스(`knowledge.json`) 정규화 및 레거시 데이터 제거
+- (현재 진행 중인 작업 없음)
 
 ### 🟢 Done (완료)
+- [x] **[BFG + 키 로테이션 조사]** Git history 전수 조사 완료. `contracts/.env`에 기록된 PRIVATE_KEY는 플레이스홀더(`0xabcdef12345...`)로 확인, 실제 비밀키 노출 없음. `.gitignore`가 `.env*` 전체 차단 중. BFG 실행 불필요 판정 (2026-02-13)
+- [x] **[V3 E2E 플로우 검증 + Relayer 수정]** 전체 코드-설정 정합성 검증 완료. Relayer Bond ID 불일치([1,2] → [101]) 수정, MockFintechAPI Choonsim 맥락 교체, setTimeout 재귀 패턴+exponential backoff+RPC fallback 적용. 테스트넷 실행 성공 확인 (2026-02-13)
+- [x] **[AI 지식 베이스 정규화]** `knowledge.json` 아카이브/레거시 데이터 제거 완료: `generate-knowledge.cjs` ignoreDirs 대소문자 무시+부분 일치 로직 개선, 43건 -> 25건(활성 문서만), 324KB -> 97KB(-70%) (2026-02-13)
+- [x] **[문서 체계 현대화]** `manage-docs` 스킬 기반 5단계 레이어 리팩토링 완료: 전체 문서 메타데이터 헤더 검증, Related Documents 섹션 표준화, 깨진 링크 정리, 날짜 정합성 확보 (2026-02-13)
 - [x] **[품질 개선 Phase 1]** API Zod 검증 3건, Faucet Rate Limiting, DEV_FALLBACK_KEY 제거, Chat dead code 제거, ErrorBoundary + 404, 미사용 의존성 정리, DB 쿼리 병렬화 (2026-02-09) → [구현 계획 2절](./02_QUALITY_IMPROVEMENT_PLAN.md)
 - [x] **[품질 개선 Phase 2]** 환경변수 Startup 검증(`env.ts`), 보안 헤더(`vercel.json`), Chat API origin 검증, `.env.example`/`.gitignore` 정비 (2026-02-09) → [구현 계획 3절](./02_QUALITY_IMPROVEMENT_PLAN.md)
 - [x] **[품질 개선 Phase 3]** LiquidityPool/YieldDistributor/OracleAdapter Pausable+SafeERC20+CEI+Zero-address 강화, V3 테스트넷 재배포, OracleAdapter Choice B 신규 배포, Bond 101 등록, 전체 주소 갱신 (2026-02-09) → [구현 계획 4절](./02_QUALITY_IMPROVEMENT_PLAN.md), [V3 배포 상태](../03_Specs/05_V3_DEPLOYMENT_STATUS.md)

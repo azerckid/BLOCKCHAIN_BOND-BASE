@@ -12,5 +12,7 @@
 
 ---
 ## X. Related Documents
-- **Foundation**: [Roadmap](../01_Foundation/03_ROADMAP.md)
-- **Test**: [Completion Summary](./01_PHASE_COMPLETION_SUMMARY.md)
+- **Foundation**: [Roadmap](../01_Foundation/03_ROADMAP.md) - 단계별 실행 계획
+- **Specs**: [Infrastructure](../03_Specs/01_INFRASTRUCTURE.md) - V3 컨트랙트 주소 및 배포 환경
+- **Specs**: [V3 Deployment Status](../03_Specs/05_V3_DEPLOYMENT_STATUS.md) - V3 배포 완료 항목 및 잔여 작업
+- **Test**: [Completion Summary](./01_PHASE_COMPLETION_SUMMARY.md) - 전체 Phase 이행 요약

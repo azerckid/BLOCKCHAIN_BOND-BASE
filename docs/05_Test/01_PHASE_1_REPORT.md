@@ -13,5 +13,6 @@
 
 ---
 ## X. Related Documents
-- **Foundation**: [Project Overview](../01_Foundation/00_PROJECT_OVERVIEW.md)
-- **Test**: [Completion Summary](./01_PHASE_COMPLETION_SUMMARY.md)
+- **Foundation**: [Project Overview](../01_Foundation/00_PROJECT_OVERVIEW.md) - 프로젝트 비전 및 기술 스택 참조
+- **Specs**: [Infrastructure](../03_Specs/01_INFRASTRUCTURE.md) - 스마트 컨트랙트 배포 환경
+- **Test**: [Completion Summary](./01_PHASE_COMPLETION_SUMMARY.md) - 전체 Phase 이행 요약

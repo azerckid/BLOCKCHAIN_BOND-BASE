@@ -13,5 +13,6 @@ AI 컨시어지가 춘심 IP 투자 전문 페르소나를 탑재하고 사용�
 
 ---
 ## X. Related Documents
-- **Foundation**: [AI Strategy](../01_Foundation/04_AI_STRATEGY.md)
-- **Test**: [Completion Summary](./01_PHASE_COMPLETION_SUMMARY.md)
+- **Foundation**: [AI Strategy](../01_Foundation/04_AI_STRATEGY.md) - AI 에이전트 통합 전략 및 기술 스택
+- **Foundation**: [Project Overview](../01_Foundation/00_PROJECT_OVERVIEW.md) - 프로젝트 비전 및 AI 인프라
+- **Test**: [Completion Summary](./01_PHASE_COMPLETION_SUMMARY.md) - 전체 Phase 이행 요약

@@ -1,6 +1,6 @@
 # 인프라 및 개발 환경 (Infrastructure & Environment)
 > Created: 2026-01-24 23:38
-> Last Updated: 2026-01-24
+> Last Updated: 2026-02-09
 
 본 문서는 BondBase 프로젝트의 네트워크 설정, 외부 서비스 엔드포인트 및 배포 환경에 대한 최신 정보를 관리합니다.
 

@@ -1,71 +1,124 @@
 import { ethers } from "ethers";
 import { CONFIG, ABIS } from "./config.js";
 
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+/** Choonsim Bond ID registered on-chain via registerBond(101) */
+const CHOONSIM_BOND_ID = 101;
+
+/** Bond IDs to sync. Expandable for future bonds. */
+const BOND_IDS = [CHOONSIM_BOND_ID];
+
+/** Max consecutive failures before increasing backoff */
+const MAX_BACKOFF_MULTIPLIER = 8;
+
+/** Fallback RPC endpoints (tried in order when primary fails) */
+const RPC_ENDPOINTS = [
+    CONFIG.RPC_URL,
+    "https://rpc.cc3-testnet.creditcoin.network", // duplicate as safety
+];
+
+// ─── Mock Fintech API (Simulation) ───────────────────────────────────────────
+
 /**
  * MOCK FINTECH API SIMULATION
- * In a real-world scenario, this would fetch data from an external 
- * lending partner's database or API.
+ * Simulates off-chain revenue data from ChoonSim AI-Talk subscription platform.
+ * In production, this would fetch from the ChoonSim backend via api/revenue.
  */
 class MockFintechAPI {
-    private static bondData: Record<number, any> = {
-        1: {
-            principalPaid: 50000,
-            interestPaid: 12000,
-            status: 0,
-            proof: "ipfs://QmMockData1",
-            carbonReduced: 1200, // kg
-            jobsCreated: 15,
-            smeSupported: 8,
-            reportUrl: "https://rwa-report.com/bond-1"
-        },
-        2: {
-            principalPaid: 10000,
-            interestPaid: 2500,
-            status: 0,
-            proof: "ipfs://QmMockData2",
-            carbonReduced: 430,
-            jobsCreated: 4,
-            smeSupported: 2,
-            reportUrl: "https://rwa-report.com/bond-2"
-        },
-    };
+    private static bondData: Record<number, {
+        principalPaid: number;
+        interestPaid: number;
+        status: number;
+        proof: string;
+        carbonReduced: number;
+        jobsCreated: number;
+        smeSupported: number;
+        reportUrl: string;
+    }> = {
+            [CHOONSIM_BOND_ID]: {
+                principalPaid: 25000,
+                interestPaid: 3500,
+                status: 0, // 0 = Active
+                proof: "ipfs://QmChoonsimRevenue101",
+                carbonReduced: 0,
+                jobsCreated: 5,
+                smeSupported: 1,
+                reportUrl: "https://choonsim.ai/impact/bond-101"
+            },
+        };
 
     static async getAssetPerformance(bondId: number) {
-        // Simulate minor updates periodically
-        if (Math.random() > 0.7) {
-            this.bondData[bondId].interestPaid += 500;
-            this.bondData[bondId].principalPaid += 1000;
-            this.bondData[bondId].carbonReduced += 20;
-            console.log(`[API] Mock Data Updated for Bond #${bondId}: Interest +500, Carbon +20kg`);
+        const data = this.bondData[bondId];
+        if (!data) {
+            throw new Error(`[MockAPI] No data for Bond #${bondId}`);
         }
-        return this.bondData[bondId];
+
+        // Simulate periodic revenue growth (~30% chance per cycle)
+        if (Math.random() > 0.7) {
+            data.interestPaid += 250;
+            data.principalPaid += 500;
+            data.jobsCreated += 1;
+            console.log(`[MockAPI] Revenue updated for Bond #${bondId}: Interest +250, Jobs +1`);
+        }
+
+        return { ...data }; // Return copy to avoid mutation issues
     }
 }
 
+// ─── Provider Management ─────────────────────────────────────────────────────
+
+/**
+ * Creates a JSON-RPC provider with automatic fallback.
+ * Tries each endpoint until one responds.
+ */
+async function createHealthyProvider(): Promise<ethers.JsonRpcProvider> {
+    for (const rpcUrl of RPC_ENDPOINTS) {
+        try {
+            const provider = new ethers.JsonRpcProvider(rpcUrl);
+            const blockNumber = await provider.getBlockNumber();
+            console.log(`[Provider] Connected to ${rpcUrl} (block: ${blockNumber})`);
+            return provider;
+        } catch (err) {
+            console.warn(`[Provider] Failed to connect to ${rpcUrl}:`, (err as Error).message);
+        }
+    }
+    throw new Error("[Provider] All RPC endpoints unreachable.");
+}
+
+// ─── Main Loop (setTimeout Recursive Pattern) ────────────────────────────────
+
 async function main() {
-    console.log("--- Starting BuildCTC Relayer Bot ---");
+    console.log("--- Starting BondBase Relayer Bot (V3 / Choonsim) ---");
+    console.log(`[Config] Bond IDs: [${BOND_IDS.join(", ")}]`);
+    console.log(`[Config] Sync Interval: ${CONFIG.SYNC_INTERVAL_MS}ms`);
 
     if (!CONFIG.PRIVATE_KEY) {
-        console.error("Error: PRIVATE_KEY not found in .env");
+        console.error("[FATAL] PRIVATE_KEY not found in .env");
         process.exit(1);
     }
 
-    const provider = new ethers.JsonRpcProvider(CONFIG.RPC_URL);
-    const wallet = new ethers.Wallet(CONFIG.PRIVATE_KEY, provider);
+    let provider = await createHealthyProvider();
+    let wallet = new ethers.Wallet(CONFIG.PRIVATE_KEY, provider);
+    let consecutiveFailures = 0;
 
-    const oracleAdapter = new ethers.Contract(CONFIG.ORACLE_ADAPTER_ADDRESS, ABIS.OracleAdapter, wallet) as any;
-    const mockUsdc = new ethers.Contract(CONFIG.MOCK_USDC_ADDRESS, ABIS.MockUSDC, wallet) as any;
-
-    console.log(`Relayer Address: ${wallet.address}`);
+    console.log(`[Wallet] Relayer Address: ${wallet.address}`);
 
     const runSync = async () => {
-        console.log(`\n[${new Date().toLocaleTimeString()}] Starting Sync Cycle...`);
+        const startTime = Date.now();
+        console.log(`\n[${new Date().toISOString()}] ─── Sync Cycle Start ───`);
 
-        // We sync Bond #1 and #2 for this demo
-        const bondIds = [1, 2];
+        let cycleSuccess = true;
 
-        for (const bondId of bondIds) {
+        for (const bondId of BOND_IDS) {
             try {
+                const oracleAdapter = new ethers.Contract(
+                    CONFIG.ORACLE_ADAPTER_ADDRESS, ABIS.OracleAdapter, wallet
+                ) as any;
+                const mockUsdc = new ethers.Contract(
+                    CONFIG.MOCK_USDC_ADDRESS, ABIS.MockUSDC, wallet
+                ) as any;
+
                 // 1. Fetch External Data (Simulation)
                 const extData = await MockFintechAPI.getAssetPerformance(bondId);
 
@@ -78,20 +131,23 @@ async function main() {
 
                 if (extInterest > onChainInterest) {
                     const delta = extInterest - onChainInterest;
-                    console.log(`[Bond #${bondId}] New Interest detected! Delta: ${ethers.formatUnits(delta, 18)} USDC`);
+                    console.log(`[Bond #${bondId}] Delta detected: ${ethers.formatUnits(delta, 18)} USDC`);
 
-                    // 4. Check Allowance for the Delta
+                    // 4. Check & Auto-Approve if needed
                     const allowance = await mockUsdc.allowance(wallet.address, CONFIG.ORACLE_ADAPTER_ADDRESS);
                     if (allowance < delta) {
-                        console.log(`[Bond #${bondId}] Approving ${ethers.formatUnits(delta, 18)} USDC...`);
-                        const approveTx = await mockUsdc.approve(CONFIG.ORACLE_ADAPTER_ADDRESS, delta);
+                        console.log(`[Bond #${bondId}] Approving MockUSDC for OracleAdapter...`);
+                        const approveTx = await mockUsdc.approve(
+                            CONFIG.ORACLE_ADAPTER_ADDRESS,
+                            ethers.MaxUint256
+                        );
                         await approveTx.wait();
-                        console.log(`[Bond #${bondId}] Approved!`);
+                        console.log(`[Bond #${bondId}] Approval confirmed.`);
                     }
 
                     // 5. Execute Update
                     const perfData = {
-                        timestamp: Math.floor(Date.now() / 1000) - 60, // Subtract 60s to avoid 'Future timestamp' error
+                        timestamp: Math.floor(Date.now() / 1000) - 60,
                         principalPaid: ethers.parseUnits(extData.principalPaid.toString(), 18),
                         interestPaid: extInterest,
                         status: extData.status,
@@ -105,26 +161,58 @@ async function main() {
                         reportUrl: extData.reportUrl
                     };
 
-                    console.log(`[Bond #${bondId}] Sending update (Performance + Impact) to OracleAdapter...`);
+                    console.log(`[Bond #${bondId}] Sending updateAssetStatus to OracleAdapter...`);
                     const tx = await oracleAdapter.updateAssetStatus(bondId, perfData, impactData);
                     const receipt = await tx.wait();
-                    console.log(`[Bond #${bondId}] Sync successful! Tx: ${receipt.hash}`);
+                    console.log(`[Bond #${bondId}] Sync OK. Tx: ${receipt.hash}`);
                 } else {
-                    console.log(`[Bond #${bondId}] No change. On-chain stay synchronized.`);
+                    console.log(`[Bond #${bondId}] No change. Already synchronized.`);
                 }
             } catch (error) {
-                console.error(`[Error] Failed to sync Bond #${bondId}:`, error);
+                cycleSuccess = false;
+                const errMsg = error instanceof Error ? error.message : String(error);
+                console.error(`[Bond #${bondId}] SYNC FAILED:`, errMsg);
             }
         }
+
+        // ─── Backoff / Recovery Logic ────────────────────────────────────
+        if (cycleSuccess) {
+            consecutiveFailures = 0;
+        } else {
+            consecutiveFailures++;
+            console.warn(`[Recovery] Consecutive failures: ${consecutiveFailures}`);
+
+            // Re-establish provider on repeated failures
+            if (consecutiveFailures >= 3) {
+                console.warn("[Recovery] Attempting RPC reconnection...");
+                try {
+                    provider = await createHealthyProvider();
+                    wallet = new ethers.Wallet(CONFIG.PRIVATE_KEY, provider);
+                    console.log("[Recovery] RPC reconnected successfully.");
+                } catch (reconnectErr) {
+                    console.error("[Recovery] RPC reconnection failed:", (reconnectErr as Error).message);
+                }
+            }
+        }
+
+        const backoffMultiplier = Math.min(
+            Math.pow(2, consecutiveFailures),
+            MAX_BACKOFF_MULTIPLIER
+        );
+        const nextInterval = CONFIG.SYNC_INTERVAL_MS * backoffMultiplier;
+        const elapsed = Date.now() - startTime;
+
+        console.log(`[Cycle] Completed in ${elapsed}ms. Next in ${nextInterval / 1000}s (backoff x${backoffMultiplier})`);
+
+        // Schedule next cycle (setTimeout recursive pattern avoids overlapping runs)
+        setTimeout(runSync, nextInterval);
     };
 
     // Initial run
     await runSync();
-
-    // Loop
-    setInterval(runSync, CONFIG.SYNC_INTERVAL_MS);
 }
 
 main().catch((error) => {
-    console.error("Relayer Critical Error:", error);
+    console.error("[FATAL] Relayer Critical Error:", error);
+    process.exit(1);
 });

@@ -16,4 +16,4 @@
 ## X. Related Documents
 - **Foundation**: [UI Design](../01_Foundation/05_UI_DESIGN.md) - 디자인 시스템 가이드라인
 - **Foundation**: [Branding Plan](../01_Foundation/02_BRANDING_PLAN.md) - 현재 반영된 브랜딩 명칭 규칙
-- **Prototype**: [Previous Review](./00_LANDING_PAGE_REVIEW.md) - 프로토타입 리뷰 결과 (작성 예정)
+- **Specs**: [Admin Portal Spec](../03_Specs/03_ADMIN_PORTAL_SPEC.md) - UI 컴포넌트 기술 명세 참조
