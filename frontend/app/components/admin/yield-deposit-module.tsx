@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
-import { CONTRACTS } from "@/config/contracts";
+import { CONTRACTS, type BondInfo } from "@/config/contracts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
@@ -58,7 +58,7 @@ export function YieldDepositModule() {
         args: [BigInt(bondId)],
     });
 
-    const totalHoldings = bondInfo ? (bondInfo as any)[1] : undefined;
+    const totalHoldings = bondInfo ? (bondInfo as unknown as BondInfo).totalHoldings : undefined;
 
     // 3. Transactions
     const { writeContractAsync: approve } = useWriteContract();

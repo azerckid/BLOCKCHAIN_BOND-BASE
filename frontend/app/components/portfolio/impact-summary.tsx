@@ -6,7 +6,7 @@ import {
     GlobalIcon
 } from "@hugeicons/core-free-icons";
 import { useReadContract } from "wagmi";
-import { CONTRACTS } from "@/config/contracts";
+import { CONTRACTS, type ImpactData } from "@/config/contracts";
 import { formatUnits } from "viem";
 
 export function ImpactSummary({ bondId }: { bondId: number }) {
@@ -19,14 +19,11 @@ export function ImpactSummary({ bondId }: { bondId: number }) {
 
     if (!impact) return null;
 
-    if (!impact) return null;
-
-    // The contract returns a struct, which wagmi/viem typically parses as an array-like object/tuple 
-    // when using ABI. If it's returning a struct object, we can access properties, but let's safely handle both.
-    const carbon = (impact as any).carbonReduced || (impact as any)[0] || 0n;
-    const jobs = (impact as any).jobsCreated || (impact as any)[1] || 0n;
-    const sme = (impact as any).smeSupported || (impact as any)[2] || 0n;
-    const reportUrl = (impact as any).reportUrl || (impact as any)[3] || "";
+    const typedImpact = impact as ImpactData;
+    const carbon = typedImpact.carbonReduced;
+    const jobs = typedImpact.jobsCreated;
+    const sme = typedImpact.smeSupported;
+    const reportUrl = typedImpact.reportUrl || "";
 
     const metrics = [
         {

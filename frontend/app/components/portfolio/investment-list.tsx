@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import * as React from "react";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { formatUnits } from "viem";
-import { CONTRACTS } from "@/config/contracts";
+import { CONTRACTS, type AssetPerformance } from "@/config/contracts";
 // We need to import the bond metadata to map IDs to Titles/APRs
 // In a real app, this might come from an API or the contract metadata itself
 import { MOCK_BONDS } from "@/routes/bonds";
@@ -120,18 +120,18 @@ function InvestmentRow({ inv, address }: { inv: any, address: `0x${string}` }) {
                         <div className="flex items-center justify-between px-1">
                             <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Revenue Share</p>
                             <span className="text-[10px] font-black text-indigo-600">
-                                {assetPerformance ? Math.min(100, Math.round((Number(formatUnits((assetPerformance as any).principalPaid, 18)) / inv.loanAmount) * 100)) : 0}%
+                                {assetPerformance ? Math.min(100, Math.round((Number(formatUnits((assetPerformance as AssetPerformance).principalPaid, 18)) / inv.loanAmount) * 100)) : 0}%
                             </span>
                         </div>
                         <Progress
-                            value={assetPerformance ? (Number(formatUnits((assetPerformance as any).principalPaid, 18)) / inv.loanAmount) * 100 : 0}
+                            value={assetPerformance ? (Number(formatUnits((assetPerformance as AssetPerformance).principalPaid, 18)) / inv.loanAmount) * 100 : 0}
                             className="h-1.5 bg-neutral-100 rounded-full [&>div]:bg-indigo-500"
                         />
                         <div className="flex items-center justify-between px-1 text-[9px] font-bold">
                             <span className="text-neutral-400 italic">Oracle Verified</span>
-                            {(assetPerformance as any)?.verifyProof && (
+                            {(assetPerformance as AssetPerformance | undefined)?.verifyProof && (
                                 <a
-                                    href={(assetPerformance as any).verifyProof.startsWith('http') ? (assetPerformance as any).verifyProof : `https://gateway.ipfs.io/ipfs/${(assetPerformance as any).verifyProof.replace('ipfs://', '')}`}
+                                    href={(assetPerformance as AssetPerformance).verifyProof.startsWith('http') ? (assetPerformance as AssetPerformance).verifyProof : `https://gateway.ipfs.io/ipfs/${(assetPerformance as AssetPerformance).verifyProof.replace('ipfs://', '')}`}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="text-indigo-600 flex items-center gap-0.5 hover:underline"
@@ -181,11 +181,11 @@ function InvestmentRow({ inv, address }: { inv: any, address: `0x${string}` }) {
                                 </Button>
                             )}
                             <div className="flex flex-col items-end justify-center px-1">
-                                {assetPerformance && (assetPerformance as any).status === 2 ? (
+                                {assetPerformance && (assetPerformance as AssetPerformance).status === 2 ? (
                                     <Badge variant="destructive" className="bg-red-100 text-red-700 hover:bg-red-100 border-none font-black text-[9px] py-1 rounded-md">
                                         REVENUE PAUSED
                                     </Badge>
-                                ) : assetPerformance && (assetPerformance as any).status === 1 ? (
+                                ) : assetPerformance && (assetPerformance as AssetPerformance).status === 1 ? (
                                     <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none font-black text-[9px] py-1 rounded-md">
                                         FULLY DISTRIBUTED
                                     </Badge>

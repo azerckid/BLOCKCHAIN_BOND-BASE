@@ -61,7 +61,7 @@ export default function AiGuidePage() {
 
         sendMessage({ text: currentInput }, {
             body: { model }
-        } as any).catch(err => {
+        } as Record<string, unknown>).catch(err => {
             console.error("SendMessage Error:", err);
         });
 
@@ -78,7 +78,7 @@ export default function AiGuidePage() {
     const handleQuickAction = (text: string) => {
         sendMessage({ text }, {
             body: { model }
-        } as any);
+        } as Record<string, unknown>);
     };
 
     return (
@@ -187,7 +187,7 @@ export default function AiGuidePage() {
                                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                             {m.parts && m.parts.length > 0
                                                 ? m.parts.map(p => p.type === 'text' ? p.text : '').join('')
-                                                : (m as any).content || ""
+                                                : ('content' in m ? String((m as Record<string, unknown>).content) : "")
                                             }
                                         </ReactMarkdown>
                                     </div>

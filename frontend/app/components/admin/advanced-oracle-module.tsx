@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
-import { CONTRACTS } from "@/config/contracts";
+import { CONTRACTS, type AssetPerformance } from "@/config/contracts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
@@ -73,7 +73,7 @@ export function AdvancedOracleModule() {
         try { return parseUnits(interestPaid || "0", 18); } catch { return BigInt(0); }
     }, [interestPaid]);
 
-    const currentInterestInWei = currentPerformance ? (currentPerformance as any).interestPaid : BigInt(0);
+    const currentInterestInWei = currentPerformance ? (currentPerformance as AssetPerformance).interestPaid : BigInt(0);
     const neededInterestAddition = interestInWei > currentInterestInWei ? interestInWei - currentInterestInWei : BigInt(0);
 
     // 3. Transactions
@@ -174,21 +174,21 @@ export function AdvancedOracleModule() {
                     <div className="p-5 bg-neutral-50 rounded-3xl border border-neutral-100 space-y-1">
                         <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">On-chain Principal</p>
                         <p className="text-xl font-black text-neutral-900">
-                            ${currentPerformance ? Number(formatUnits((currentPerformance as any).principalPaid, 18)).toLocaleString() : "0.00"}
+                            ${currentPerformance ? Number(formatUnits((currentPerformance as AssetPerformance).principalPaid, 18)).toLocaleString() : "0.00"}
                         </p>
                     </div>
                     <div className="p-5 bg-neutral-50 rounded-3xl border border-neutral-100 space-y-1">
                         <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">On-chain Interest</p>
                         <p className="text-xl font-black text-indigo-600">
-                            ${currentPerformance ? Number(formatUnits((currentPerformance as any).interestPaid, 18)).toLocaleString() : "0.00"}
+                            ${currentPerformance ? Number(formatUnits((currentPerformance as AssetPerformance).interestPaid, 18)).toLocaleString() : "0.00"}
                         </p>
                     </div>
                     <div className="p-5 bg-neutral-50 rounded-3xl border border-neutral-100 space-y-1">
                         <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Last Status</p>
                         <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${currentPerformance && (currentPerformance as any).status === 0 ? 'bg-green-500' : 'bg-red-500'}`} />
+                            <div className={`w-2 h-2 rounded-full ${currentPerformance && (currentPerformance as AssetPerformance).status === 0 ? 'bg-green-500' : 'bg-red-500'}`} />
                             <p className="text-lg font-black text-neutral-900 uppercase italic tracking-tighter">
-                                {currentPerformance ? ((currentPerformance as any).status === 0 ? "Active" : (currentPerformance as any).status === 1 ? "Repaid" : "Default") : "Unknown"}
+                                {currentPerformance ? ((currentPerformance as AssetPerformance).status === 0 ? "Active" : (currentPerformance as AssetPerformance).status === 1 ? "Repaid" : "Default") : "Unknown"}
                             </p>
                         </div>
                     </div>

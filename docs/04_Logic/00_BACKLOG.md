@@ -10,7 +10,6 @@
 - (현재 High 우선순위 항목 없음)
 
 #### 중간 (Medium)
-- [ ] **[`as any` 타입 개선]** V3 ABI 갱신 완료에 따라, `choonsim.tsx`, `admin/` 모듈의 `as any` 캐스팅 제거 및 타입 추론 적용. → [감사 P2 5.2](../05_Test/04_CODE_QUALITY_AUDIT.md)
 - [ ] **[프론트엔드 테스트 인프라]** Vitest + Testing Library 설정, API 라우트(faucet, revenue, chat) 단위 테스트 추가
 - [ ] **[Admin 모듈 리팩토링]** oracle-trigger, yield-deposit, advanced-oracle 3개 모듈의 공통 로직을 `useContractTransaction` hook으로 추출 (~400줄 중복 제거). → [감사 P2 5.3](../05_Test/04_CODE_QUALITY_AUDIT.md)
 - [ ] **[Relayer 데이터 검증]** MockFintechAPI 반환값 Zod 스키마 적용, 범위 검사, timestamp 로직 안정화. → [감사 P2 5.7](../05_Test/04_CODE_QUALITY_AUDIT.md)
@@ -33,6 +32,7 @@
 
 ### 🟢 Done (완료)
 - [x] **[BFG + 키 로테이션 조사]** Git history 전수 조사 완료. `contracts/.env`에 기록된 PRIVATE_KEY는 플레이스홀더(`0xabcdef12345...`)로 확인, 실제 비밀키 노출 없음. `.gitignore`가 `.env*` 전체 차단 중. BFG 실행 불필요 판정 (2026-02-13)
+- [x] **[`as any` 타입 전면 제거]** contracts.ts에 `AssetPerformance`, `ImpactData`, `BondInfo` 인터페이스 정의. 프론트엔드 전체 25건 `as any` → 0건 달성. choonsim.tsx, impact.tsx, impact-summary.tsx, advanced-oracle-module.tsx, yield-deposit-module.tsx, investment-list.tsx, ai-guide.tsx, help-guide.tsx, choonsim-dashboard.tsx 수정. tsc --noEmit 통과 확인 (2026-02-13)
 - [x] **[V3 E2E 플로우 검증 + Relayer 수정]** 전체 코드-설정 정합성 검증 완료. Relayer Bond ID 불일치([1,2] → [101]) 수정, MockFintechAPI Choonsim 맥락 교체, setTimeout 재귀 패턴+exponential backoff+RPC fallback 적용. 테스트넷 실행 성공 확인 (2026-02-13)
 - [x] **[AI 지식 베이스 정규화]** `knowledge.json` 아카이브/레거시 데이터 제거 완료: `generate-knowledge.cjs` ignoreDirs 대소문자 무시+부분 일치 로직 개선, 43건 -> 25건(활성 문서만), 324KB -> 97KB(-70%) (2026-02-13)
 - [x] **[문서 체계 현대화]** `manage-docs` 스킬 기반 5단계 레이어 리팩토링 완료: 전체 문서 메타데이터 헤더 검증, Related Documents 섹션 표준화, 깨진 링크 정리, 날짜 정합성 확보 (2026-02-13)
@@ -57,8 +57,8 @@
 | 심각도 | 전체 | 해결 | 잔여 | 비고 |
 |--------|------|------|------|------|
 | P0 (Critical) | 5 | 5 | 0 | 3.1 BFG 수동 보류, 코드 조치 완료 |
-| P1 (High) | 7 | 6 | 1 | 4.3 Relayer 재시도 미처리 |
-| P2 (Medium) | 7 | 4 | 3 | 5.2 as any, 5.3 Admin, 5.7 Relayer 검증 |
+| P1 (High) | 7 | 7 | 0 | 4.3 Relayer 재시도 로직 적용 완료 |
+| P2 (Medium) | 7 | 5 | 2 | 5.3 Admin, 5.7 Relayer 검증 |
 | P3 (Low) | 6 | 2 | 4 | 6.4 deploy_all (v3 대체), 6.5 이벤트 (추가됨) |
 
 ---

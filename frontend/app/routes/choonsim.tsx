@@ -1,4 +1,4 @@
-import { ChoonsimDashboard } from "@/components/bonds/choonsim-dashboard";
+import { ChoonsimDashboard, type ChoonsimDashboardProps } from "@/components/bonds/choonsim-dashboard";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { db } from "@/db";
 import { choonsimProjects, choonsimMetricsHistory, choonsimRevenue, choonsimMilestones } from "@/db/schema";
@@ -205,7 +205,7 @@ export default function ChoonsimRoute() {
     return (
         <DashboardLayout>
             <ChoonsimDashboard
-                project={enrichedProject as any}
+                project={enrichedProject as ChoonsimDashboardProps['project']}
                 history={data.history}
                 milestones={data.milestones}
                 onClaim={handleClaim}

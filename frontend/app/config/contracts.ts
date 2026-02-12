@@ -5,6 +5,32 @@
 
 import { type Abi } from "viem";
 
+// ─── On-chain Return Types (ABI struct 1:1 매핑) ─────────────────────────────
+
+/** OracleAdapter.getAssetPerformance() 반환 구조체 */
+export interface AssetPerformance {
+    timestamp: bigint;
+    principalPaid: bigint;
+    interestPaid: bigint;
+    status: number;       // 0: Active, 1: Repaid, 2: Default
+    verifyProof: string;
+}
+
+/** OracleAdapter.getImpactData() 반환 구조체 */
+export interface ImpactData {
+    carbonReduced: bigint;
+    jobsCreated: bigint;
+    smeSupported: bigint;
+    reportUrl: string;
+}
+
+/** YieldDistributor.bonds() 반환 구조체 (tuple) */
+export interface BondInfo {
+    rewardPerTokenStored: bigint;
+    totalHoldings: bigint;
+    isRegistered: boolean;
+}
+
 export const CONTRACTS = {
     MockUSDC: {
         address: "0x03E7d375e76A105784BFF5867f608541e89D311B",

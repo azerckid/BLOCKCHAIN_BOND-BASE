@@ -138,7 +138,7 @@ export function HelpGuide() {
                             </p>
                         </div>
                         <div className="absolute -bottom-8 -right-8 opacity-10">
-                            <HugeiconsIcon icon={ShieldTickIcon as any} size={120} />
+                            <HugeiconsIcon icon={ShieldTickIcon} size={120} />
                         </div>
                     </div>
                 </div>

@@ -10,7 +10,7 @@ import {
     Location01Icon
 } from "@hugeicons/core-free-icons";
 import { useReadContract } from "wagmi";
-import { CONTRACTS } from "@/config/contracts";
+import { CONTRACTS, type ImpactData } from "@/config/contracts";
 import { CHOONSIM_BOND_DATA } from "./bonds";
 import { useState, useCallback } from "react";
 import {
@@ -80,10 +80,10 @@ export default function ImpactPage() {
     });
 
     const impactData = impact ? {
-        carbon: Number((impact as any).carbonReduced || (impact as any)[0] || 0),
-        jobs: Number((impact as any).jobsCreated || (impact as any)[1] || 0),
-        sme: Number((impact as any).smeSupported || (impact as any)[2] || 0),
-        url: (impact as any).reportUrl || (impact as any)[3] || ""
+        carbon: Number((impact as ImpactData).carbonReduced),
+        jobs: Number((impact as ImpactData).jobsCreated),
+        sme: Number((impact as ImpactData).smeSupported),
+        url: (impact as ImpactData).reportUrl || ""
     } : { carbon: 0, jobs: 0, sme: 0, url: "" };
 
     const chartData = [
@@ -273,7 +273,7 @@ export default function ImpactPage() {
     );
 }
 
-const Badge = ({ children, variant, className }: any) => (
+const Badge = ({ children, className }: { children: React.ReactNode; variant?: string; className?: string }) => (
     <span className={`inline-flex items-center px-2 py-1 rounded-md ${className}`}>
         {children}
     </span>
