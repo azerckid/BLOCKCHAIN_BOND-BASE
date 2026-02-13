@@ -15,8 +15,6 @@
 
 
 #### 낮음 (Low) / 장기
-- [ ] **[모노레포 워크스페이스]** npm/pnpm workspaces로 frontend/contracts/relayer 통합 관리. → [감사 P3 6.1](../05_Test/04_CODE_QUALITY_AUDIT.md)
-- [ ] **[공유 타입 패키지]** `packages/types`에 ABI 타입, 주소 상수, 공통 인터페이스 공유. 워크스페이스와 함께 진행. → [감사 P3 6.2](../05_Test/04_CODE_QUALITY_AUDIT.md)
 - [ ] **[컨트랙트 UUPS 업그레이드]** 메인넷 전환 시 검토. → [감사 P3 6.3](../05_Test/04_CODE_QUALITY_AUDIT.md)
 - [ ] **[Relayer 모니터링 체계]** 구조화 로깅(Pino), 연속 실패 알림(Slack webhook), 메트릭 수집. 운영 인프라 결정 후 진행. → [감사 P3 6.6](../05_Test/04_CODE_QUALITY_AUDIT.md)
 - [ ] **[릴레이어 운영 문서]** `03_Specs/`에 릴레이어 배포, 모니터링, 장애 대응 가이드 작성. → [감사 9.2](../05_Test/04_CODE_QUALITY_AUDIT.md)
@@ -47,7 +45,9 @@
 - [x] Specs 레이어 이관 및 기술 명세 최신화
 - [x] UI/UX 춘심 전용 브랜딩 정규화 (Growth Market 등)
 - [x] 기본 수익 수집 API 및 오라클 봇 구현
-- [x] 문서-코드 정합성 검토 및 수정 (PROJECT_OVERVIEW, ADMIN_PORTAL_SPEC, INFRASTRUCTURE, AI_STRATEGY, HANDOVER)
+- [x] **[모노레포 워크스페이스]** npm workspaces 도입. root packages 생성을 통해 `contracts`, `frontend`, `relayer` 통합 관리. (2026-02-13) → [감사 P3 6.1](../05_Test/04_CODE_QUALITY_AUDIT.md)
+- [x] **[공유 타입 패키지]** `packages/types` 생성. `contracts`의 ABI/타입/상수를 frontend와 공유. `@bond-base/types` 워크스페이스 패키지 구성. (2026-02-13) → [감사 P3 6.2](../05_Test/04_CODE_QUALITY_AUDIT.md)
+- [x] **[문서-코드 정합성 검토 및 수정]** (PROJECT_OVERVIEW, ADMIN_PORTAL_SPEC, INFRASTRUCTURE, AI_STRATEGY, HANDOVER)
 
 ---
 
@@ -60,7 +60,7 @@
 | P0 (Critical) | 5 | 5 | 0 | 3.1 BFG 수동 보류, 코드 조치 완료 |
 | P1 (High) | 7 | 7 | 0 | 4.3 Relayer 재시도 로직 적용 완료 |
 | P2 (Medium) | 7 | 7 | 0 | **완료** (전체 P2 해결) |
-| P3 (Low) | 6 | 2 | 4 | 6.4 deploy_all (v3 대체), 6.5 이벤트 (추가됨) |
+| P3 (Low) | 6 | 4 | 2 | 6.4 deploy_all (v3 대체), 6.5 이벤트 (추가됨) |
 
 ---
 
