@@ -10,7 +10,7 @@
 - (현재 High 우선순위 항목 없음)
 
 #### 중간 (Medium)
-- [ ] **[프론트엔드 테스트 인프라]** Vitest + Testing Library 설정, API 라우트(faucet, revenue, chat) 단위 테스트 추가
+
 
 - [ ] **[Relayer 데이터 검증]** MockFintechAPI 반환값 Zod 스키마 적용, 범위 검사, timestamp 로직 안정화. → [감사 P2 5.7](../05_Test/04_CODE_QUALITY_AUDIT.md)
 
@@ -31,7 +31,7 @@
 - (현재 진행 중인 작업 없음)
 
 ### 🟢 Done (완료)
-- [x] **[BFG + 키 로테이션 조사]** Git history 전수 조사 완료. `contracts/.env`에 기록된 PRIVATE_KEY는 플레이스홀더(`0xabcdef12345...`)로 확인, 실제 비밀키 노출 없음. `.gitignore`가 `.env*` 전체 차단 중. BFG 실행 불필요 판정 (2026-02-13)
+- [x] **[프론트엔드 테스트 인프라]** Vitest + Testing Library 설정 완료. `api.faucet`, `api.revenue`, `api.chat` 라우트에 대한 단위 테스트 26개 작성 및 통과. `reactRouter` 플러그인 충돌 해결을 위해 테스트용 `vitest.config.ts` 분리 구성 (2026-02-13) → [감사 P2](../05_Test/04_CODE_QUALITY_AUDIT.md)
 - [x] **[Admin 모듈 리팩토링]** oracle-trigger, yield-deposit, advanced-oracle 3개 모듈의 공통 approve-execute-wait 로직을 `useContractTransaction` hook으로 추출. 155줄 중복 제거, tsc --noEmit 통과 확인 (2026-02-13) → [감사 P2 5.3](../05_Test/04_CODE_QUALITY_AUDIT.md)
 - [x] **[`as any` 타입 전면 제거]** contracts.ts에 `AssetPerformance`, `ImpactData`, `BondInfo` 인터페이스 정의. 프론트엔드 전체 25건 `as any` → 0건 달성. choonsim.tsx, impact.tsx, impact-summary.tsx, advanced-oracle-module.tsx, yield-deposit-module.tsx, investment-list.tsx, ai-guide.tsx, help-guide.tsx, choonsim-dashboard.tsx 수정. tsc --noEmit 통과 확인 (2026-02-13)
 - [x] **[V3 E2E 플로우 검증 + Relayer 수정]** 전체 코드-설정 정합성 검증 완료. Relayer Bond ID 불일치([1,2] → [101]) 수정, MockFintechAPI Choonsim 맥락 교체, setTimeout 재귀 패턴+exponential backoff+RPC fallback 적용. 테스트넷 실행 성공 확인 (2026-02-13)
