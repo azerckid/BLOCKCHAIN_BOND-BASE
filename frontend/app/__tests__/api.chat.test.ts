@@ -99,7 +99,7 @@ describe("api.chat", () => {
             ),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(403);
         const body = await parseResponse(res);
         expect(body.error).toBe("Forbidden");
@@ -113,7 +113,7 @@ describe("api.chat", () => {
             ),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(200);
     });
 
@@ -123,7 +123,7 @@ describe("api.chat", () => {
             request: makeRequest({ model: "google" }),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(400);
         const body = await parseResponse(res);
         expect(body.error).toBe("Invalid request");
@@ -137,7 +137,7 @@ describe("api.chat", () => {
             }),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(400);
     });
 
@@ -149,7 +149,7 @@ describe("api.chat", () => {
             }),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(400);
     });
 
@@ -164,7 +164,7 @@ describe("api.chat", () => {
             }),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(200);
         expect(mockToUIMessageStreamResponse).toHaveBeenCalled();
     });
@@ -176,7 +176,7 @@ describe("api.chat", () => {
             }),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(200);
     });
 
@@ -190,7 +190,7 @@ describe("api.chat", () => {
             }),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(200);
     });
 });

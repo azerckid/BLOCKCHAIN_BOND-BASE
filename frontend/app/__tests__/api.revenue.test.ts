@@ -157,7 +157,7 @@ describe("api.revenue", () => {
             ),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(401);
     });
 
@@ -167,7 +167,7 @@ describe("api.revenue", () => {
             request: makeRequest({ type: "INVALID", data: {} }),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(400);
         const body = await parseResponse(res);
         expect(body.success).toBe(false);
@@ -178,7 +178,7 @@ describe("api.revenue", () => {
             request: makeRequest({ type: "REVENUE", data: { amount: "abc", source: "test", description: "test" } }),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(400);
     });
 
@@ -187,7 +187,7 @@ describe("api.revenue", () => {
             request: makeRequest({ type: "REVENUE", data: { amount: "2000000", source: "test", description: "test" } }),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(400);
     });
 
@@ -200,7 +200,7 @@ describe("api.revenue", () => {
             }),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(200);
         const body = await parseResponse(res);
         expect(body.success).toBe(true);
@@ -215,7 +215,7 @@ describe("api.revenue", () => {
             }),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(200);
         const body = await parseResponse(res);
         expect(body.success).toBe(true);
@@ -232,7 +232,7 @@ describe("api.revenue", () => {
             }),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(200);
         const body = await parseResponse(res);
         expect(body.success).toBe(true);
@@ -250,7 +250,7 @@ describe("api.revenue", () => {
             }),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(200);
         expect(relayDepositYield).toHaveBeenCalledWith(101, "100");
     });

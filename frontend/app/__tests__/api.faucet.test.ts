@@ -132,7 +132,7 @@ describe("api.faucet", () => {
         const req = new Request("http://localhost:3000/api/faucet", {
             method: "GET",
         });
-        const res = await action({ request: req, params: {}, context: {} as never });
+        const res = await action({ request: req, params: {}, context: {} as never } as any);
         expect(res.status).toBe(405);
         const body = await parseResponse(res);
         expect(body.error).toBe("Method Not Allowed");
@@ -144,7 +144,7 @@ describe("api.faucet", () => {
             request: makeRequest({}),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(400);
         const body = await parseResponse(res);
         expect(body.error).toBe("Invalid request");
@@ -155,7 +155,7 @@ describe("api.faucet", () => {
             request: makeRequest({ address: "not-an-address" }),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(400);
     });
 
@@ -165,7 +165,7 @@ describe("api.faucet", () => {
             request: makeRequest({ address: validAddress }),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(200);
         const body = await parseResponse(res);
         expect(body.success).toBe(true);
@@ -183,7 +183,7 @@ describe("api.faucet", () => {
             request: makeRequest({ address: "0x1234567890abcdef1234567890abcdef12345678" }),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(429);
         const body = await parseResponse(res);
         expect(body.error).toContain("Rate limit");
@@ -198,7 +198,7 @@ describe("api.faucet", () => {
             request: makeRequest({ address: "0x1234567890abcdef1234567890abcdef12345678" }),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(429);
         const body = await parseResponse(res);
         expect(body.error).toContain("Daily faucet limit");
@@ -212,7 +212,7 @@ describe("api.faucet", () => {
             request: makeRequest({ address: "0x1234567890abcdef1234567890abcdef12345678" }),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(res.status).toBe(500);
         const body = await parseResponse(res);
         expect(body.success).toBe(false);
@@ -225,7 +225,7 @@ describe("api.faucet", () => {
             request: makeRequest({ address: "0x1234567890abcdef1234567890abcdef12345678" }),
             params: {},
             context: {} as never,
-        });
+        } as any);
         expect(mockInsertValues).toHaveBeenCalledTimes(1);
         const insertArg = mockInsertValues.mock.calls[0][0];
         expect(insertArg.address).toBe("0x1234567890abcdef1234567890abcdef12345678");
