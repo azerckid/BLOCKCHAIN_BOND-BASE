@@ -1,10 +1,11 @@
 import { ethers } from "ethers";
 import { CONFIG, ABIS } from "./config.js";
+import { MockFintechAPI, CHOONSIM_BOND_ID } from "./mock-fintech-api.js";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 /** Choonsim Bond ID registered on-chain via registerBond(101) */
-const CHOONSIM_BOND_ID = 101;
+
 
 /** Bond IDs to sync. Expandable for future bonds. */
 const BOND_IDS = [CHOONSIM_BOND_ID];
@@ -25,46 +26,7 @@ const RPC_ENDPOINTS = [
  * Simulates off-chain revenue data from ChoonSim AI-Talk subscription platform.
  * In production, this would fetch from the ChoonSim backend via api/revenue.
  */
-class MockFintechAPI {
-    private static bondData: Record<number, {
-        principalPaid: number;
-        interestPaid: number;
-        status: number;
-        proof: string;
-        carbonReduced: number;
-        jobsCreated: number;
-        smeSupported: number;
-        reportUrl: string;
-    }> = {
-            [CHOONSIM_BOND_ID]: {
-                principalPaid: 25000,
-                interestPaid: 3500,
-                status: 0, // 0 = Active
-                proof: "ipfs://QmChoonsimRevenue101",
-                carbonReduced: 0,
-                jobsCreated: 5,
-                smeSupported: 1,
-                reportUrl: "https://choonsim.ai/impact/bond-101"
-            },
-        };
 
-    static async getAssetPerformance(bondId: number) {
-        const data = this.bondData[bondId];
-        if (!data) {
-            throw new Error(`[MockAPI] No data for Bond #${bondId}`);
-        }
-
-        // Simulate periodic revenue growth (~30% chance per cycle)
-        if (Math.random() > 0.7) {
-            data.interestPaid += 250;
-            data.principalPaid += 500;
-            data.jobsCreated += 1;
-            console.log(`[MockAPI] Revenue updated for Bond #${bondId}: Interest +250, Jobs +1`);
-        }
-
-        return { ...data }; // Return copy to avoid mutation issues
-    }
-}
 
 // ─── Provider Management ─────────────────────────────────────────────────────
 
