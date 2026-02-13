@@ -5,7 +5,8 @@
     "workspaces": [
         "contracts",
         "frontend",
-        "relayer"
+        "relayer",
+        "packages/types"
     ],
     "scripts": {
         "clean": "rm -rf node_modules package-lock.json contracts/node_modules contracts/package-lock.json frontend/node_modules frontend/package-lock.json relayer/node_modules relayer/package-lock.json",
