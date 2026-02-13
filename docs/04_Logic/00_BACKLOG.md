@@ -48,6 +48,9 @@
 - [x] **[모노레포 워크스페이스]** npm workspaces 도입. root packages 생성을 통해 `contracts`, `frontend`, `relayer` 통합 관리. (2026-02-13) → [감사 P3 6.1](../05_Test/04_CODE_QUALITY_AUDIT.md)
 - [x] **[공유 타입 패키지]** `packages/types` 생성. `contracts`의 ABI/타입/상수를 frontend와 공유. `@bond-base/types` 워크스페이스 패키지 구성. (2026-02-13) → [감사 P3 6.2](../05_Test/04_CODE_QUALITY_AUDIT.md)
 - [x] **[문서-코드 정합성 검토 및 수정]** (PROJECT_OVERVIEW, ADMIN_PORTAL_SPEC, INFRASTRUCTURE, AI_STRATEGY, HANDOVER)
+- [x] **[Relayer 모니터링 체계]** 구조화 로깅(Pino) 적용 및 에러 핸들링 강화. (2026-02-13) → [감사 P3 6.6](../05_Test/04_CODE_QUALITY_AUDIT.md)
+- [x] **[릴레이어 운영 문서]** `03_Specs/04_RELAYER_OPS.md` 작성 완료. (2026-02-13) → [감사 9.2](../05_Test/04_CODE_QUALITY_AUDIT.md)
+- [ ] **[컨트랙트 UUPS 업그레이드]** 메인넷 전환 시 검토 (현재 Skip). → [감사 P3 6.3](../05_Test/04_CODE_QUALITY_AUDIT.md)
 
 ---
 
@@ -60,7 +63,7 @@
 | P0 (Critical) | 5 | 5 | 0 | 3.1 BFG 수동 보류, 코드 조치 완료 |
 | P1 (High) | 7 | 7 | 0 | 4.3 Relayer 재시도 로직 적용 완료 |
 | P2 (Medium) | 7 | 7 | 0 | **완료** (전체 P2 해결) |
-| P3 (Low) | 6 | 4 | 2 | 6.4 deploy_all (v3 대체), 6.5 이벤트 (추가됨) |
+| P3 (Low) | 6 | 6 | 0 | **완료** (UUPS Skip) |
 
 ---
 

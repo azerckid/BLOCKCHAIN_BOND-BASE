@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { logger } from "./utils/logger.js";
 
 /** Choonsim Bond ID registered on-chain via registerBond(101) */
 export const CHOONSIM_BOND_ID = 101;
@@ -50,7 +51,7 @@ export class MockFintechAPI {
         // 2. Schema Validation (Simulating strict API contract)
         const validation = BondPerformanceSchema.safeParse(entry);
         if (!validation.success) {
-            console.error(`[MockAPI] Data Validation Failed for Bond #${bondId}:`, validation.error.format());
+            logger.error({ err: validation.error }, `[MockAPI] Data Validation Failed for Bond #${bondId}`);
             throw new Error(`[MockAPI] Invalid data structure for Bond #${bondId}`);
         }
 
@@ -60,7 +61,7 @@ export class MockFintechAPI {
             entry.interestPaid += 250;
             entry.principalPaid += 500;
             entry.jobsCreated += 1;
-            console.log(`[MockAPI] Revenue updated for Bond #${bondId}: Interest +250, Jobs +1`);
+            logger.info(`[MockAPI] Revenue updated for Bond #${bondId}: Interest +250, Jobs +1`);
         }
 
         // Return validated data copy

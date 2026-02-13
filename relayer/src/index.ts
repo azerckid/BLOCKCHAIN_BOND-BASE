@@ -1,11 +1,11 @@
 import { ethers } from "ethers";
 import { CONFIG, ABIS } from "./config.js";
 import { MockFintechAPI, CHOONSIM_BOND_ID } from "./mock-fintech-api.js";
+import { logger } from "./utils/logger.js";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 /** Choonsim Bond ID registered on-chain via registerBond(101) */
-
 
 /** Bond IDs to sync. Expandable for future bonds. */
 const BOND_IDS = [CHOONSIM_BOND_ID];
@@ -19,15 +19,6 @@ const RPC_ENDPOINTS = [
     "https://rpc.cc3-testnet.creditcoin.network", // duplicate as safety
 ];
 
-// ─── Mock Fintech API (Simulation) ───────────────────────────────────────────
-
-/**
- * MOCK FINTECH API SIMULATION
- * Simulates off-chain revenue data from ChoonSim AI-Talk subscription platform.
- * In production, this would fetch from the ChoonSim backend via api/revenue.
- */
-
-
 // ─── Provider Management ─────────────────────────────────────────────────────
 
 /**
@@ -39,10 +30,10 @@ async function createHealthyProvider(): Promise<ethers.JsonRpcProvider> {
         try {
             const provider = new ethers.JsonRpcProvider(rpcUrl);
             const blockNumber = await provider.getBlockNumber();
-            console.log(`[Provider] Connected to ${rpcUrl} (block: ${blockNumber})`);
+            logger.info(`[Provider] Connected to ${rpcUrl} (block: ${blockNumber})`);
             return provider;
         } catch (err) {
-            console.warn(`[Provider] Failed to connect to ${rpcUrl}:`, (err as Error).message);
+            logger.warn(`[Provider] Failed to connect to ${rpcUrl}: ${(err as Error).message}`);
         }
     }
     throw new Error("[Provider] All RPC endpoints unreachable.");
@@ -51,12 +42,12 @@ async function createHealthyProvider(): Promise<ethers.JsonRpcProvider> {
 // ─── Main Loop (setTimeout Recursive Pattern) ────────────────────────────────
 
 async function main() {
-    console.log("--- Starting BondBase Relayer Bot (V3 / Choonsim) ---");
-    console.log(`[Config] Bond IDs: [${BOND_IDS.join(", ")}]`);
-    console.log(`[Config] Sync Interval: ${CONFIG.SYNC_INTERVAL_MS}ms`);
+    logger.info("--- Starting BondBase Relayer Bot (V3 / Choonsim) ---");
+    logger.info(`[Config] Bond IDs: [${BOND_IDS.join(", ")}]`);
+    logger.info(`[Config] Sync Interval: ${CONFIG.SYNC_INTERVAL_MS}ms`);
 
     if (!CONFIG.PRIVATE_KEY) {
-        console.error("[FATAL] PRIVATE_KEY not found in .env");
+        logger.error("[FATAL] PRIVATE_KEY not found in .env");
         process.exit(1);
     }
 
@@ -64,11 +55,12 @@ async function main() {
     let wallet = new ethers.Wallet(CONFIG.PRIVATE_KEY, provider);
     let consecutiveFailures = 0;
 
-    console.log(`[Wallet] Relayer Address: ${wallet.address}`);
+    logger.info(`[Wallet] Relayer Address: ${wallet.address}`);
 
     const runSync = async () => {
         const startTime = Date.now();
-        console.log(`\n[${new Date().toISOString()}] ─── Sync Cycle Start ───`);
+        // Timestamp is automatically handled by pino
+        logger.info(`─── Sync Cycle Start ───`);
 
         let cycleSuccess = true;
 
@@ -93,18 +85,18 @@ async function main() {
 
                 if (extInterest > onChainInterest) {
                     const delta = extInterest - onChainInterest;
-                    console.log(`[Bond #${bondId}] Delta detected: ${ethers.formatUnits(delta, 18)} USDC`);
+                    logger.info(`[Bond #${bondId}] Delta detected: ${ethers.formatUnits(delta, 18)} USDC`);
 
                     // 4. Check & Auto-Approve if needed
                     const allowance = await mockUsdc.allowance(wallet.address, CONFIG.ORACLE_ADAPTER_ADDRESS);
                     if (allowance < delta) {
-                        console.log(`[Bond #${bondId}] Approving MockUSDC for OracleAdapter...`);
+                        logger.info(`[Bond #${bondId}] Approving MockUSDC for OracleAdapter...`);
                         const approveTx = await mockUsdc.approve(
                             CONFIG.ORACLE_ADAPTER_ADDRESS,
                             ethers.MaxUint256
                         );
                         await approveTx.wait();
-                        console.log(`[Bond #${bondId}] Approval confirmed.`);
+                        logger.info(`[Bond #${bondId}] Approval confirmed.`);
                     }
 
                     // 5. Execute Update
@@ -123,17 +115,17 @@ async function main() {
                         reportUrl: extData.reportUrl
                     };
 
-                    console.log(`[Bond #${bondId}] Sending updateAssetStatus to OracleAdapter...`);
+                    logger.info(`[Bond #${bondId}] Sending updateAssetStatus to OracleAdapter...`);
                     const tx = await oracleAdapter.updateAssetStatus(bondId, perfData, impactData);
                     const receipt = await tx.wait();
-                    console.log(`[Bond #${bondId}] Sync OK. Tx: ${receipt.hash}`);
+                    logger.info(`[Bond #${bondId}] Sync OK. Tx: ${receipt.hash}`);
                 } else {
-                    console.log(`[Bond #${bondId}] No change. Already synchronized.`);
+                    logger.debug(`[Bond #${bondId}] No change. Already synchronized.`);
                 }
             } catch (error) {
                 cycleSuccess = false;
-                const errMsg = error instanceof Error ? error.message : String(error);
-                console.error(`[Bond #${bondId}] SYNC FAILED:`, errMsg);
+                // Pino error serialization
+                logger.error({ err: error, bondId }, "SYNC FAILED");
             }
         }
 
@@ -142,17 +134,17 @@ async function main() {
             consecutiveFailures = 0;
         } else {
             consecutiveFailures++;
-            console.warn(`[Recovery] Consecutive failures: ${consecutiveFailures}`);
+            logger.warn(`[Recovery] Consecutive failures: ${consecutiveFailures}`);
 
             // Re-establish provider on repeated failures
             if (consecutiveFailures >= 3) {
-                console.warn("[Recovery] Attempting RPC reconnection...");
+                logger.warn("[Recovery] Attempting RPC reconnection...");
                 try {
                     provider = await createHealthyProvider();
                     wallet = new ethers.Wallet(CONFIG.PRIVATE_KEY, provider);
-                    console.log("[Recovery] RPC reconnected successfully.");
+                    logger.info("[Recovery] RPC reconnected successfully.");
                 } catch (reconnectErr) {
-                    console.error("[Recovery] RPC reconnection failed:", (reconnectErr as Error).message);
+                    logger.error({ err: reconnectErr }, "[Recovery] RPC reconnection failed");
                 }
             }
         }
@@ -164,7 +156,7 @@ async function main() {
         const nextInterval = CONFIG.SYNC_INTERVAL_MS * backoffMultiplier;
         const elapsed = Date.now() - startTime;
 
-        console.log(`[Cycle] Completed in ${elapsed}ms. Next in ${nextInterval / 1000}s (backoff x${backoffMultiplier})`);
+        logger.info(`[Cycle] Completed in ${elapsed}ms. Next in ${nextInterval / 1000}s (backoff x${backoffMultiplier})`);
 
         // Schedule next cycle (setTimeout recursive pattern avoids overlapping runs)
         setTimeout(runSync, nextInterval);
@@ -175,6 +167,6 @@ async function main() {
 }
 
 main().catch((error) => {
-    console.error("[FATAL] Relayer Critical Error:", error);
+    logger.fatal({ err: error }, "[FATAL] Relayer Critical Error");
     process.exit(1);
 });
