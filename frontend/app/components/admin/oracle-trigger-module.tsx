@@ -1,6 +1,6 @@
 import * as React from "react";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
-import { parseUnits, formatUnits } from "viem";
+import { useWriteContract } from "wagmi";
+import { parseUnits } from "viem";
 import { CONTRACTS } from "@/config/contracts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,22 +11,18 @@ import {
     Database01Icon,
     Tick01Icon,
     Loading03Icon,
-    Alert01Icon,
     AiCloudIcon,
-    Wallet02Icon,
     ZapIcon
 } from "@hugeicons/core-free-icons";
 
 import { MOCK_BONDS } from "@/routes/bonds";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { useContractTransaction } from "@/hooks/use-contract-transaction";
 
 export function OracleTriggerModule() {
-    const { address } = useAccount();
     const [amount, setAmount] = React.useState("");
     const [bondId, setBondId] = React.useState("1");
-    const [step, setStep] = React.useState<"idle" | "approving" | "feeding" | "success">("idle");
-    const [txHash, setTxHash] = React.useState<`0x${string}` | undefined>();
 
     const amountInWei = React.useMemo(() => {
         try {
@@ -36,88 +32,36 @@ export function OracleTriggerModule() {
         }
     }, [amount]);
 
-    // 1. Check current allowance for MockOracle
-    const { data: allowance, refetch: refetchAllowance } = useReadContract({
-        address: CONTRACTS.MockUSDC.address as `0x${string}`,
-        abi: CONTRACTS.MockUSDC.abi,
-        functionName: "allowance",
-        args: address ? [address, CONTRACTS.MockOracle.address as `0x${string}`] : undefined,
+    const {
+        step,
+        isProcessing,
+        isWaitingForTx,
+        needsApprove,
+        insufficientBalance,
+        handleApprove,
+        executeAction,
+        reset,
+    } = useContractTransaction({
+        spenderAddress: CONTRACTS.MockOracle.address as `0x${string}`,
+        approvalAmount: amountInWei,
+        onSuccess: () => setAmount(""),
     });
 
-    // 2. Check balance
-    const { data: usdcBalance, refetch: refetchBalance } = useReadContract({
-        address: CONTRACTS.MockUSDC.address as `0x${string}`,
-        abi: CONTRACTS.MockUSDC.abi,
-        functionName: "balanceOf",
-        args: address ? [address] : undefined,
-    });
-
-    // 3. Transactions
-    const { writeContractAsync: approve } = useWriteContract();
+    // Module-specific action
     const { writeContractAsync: feed } = useWriteContract();
 
-    const { isLoading: isWaitingForTx } = useWaitForTransactionReceipt({
-        hash: txHash,
-    });
-
-    // Refresh data after tx
-    React.useEffect(() => {
-        if (!isWaitingForTx && txHash) {
-            refetchAllowance();
-            refetchBalance();
-            if (step === "approving") {
-                setStep("idle");
-                setTxHash(undefined);
-            } else if (step === "feeding") {
-                setStep("success");
-                setTxHash(undefined);
-                setAmount("");
-            }
-        }
-    }, [isWaitingForTx, txHash, step, refetchAllowance, refetchBalance]);
-
-    const handleApprove = async () => {
-        try {
-            setStep("approving");
-            const hash = await approve({
-                address: CONTRACTS.MockUSDC.address as `0x${string}`,
-                abi: CONTRACTS.MockUSDC.abi,
-                functionName: "approve",
-                args: [CONTRACTS.MockOracle.address as `0x${string}`, amountInWei],
-            });
-            setTxHash(hash);
-        } catch (error) {
-            console.error("Approve error:", error);
-            setStep("idle");
-        }
-    };
-
-    const handleFeed = async () => {
-        try {
-            setStep("feeding");
-            const hash = await feed({
+    const handleFeed = React.useCallback(async () => {
+        await executeAction(async () => {
+            return await feed({
                 address: CONTRACTS.MockOracle.address as `0x${string}`,
                 abi: CONTRACTS.MockOracle.abi,
                 functionName: "setAssetData",
                 args: [BigInt(bondId), amountInWei],
             });
-            setTxHash(hash);
-        } catch (error) {
-            console.error("Feed error:", error);
-            setStep("idle");
-        }
-    };
+        });
+    }, [executeAction, feed, bondId, amountInWei]);
 
-    const handleReset = () => {
-        setAmount("");
-        setStep("idle");
-        setTxHash(undefined);
-    };
-
-    const isAmountZero = !amount || parseUnits(amount, 18) === BigInt(0);
-    const needsApprove = !isAmountZero && allowance !== undefined && (allowance as bigint) < amountInWei;
-    const isProcessing = step !== "idle" && step !== "success";
-    const insufficientBalance = !isAmountZero && usdcBalance !== undefined && (usdcBalance as bigint) < amountInWei;
+    const isAmountZero = !amount || amountInWei === BigInt(0);
 
     return (
         <Card className="border-neutral-200 shadow-xl shadow-neutral-100 overflow-hidden rounded-3xl bg-neutral-50/30">
@@ -183,7 +127,7 @@ export function OracleTriggerModule() {
                         <div className="flex items-center justify-between mb-2">
                             <span className="text-sm font-black text-blue-900 tracking-tight">
                                 {step === "approving" && (isWaitingForTx ? "Waiting for Approval..." : "Oracle Step 1: Granting USDC Access")}
-                                {step === "feeding" && (isWaitingForTx ? "Encrypting & Sending Data..." : "Oracle Step 2: Triggering On-chain Distribution")}
+                                {step === "executing" && (isWaitingForTx ? "Encrypting & Sending Data..." : "Oracle Step 2: Triggering On-chain Distribution")}
                                 {step === "success" && "Data Verified & Yield Distributed!"}
                             </span>
                             {(isProcessing || isWaitingForTx) && (
@@ -196,7 +140,7 @@ export function OracleTriggerModule() {
                             )}
                         </div>
                         <Progress
-                            value={step === "approving" ? 50 : step === "feeding" ? 90 : step === "success" ? 100 : 0}
+                            value={step === "approving" ? 50 : step === "executing" ? 90 : step === "success" ? 100 : 0}
                             className="h-2 bg-blue-100 overflow-hidden rounded-full [&>div]:bg-blue-600"
                         />
                     </div>
@@ -211,7 +155,7 @@ export function OracleTriggerModule() {
                         <Button
                             variant="link"
                             size="sm"
-                            onClick={handleReset}
+                            onClick={reset}
                             className="text-blue-600 font-black uppercase tracking-widest text-[10px] mt-2 underline"
                         >
                             Log Another Event
@@ -222,7 +166,7 @@ export function OracleTriggerModule() {
                         {needsApprove ? (
                             <Button
                                 onClick={handleApprove}
-                                disabled={isProcessing || isWaitingForTx || insufficientBalance || !address || isAmountZero}
+                                disabled={isProcessing || isWaitingForTx || insufficientBalance || isAmountZero}
                                 className="w-full h-16 text-xl font-black rounded-2xl bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-xl shadow-blue-100"
                             >
                                 {isProcessing ? "Oracle Processing..." : "Enable Oracle Funding"}
@@ -230,7 +174,7 @@ export function OracleTriggerModule() {
                         ) : (
                             <Button
                                 onClick={handleFeed}
-                                disabled={isProcessing || isWaitingForTx || insufficientBalance || !address || isAmountZero}
+                                disabled={isProcessing || isWaitingForTx || insufficientBalance || isAmountZero}
                                 className="w-full h-16 text-xl font-black rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 hover:opacity-90 text-white transition-all shadow-xl shadow-blue-200 group"
                             >
                                 <HugeiconsIcon icon={ZapIcon} className="mr-2 group-hover:scale-125 transition-transform" />

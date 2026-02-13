@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
+import { useWriteContract, useReadContract } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
 import { CONTRACTS, type AssetPerformance } from "@/config/contracts";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,6 @@ import {
     ActivityIcon,
     Tick01Icon,
     Loading03Icon,
-    Alert01Icon,
     Shield02Icon,
     Database01Icon,
     AiCloudIcon,
@@ -23,13 +22,13 @@ import {
 import { MOCK_BONDS } from "@/routes/bonds";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { useContractTransaction } from "@/hooks/use-contract-transaction";
 
 export function AdvancedOracleModule() {
-    const { address } = useAccount();
     const [bondId, setBondId] = React.useState("1");
     const [principalPaid, setPrincipalPaid] = React.useState("");
     const [interestPaid, setInterestPaid] = React.useState("");
-    const [status, setStatus] = React.useState("0"); // 0: Active, 1: Repaid, 2: Default
+    const [status, setStatus] = React.useState("0");
     const [verifyProof, setVerifyProof] = React.useState("");
 
     // ESG Impact Data State
@@ -38,30 +37,12 @@ export function AdvancedOracleModule() {
     const [smeSupported, setSmeSupported] = React.useState("");
     const [reportUrl, setReportUrl] = React.useState("");
 
-    const [step, setStep] = React.useState<"idle" | "approving" | "updating" | "success">("idle");
-    const [txHash, setTxHash] = React.useState<`0x${string}` | undefined>();
-
-    // 1. Fetch current performance from on-chain
+    // Module-specific read: current performance
     const { data: currentPerformance, refetch: refetchPerformance } = useReadContract({
         address: CONTRACTS.OracleAdapter.address as `0x${string}`,
         abi: CONTRACTS.OracleAdapter.abi,
         functionName: "getAssetPerformance",
         args: [BigInt(bondId)],
-    });
-
-    // 2. Check USDC allowance and balance
-    const { data: allowance, refetch: refetchAllowance } = useReadContract({
-        address: CONTRACTS.MockUSDC.address as `0x${string}`,
-        abi: CONTRACTS.MockUSDC.abi,
-        functionName: "allowance",
-        args: address ? [address, CONTRACTS.OracleAdapter.address as `0x${string}`] : undefined,
-    });
-
-    const { data: usdcBalance, refetch: refetchBalance } = useReadContract({
-        address: CONTRACTS.MockUSDC.address as `0x${string}`,
-        abi: CONTRACTS.MockUSDC.abi,
-        functionName: "balanceOf",
-        args: address ? [address] : undefined,
     });
 
     // Parse amounts
@@ -76,49 +57,26 @@ export function AdvancedOracleModule() {
     const currentInterestInWei = currentPerformance ? (currentPerformance as AssetPerformance).interestPaid : BigInt(0);
     const neededInterestAddition = interestInWei > currentInterestInWei ? interestInWei - currentInterestInWei : BigInt(0);
 
-    // 3. Transactions
-    const { writeContractAsync: approve } = useWriteContract();
-    const { writeContractAsync: updateStatus } = useWriteContract();
-
-    const { isLoading: isWaitingForTx } = useWaitForTransactionReceipt({
-        hash: txHash,
+    const {
+        step,
+        txHash,
+        isProcessing,
+        isWaitingForTx,
+        needsApprove,
+        handleApprove,
+        executeAction,
+        reset,
+    } = useContractTransaction({
+        spenderAddress: CONTRACTS.OracleAdapter.address as `0x${string}`,
+        approvalAmount: neededInterestAddition,
+        additionalRefetches: [refetchPerformance],
     });
 
-    // Refresh after tx
-    React.useEffect(() => {
-        if (!isWaitingForTx && txHash) {
-            refetchPerformance();
-            refetchAllowance();
-            refetchBalance();
-            if (step === "approving") {
-                setStep("idle");
-                setTxHash(undefined);
-            } else if (step === "updating") {
-                setStep("success");
-                setTxHash(undefined);
-            }
-        }
-    }, [isWaitingForTx, txHash, step, refetchPerformance, refetchAllowance, refetchBalance]);
+    // Module-specific action
+    const { writeContractAsync: updateStatus } = useWriteContract();
 
-    const handleApprove = async () => {
-        try {
-            setStep("approving");
-            const hash = await approve({
-                address: CONTRACTS.MockUSDC.address as `0x${string}`,
-                abi: CONTRACTS.MockUSDC.abi,
-                functionName: "approve",
-                args: [CONTRACTS.OracleAdapter.address as `0x${string}`, neededInterestAddition],
-            });
-            setTxHash(hash);
-        } catch (error) {
-            console.error(error);
-            setStep("idle");
-        }
-    };
-
-    const handleUpdate = async () => {
-        try {
-            setStep("updating");
+    const handleUpdate = React.useCallback(async () => {
+        await executeAction(async () => {
             const perf = {
                 timestamp: BigInt(Math.floor(Date.now() / 1000)),
                 principalPaid: principalInWei,
@@ -132,21 +90,14 @@ export function AdvancedOracleModule() {
                 smeSupported: BigInt(smeSupported || 0),
                 reportUrl: reportUrl || ""
             };
-            const hash = await updateStatus({
+            return await updateStatus({
                 address: CONTRACTS.OracleAdapter.address as `0x${string}`,
                 abi: CONTRACTS.OracleAdapter.abi,
                 functionName: "updateAssetStatus",
                 args: [BigInt(bondId), perf, impact],
             });
-            setTxHash(hash);
-        } catch (error) {
-            console.error(error);
-            setStep("idle");
-        }
-    };
-
-    const needsApprove = neededInterestAddition > BigInt(0) && (allowance === undefined || (allowance as bigint) < neededInterestAddition);
-    const isProcessing = step !== "idle" && step !== "success";
+        });
+    }, [executeAction, updateStatus, bondId, principalInWei, interestInWei, status, verifyProof, carbonReduced, jobsCreated, smeSupported, reportUrl]);
 
     return (
         <Card className="border-neutral-200 shadow-2xl shadow-neutral-100 overflow-hidden rounded-[2.5rem] bg-white border-t-8 border-t-indigo-600">
@@ -352,7 +303,7 @@ export function AdvancedOracleModule() {
                     <div className="animate-in fade-in slide-in-from-top-4 duration-500">
                         <div className="flex items-center justify-between mb-3 px-2">
                             <span className="text-[10px] font-black text-neutral-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                                {step === "approving" ? "Awaiting Token Approval" : step === "updating" ? "Synchronizing Asset State" : "Transaction Finalized"}
+                                {step === "approving" ? "Awaiting Token Approval" : step === "executing" ? "Synchronizing Asset State" : "Transaction Finalized"}
                                 {(isProcessing || isWaitingForTx) && <HugeiconsIcon icon={Loading03Icon} className="animate-spin" size={12} />}
                             </span>
                             <span className="text-[10px] font-black text-indigo-600">
@@ -360,7 +311,7 @@ export function AdvancedOracleModule() {
                             </span>
                         </div>
                         <Progress
-                            value={step === "approving" ? 40 : step === "updating" ? 80 : 100}
+                            value={step === "approving" ? 40 : step === "executing" ? 80 : 100}
                             className="h-2 rounded-full bg-neutral-100 [&>div]:bg-indigo-600"
                         />
                     </div>
@@ -381,7 +332,7 @@ export function AdvancedOracleModule() {
                         </div>
                         <Button
                             variant="link"
-                            onClick={() => { setStep("idle"); setInterestPaid(""); setPrincipalPaid(""); setTxHash(undefined); }}
+                            onClick={() => { reset(); setInterestPaid(""); setPrincipalPaid(""); }}
                             className="text-white font-black text-[10px] uppercase border-b border-white/40 hover:no-underline rounded-none px-0"
                         >
                             Next Update

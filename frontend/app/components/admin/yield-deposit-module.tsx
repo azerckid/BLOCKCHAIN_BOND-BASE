@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
+import { useWriteContract, useReadContract } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
 import { CONTRACTS, type BondInfo } from "@/config/contracts";
 import { Button } from "@/components/ui/button";
@@ -18,13 +18,11 @@ import {
 import { MOCK_BONDS } from "@/routes/bonds";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { useContractTransaction } from "@/hooks/use-contract-transaction";
 
 export function YieldDepositModule() {
-    const { address } = useAccount();
     const [amount, setAmount] = React.useState("");
     const [bondId, setBondId] = React.useState("1");
-    const [step, setStep] = React.useState<"idle" | "approving" | "depositing" | "success">("idle");
-    const [txHash, setTxHash] = React.useState<`0x${string}` | undefined>();
 
     const amountInWei = React.useMemo(() => {
         try {
@@ -34,23 +32,7 @@ export function YieldDepositModule() {
         }
     }, [amount]);
 
-    // 1. Check current allowance
-    const { data: allowance, refetch: refetchAllowance } = useReadContract({
-        address: CONTRACTS.MockUSDC.address as `0x${string}`,
-        abi: CONTRACTS.MockUSDC.abi,
-        functionName: "allowance",
-        args: address ? [address, CONTRACTS.YieldDistributor.address as `0x${string}`] : undefined,
-    });
-
-    // 2. Check balance
-    const { data: usdcBalance, refetch: refetchBalance } = useReadContract({
-        address: CONTRACTS.MockUSDC.address as `0x${string}`,
-        abi: CONTRACTS.MockUSDC.abi,
-        functionName: "balanceOf",
-        args: address ? [address] : undefined,
-    });
-
-    // 3. Check total holdings
+    // Module-specific read: bond info for total holdings
     const { data: bondInfo } = useReadContract({
         address: CONTRACTS.YieldDistributor.address as `0x${string}`,
         abi: CONTRACTS.YieldDistributor.abi,
@@ -60,73 +42,44 @@ export function YieldDepositModule() {
 
     const totalHoldings = bondInfo ? (bondInfo as unknown as BondInfo).totalHoldings : undefined;
 
-    // 3. Transactions
-    const { writeContractAsync: approve } = useWriteContract();
-    const { writeContractAsync: deposit } = useWriteContract();
-
-    const { isLoading: isWaitingForTx } = useWaitForTransactionReceipt({
-        hash: txHash,
+    const {
+        step,
+        isProcessing,
+        isWaitingForTx,
+        needsApprove,
+        insufficientBalance,
+        allowance,
+        usdcBalance,
+        handleApprove,
+        executeAction,
+        reset,
+    } = useContractTransaction({
+        spenderAddress: CONTRACTS.YieldDistributor.address as `0x${string}`,
+        approvalAmount: amountInWei,
+        onSuccess: () => setAmount(""),
     });
 
-    // Refresh data after tx
-    React.useEffect(() => {
-        if (!isWaitingForTx && txHash) {
-            refetchAllowance();
-            refetchBalance();
-            if (step === "approving") {
-                setStep("idle");
-                setTxHash(undefined);
-            } else if (step === "depositing") {
-                setStep("success");
-                setTxHash(undefined);
-                setAmount("");
-            }
-        }
-    }, [isWaitingForTx, txHash, step, refetchAllowance, refetchBalance]);
+    // Module-specific action
+    const { writeContractAsync: deposit } = useWriteContract();
 
-    const handleApprove = async () => {
-        try {
-            setStep("approving");
-            const hash = await approve({
-                address: CONTRACTS.MockUSDC.address as `0x${string}`,
-                abi: CONTRACTS.MockUSDC.abi,
-                functionName: "approve",
-                args: [CONTRACTS.YieldDistributor.address as `0x${string}`, amountInWei],
-            });
-            setTxHash(hash);
-        } catch (error) {
-            console.error("Approve error:", error);
-            setStep("idle");
-        }
-    };
-
-    const handleDeposit = async () => {
-        try {
-            setStep("depositing");
-            const hash = await deposit({
+    const handleDeposit = React.useCallback(async () => {
+        await executeAction(async () => {
+            return await deposit({
                 address: CONTRACTS.YieldDistributor.address as `0x${string}`,
                 abi: CONTRACTS.YieldDistributor.abi,
                 functionName: "depositYield",
                 args: [BigInt(bondId), amountInWei],
             });
-            setTxHash(hash);
-        } catch (error) {
-            console.error("Deposit error:", error);
-            setStep("idle");
-        }
-    };
+        });
+    }, [executeAction, deposit, bondId, amountInWei]);
 
-    const handleReset = () => {
+    const handleReset = React.useCallback(() => {
         setAmount("");
-        setStep("idle");
-        setTxHash(undefined);
-    };
+        reset();
+    }, [reset]);
 
     const isAmountZero = !amount || parseUnits(amount, 18) === BigInt(0);
-    const needsApprove = !isAmountZero && allowance !== undefined && (allowance as bigint) < amountInWei;
-    const isProcessing = step !== "idle" && step !== "success";
-    const insufficientBalance = !isAmountZero && usdcBalance !== undefined && (usdcBalance as bigint) < amountInWei;
-    const noTokensStaked = totalHoldings !== undefined && (totalHoldings as bigint) === BigInt(0);
+    const noTokensStaked = totalHoldings !== undefined && totalHoldings === BigInt(0);
 
     return (
         <Card className="border-neutral-200 shadow-xl shadow-neutral-100 overflow-hidden rounded-3xl">
@@ -169,7 +122,7 @@ export function YieldDepositModule() {
                         <div className="flex items-center gap-2">
                             <HugeiconsIcon icon={Wallet02Icon} size={16} className="text-neutral-500" />
                             <span className="text-lg font-black text-neutral-900">
-                                {usdcBalance ? Number(formatUnits(usdcBalance as bigint, 18)).toLocaleString() : "0.00"}
+                                {usdcBalance ? Number(formatUnits(usdcBalance, 18)).toLocaleString() : "0.00"}
                             </span>
                         </div>
                     </div>
@@ -178,7 +131,7 @@ export function YieldDepositModule() {
                         <div className="flex items-center gap-2">
                             <HugeiconsIcon icon={Tick01Icon} size={16} className="text-neutral-500" />
                             <span className="text-lg font-black text-neutral-900 truncate">
-                                {allowance ? Number(formatUnits(allowance as bigint, 18)).toLocaleString() : "0.00"}
+                                {allowance ? Number(formatUnits(allowance, 18)).toLocaleString() : "0.00"}
                             </span>
                         </div>
                     </div>
@@ -217,7 +170,7 @@ export function YieldDepositModule() {
                         <div className="flex items-center justify-between mb-2">
                             <span className="text-sm font-black text-neutral-900 tracking-tight">
                                 {step === "approving" && (isWaitingForTx ? "Waiting for Confirmation..." : "Step 1: Approving Access")}
-                                {step === "depositing" && (isWaitingForTx ? "Broadcasting to Network..." : "Step 2: Distributing Yield")}
+                                {step === "executing" && (isWaitingForTx ? "Broadcasting to Network..." : "Step 2: Distributing Yield")}
                                 {step === "success" && "Yield Successfully Distributed!"}
                             </span>
                             {(isProcessing || isWaitingForTx) && (
@@ -230,7 +183,7 @@ export function YieldDepositModule() {
                             )}
                         </div>
                         <Progress
-                            value={step === "approving" ? 50 : step === "depositing" ? 90 : step === "success" ? 100 : 0}
+                            value={step === "approving" ? 50 : step === "executing" ? 90 : step === "success" ? 100 : 0}
                             className="h-3 bg-neutral-200 overflow-hidden rounded-full [&>div]:bg-neutral-900"
                         />
                     </div>
@@ -259,7 +212,7 @@ export function YieldDepositModule() {
                         {needsApprove ? (
                             <Button
                                 onClick={handleApprove}
-                                disabled={isProcessing || isWaitingForTx || insufficientBalance || !address || isAmountZero}
+                                disabled={isProcessing || isWaitingForTx || insufficientBalance || isAmountZero}
                                 className="w-full h-16 text-xl font-black rounded-2xl bg-neutral-900 hover:bg-neutral-800 transition-all shadow-xl shadow-neutral-200"
                             >
                                 {isProcessing ? "Processing..." : isAmountZero ? "Enter Amount" : "Step 1: Approve USDC"}
@@ -267,7 +220,7 @@ export function YieldDepositModule() {
                         ) : (
                             <Button
                                 onClick={handleDeposit}
-                                disabled={isProcessing || isWaitingForTx || insufficientBalance || !address || isAmountZero || noTokensStaked}
+                                disabled={isProcessing || isWaitingForTx || insufficientBalance || isAmountZero || noTokensStaked}
                                 className="w-full h-16 text-xl font-black rounded-2xl bg-neutral-900 hover:bg-neutral-800 transition-all shadow-xl shadow-neutral-200"
                             >
                                 {isProcessing ? "Processing..." : isAmountZero ? "Enter Amount" : noTokensStaked ? "No Stakers Found" : "Step 2: Deposit Yield"}
@@ -277,7 +230,7 @@ export function YieldDepositModule() {
                         <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-100">
                             <div className="text-sm font-medium text-neutral-500 mb-1">Total Base Holdings</div>
                             <div className="text-2xl font-bold text-neutral-900 tracking-tight">
-                                {totalHoldings !== undefined ? formatUnits(totalHoldings as bigint, 18) : "0"} <span className="text-sm font-medium text-neutral-400">CTC</span>
+                                {totalHoldings !== undefined ? formatUnits(totalHoldings, 18) : "0"} <span className="text-sm font-medium text-neutral-400">CTC</span>
                             </div>
                             <div className="text-[11px] text-neutral-400 mt-1">Found in active wallets</div>
                         </div>
