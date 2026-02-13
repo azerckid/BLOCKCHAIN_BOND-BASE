@@ -1,0 +1,21 @@
+{
+    "name": "bond-base-monorepo",
+    "version": "1.0.0",
+    "private": true,
+    "workspaces": [
+        "contracts",
+        "frontend",
+        "relayer"
+    ],
+    "scripts": {
+        "clean": "rm -rf node_modules package-lock.json contracts/node_modules contracts/package-lock.json frontend/node_modules frontend/package-lock.json relayer/node_modules relayer/package-lock.json",
+        "test": "npm test --workspaces",
+        "build": "npm run build --workspaces",
+        "frontend:dev": "npm run dev --workspace=frontend",
+        "relayer:start": "npm start --workspace=relayer",
+        "contracts:test": "npm test --workspace=contracts"
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2"
+    }
+}
