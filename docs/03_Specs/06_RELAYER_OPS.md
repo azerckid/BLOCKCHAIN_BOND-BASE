@@ -1,4 +1,8 @@
 # Relayer 운영 가이드 (Operation Specs)
+> Created: 2026-02-13
+> Last Updated: 2026-02-13
+
+BondBase Relayer 배포, 모니터링, 장애 대응을 위한 기술 명세입니다. 문서 계층 규칙(AGENTS.md 5-Layer)에 따라 **03_Specs**에 배치합니다.
 
 ## 1. 개요
 BondBase Relayer는 오프체인(핀테크 수익 데이터)과 온체인(스마트 컨트랙트) 간의 데이터를 동기화하는 핵심 인프라입니다.
@@ -72,3 +76,11 @@ Nonce가 꼬이거나 가스비 급등으로 트랜잭션이 펜딩될 수 있�
 - [ ] `ORACLE_ADAPTER_ADDRESS`가 최신 배포된 컨트랙트인지 확인.
 - [ ] `NODE_ENV=production` 설정 확인.
 - [ ] 프로세스 관리 도구(PM2, Docker 등) 설정 여부. (추후 도입 예정)
+
+---
+
+## X. Related Documents
+- **Specs**: [인프라 및 개발 환경](./01_INFRASTRUCTURE.md) - RPC, V3 계약 주소
+- **Specs**: [V3 배포 완료 항목 및 잔여 작업](./05_V3_DEPLOYMENT_STATUS.md) - OracleAdapter 주소 및 설정
+- **Logic**: [프로젝트 작업 백로그](../04_Logic/00_BACKLOG.md) - 감사 이슈 처리 현황
+- **Test**: [코드 품질 감사 보고서](../05_Test/04_CODE_QUALITY_AUDIT.md) - 감사 9.2

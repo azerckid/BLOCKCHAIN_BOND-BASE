@@ -17,8 +17,6 @@
 #### 낮음 (Low) / 장기
 - [ ] **[컨트랙트 UUPS 업그레이드]** 메인넷 전환 시 검토. → [감사 P3 6.3](../05_Test/04_CODE_QUALITY_AUDIT.md)
 - [ ] **[Relayer 모니터링 체계]** 구조화 로깅(Pino), 연속 실패 알림(Slack webhook), 메트릭 수집. 운영 인프라 결정 후 진행. → [감사 P3 6.6](../05_Test/04_CODE_QUALITY_AUDIT.md)
-- [ ] **[릴레이어 운영 문서]** `03_Specs/`에 릴레이어 배포, 모니터링, 장애 대응 가이드 작성. → [감사 9.2](../05_Test/04_CODE_QUALITY_AUDIT.md)
-
 #### 기능 개발 (Feature)
 - [ ] 춘심톡 백엔드 실제 `api/revenue` 호출 모듈 개발 지원
 - [ ] 오라클 노드 외부 PG사 API 연동 테스트
@@ -49,7 +47,7 @@
 - [x] **[공유 타입 패키지]** `packages/types` 생성. `contracts`의 ABI/타입/상수를 frontend와 공유. `@bond-base/types` 워크스페이스 패키지 구성. (2026-02-13) → [감사 P3 6.2](../05_Test/04_CODE_QUALITY_AUDIT.md)
 - [x] **[문서-코드 정합성 검토 및 수정]** (PROJECT_OVERVIEW, ADMIN_PORTAL_SPEC, INFRASTRUCTURE, AI_STRATEGY, HANDOVER)
 - [x] **[Relayer 모니터링 체계]** 구조화 로깅(Pino) 적용 및 에러 핸들링 강화. (2026-02-13) → [감사 P3 6.6](../05_Test/04_CODE_QUALITY_AUDIT.md)
-- [x] **[릴레이어 운영 문서]** `03_Specs/04_RELAYER_OPS.md` 작성 완료. (2026-02-13) → [감사 9.2](../05_Test/04_CODE_QUALITY_AUDIT.md)
+- [x] **[릴레이어 운영 문서]** `03_Specs/06_RELAYER_OPS.md` 작성 완료. 경로 03_Specs 통일, 메타데이터·Related Documents 반영. (2026-02-13) → [감사 9.2](../05_Test/04_CODE_QUALITY_AUDIT.md)
 - [ ] **[컨트랙트 UUPS 업그레이드]** 메인넷 전환 시 검토 (현재 Skip). → [감사 P3 6.3](../05_Test/04_CODE_QUALITY_AUDIT.md)
 
 ---
@@ -70,7 +68,7 @@
 ## 3. 문서 구조 가이드 (5-Layer)
 - **01_Foundation**: [Vision](../01_Foundation/01_INTEGRATION_PLAN.md), [Roadmap](../01_Foundation/03_ROADMAP.md)
 - **02_Prototype**: UI 프로토타입 리뷰 결과
-- **03_Specs**: [Infra](../03_Specs/01_INFRASTRUCTURE.md), [Revenue API](../03_Specs/02_REVENUE_BRIDGE_SPEC.md), [V3 배포 상태](../03_Specs/05_V3_DEPLOYMENT_STATUS.md)
+- **03_Specs**: [Infra](../03_Specs/01_INFRASTRUCTURE.md), [Revenue API](../03_Specs/02_REVENUE_BRIDGE_SPEC.md), [V3 배포 상태](../03_Specs/05_V3_DEPLOYMENT_STATUS.md), [Relayer 운영](../03_Specs/06_RELAYER_OPS.md)
 - **04_Logic**: [Audit Logic](./01_AUDIT_LOGIC.md), [Backlog](./00_BACKLOG.md), [Quality Plan](./02_QUALITY_IMPROVEMENT_PLAN.md)
 - **05_Test**: [QA Checklist](../05_Test/02_QA_CHECKLIST.md), [Code Audit](../05_Test/04_CODE_QUALITY_AUDIT.md)
 
