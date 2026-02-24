@@ -99,9 +99,10 @@ export const repayments = sqliteTable("repayments", {
     oracleRequestId: text("oracle_request_id"),
 });
 
-// Choonsim Project Integration
+// Choonsim Project Integration (다중 캐릭터: bond_id = 온체인 bondId 1:1)
 export const choonsimProjects = sqliteTable("choonsim_projects", {
-    id: text("id").primaryKey(), // Default "choonsim-main"
+    id: text("id").primaryKey(), // e.g. "choonsim-main", "bond-102"
+    bondId: integer("bond_id").unique(), // On-chain bond ID (101=춘심, 102=Rina). NULL 허용(기존 행 마이그레이션)
     name: text("name").notNull(),
     totalFollowers: integer("total_followers").default(0),
     totalSubscribers: integer("total_subscribers").default(0),
