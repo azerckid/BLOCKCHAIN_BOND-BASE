@@ -12,3 +12,5 @@ const client = createClient({
 });
 
 export const db = drizzle(client, { schema });
+/** Raw libsql client for fallback raw SQL (e.g. schema migration compatibility). */
+export const dbClient = client;

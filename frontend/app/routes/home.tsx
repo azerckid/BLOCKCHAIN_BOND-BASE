@@ -12,7 +12,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useLoaderData } from "react-router";
-import { db } from "@/db";
+import { db, dbClient } from "@/db";
 import { choonsimProjects, choonsimRevenue, choonsimMilestones } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { Badge } from "@/components/ui/badge";
@@ -26,14 +26,27 @@ export function meta() {
 }
 
 export async function loader() {
-    // Initialize if not exists (using onConflictDoNothing to prevent race conditions)
-    await db.insert(choonsimProjects).values({
-        id: "choonsim-main",
-        name: "Chunsim AI-Talk",
-        totalFollowers: 32000,
-        totalSubscribers: 1240,
-        updatedAt: new Date().getTime(),
-    }).onConflictDoNothing();
+    const now = new Date().getTime();
+    try {
+        await db.insert(choonsimProjects).values({
+            id: "choonsim-main",
+            bondId: 101,
+            name: "Chunsim AI-Talk",
+            totalFollowers: 32000,
+            totalSubscribers: 1240,
+            updatedAt: now,
+        }).onConflictDoNothing();
+    } catch (e) {
+        const msg = (e as Error).message ?? String(e);
+        if (msg.includes("bond_id") || msg.includes("no such column")) {
+            await dbClient.execute({
+                sql: "INSERT OR IGNORE INTO choonsim_projects (id, name, total_followers, total_subscribers, south_america_share, japan_share, other_region_share, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                args: ["choonsim-main", "Chunsim AI-Talk", 32000, 1240, 70, 30, 0, now],
+            });
+        } else {
+            throw e;
+        }
+    }
 
     const project = await db.query.choonsimProjects.findFirst({
         where: eq(choonsimProjects.id, "choonsim-main"),
