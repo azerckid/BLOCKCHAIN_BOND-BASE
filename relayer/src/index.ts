@@ -1,14 +1,12 @@
 import { ethers } from "ethers";
 import { CONFIG, ABIS } from "./config.js";
-import { MockFintechAPI, CHOONSIM_BOND_ID } from "./mock-fintech-api.js";
+import { MockFintechAPI, CHOONSIM_BOND_ID, RINA_BOND_ID } from "./mock-fintech-api.js";
 import { logger } from "./utils/logger.js";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-/** Choonsim Bond ID registered on-chain via registerBond(101) */
-
-/** Bond IDs to sync. Expandable for future bonds. */
-const BOND_IDS = [CHOONSIM_BOND_ID];
+/** Bond IDs to sync (춘심 101, Rina 102). */
+const BOND_IDS = [CHOONSIM_BOND_ID, RINA_BOND_ID];
 
 /** Max consecutive failures before increasing backoff */
 const MAX_BACKOFF_MULTIPLIER = 8;

@@ -1,8 +1,10 @@
 import { z } from "zod";
 import { logger } from "./utils/logger.js";
 
-/** Choonsim Bond ID registered on-chain via registerBond(101) */
+/** Choonsim Bond ID (대표 캐릭터) */
 export const CHOONSIM_BOND_ID = 101;
+/** Rina Bond ID */
+export const RINA_BOND_ID = 102;
 
 /**
  * Mock API Response Schema
@@ -31,12 +33,22 @@ export class MockFintechAPI {
         [CHOONSIM_BOND_ID]: {
             principalPaid: 25000,
             interestPaid: 3500,
-            status: 0, // 0 = Active
+            status: 0,
             proof: "ipfs://QmChoonsimRevenue101",
             carbonReduced: 0,
             jobsCreated: 5,
             smeSupported: 1,
             reportUrl: "https://choonsim.ai/impact/bond-101"
+        },
+        [RINA_BOND_ID]: {
+            principalPaid: 12000,
+            interestPaid: 1800,
+            status: 0,
+            proof: "ipfs://QmRinaRevenue102",
+            carbonReduced: 0,
+            jobsCreated: 2,
+            smeSupported: 1,
+            reportUrl: "https://choonsim.ai/impact/bond-102"
         },
     };
 
