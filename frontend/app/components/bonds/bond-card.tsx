@@ -28,6 +28,8 @@ export interface BondProps {
     category: string;
     lat: number;
     lng: number;
+    /** 캐릭터 이미지 URL (public 경로, 예: /choonsim.jpg) */
+    imageUrl?: string;
 }
 
 export function BondCard({ bond }: { bond: BondProps }) {
@@ -61,11 +63,19 @@ export function BondCard({ bond }: { bond: BondProps }) {
             <Card className="group overflow-hidden border-neutral-200/60 hover:border-neutral-900/10 hover:shadow-2xl hover:shadow-neutral-200/50 transition-all duration-300 bg-white pt-0">
                 <CardHeader className="p-0">
                     <div className="relative h-56 overflow-hidden bg-neutral-900">
-                        <div
-                            className="absolute inset-0 bg-gradient-to-br from-neutral-800 via-neutral-900 to-black opacity-100 transition-transform duration-500 group-hover:scale-105"
-                        />
-                        {/* Interactive Sparkle Effect Placeholder */}
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,0.1),transparent)]" />
+                        {bond.imageUrl ? (
+                            <img
+                                src={bond.imageUrl}
+                                alt=""
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                        ) : (
+                            <div
+                                className="absolute inset-0 bg-gradient-to-br from-neutral-800 via-neutral-900 to-black opacity-100 transition-transform duration-500 group-hover:scale-105"
+                            />
+                        )}
+                        <div className="absolute inset-0 bg-black/40" />
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,0.08),transparent)]" />
 
                         <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
                             <Badge className="bg-white/10 text-white border-white/20 backdrop-blur-md mb-4 px-3 py-1 text-[10px] tracking-[0.2em] font-black uppercase">

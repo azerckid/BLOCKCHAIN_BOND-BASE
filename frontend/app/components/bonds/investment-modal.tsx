@@ -134,6 +134,11 @@ export function InvestmentModal({ bond, open, onOpenChange, onInvest }: Investme
         <AlertDialog open={open} onOpenChange={onOpenChange}>
             <AlertDialogContent className="sm:max-w-[480px] p-0 overflow-hidden border-none shadow-2xl">
                 <div className="bg-neutral-900 p-6 text-white">
+                    {bond.imageUrl && (
+                        <div className="flex justify-center mb-4">
+                            <img src={bond.imageUrl} alt="" className="w-20 h-20 rounded-full object-cover border-2 border-white/20" />
+                        </div>
+                    )}
                     <div className="flex justify-between items-start mb-4">
                         <Badge className="bg-white/10 text-white border-white/20 backdrop-blur-md">
                             {bond.category}

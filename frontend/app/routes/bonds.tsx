@@ -38,6 +38,24 @@ export const CHOONSIM_BOND_DATA: BondProps = {
     category: "IP Rights",
     lat: 35.6762,
     lng: 139.6503,
+    imageUrl: "/choonsim.jpg",
+};
+
+export const RINA_BOND_DATA: BondProps = {
+    id: "102",
+    title: "Rina Growth Bond",
+    description: "Investment in Rina character IP growth. Earn yields from subscription revenue and milestone bonuses.",
+    apr: 16.0,
+    term: "Perpetual",
+    location: "Global (Japan / S.America)",
+    totalAmount: "$0.8M",
+    loanAmount: 800000,
+    remainingAmount: "$0.5M",
+    status: "active",
+    category: "IP Rights",
+    lat: 35.6762,
+    lng: 139.6503,
+    imageUrl: "/rina.png",
 };
 
 export const LEGACY_BONDS: BondProps[] = [
@@ -74,7 +92,7 @@ export const LEGACY_BONDS: BondProps[] = [
 ];
 
 // Re-export MOCK_BONDS for backward compatibility with other components
-export const MOCK_BONDS: BondProps[] = [CHOONSIM_BOND_DATA];
+export const MOCK_BONDS: BondProps[] = [CHOONSIM_BOND_DATA, RINA_BOND_DATA];
 
 const CATEGORIES = ["All", "IP Rights", "Legacy Assets"];
 
@@ -82,7 +100,7 @@ export default function BondsPage() {
     const [selectedCategory, setSelectedCategory] = React.useState("All");
     const [searchQuery, setSearchQuery] = React.useState("");
 
-    const allActiveBonds = [CHOONSIM_BOND_DATA];
+    const allActiveBonds = [CHOONSIM_BOND_DATA, RINA_BOND_DATA];
     const filteredBonds = (selectedCategory === "Legacy Assets" ? LEGACY_BONDS : allActiveBonds).filter(bond => {
         const matchesCategory = selectedCategory === "All" || selectedCategory === "Legacy Assets" || bond.category === selectedCategory;
         const matchesSearch = bond.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
