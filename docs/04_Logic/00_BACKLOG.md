@@ -68,7 +68,7 @@
 ## 3. 문서 구조 가이드 (5-Layer)
 - **01_Foundation**: [Vision](../01_Foundation/01_INTEGRATION_PLAN.md), [Roadmap](../01_Foundation/03_ROADMAP.md)
 - **02_Prototype**: UI 프로토타입 리뷰 결과
-- **03_Specs**: [Infra](../03_Specs/01_INFRASTRUCTURE.md), [Revenue API](../03_Specs/02_REVENUE_BRIDGE_SPEC.md), [V3 배포 상태](../03_Specs/05_V3_DEPLOYMENT_STATUS.md), [Relayer 운영](../03_Specs/06_RELAYER_OPS.md)
+- **03_Specs**: [Infra](../03_Specs/01_INFRASTRUCTURE.md), [Revenue API](../03_Specs/02_REVENUE_BRIDGE_SPEC.md), [V3 배포 상태](../03_Specs/05_V3_DEPLOYMENT_STATUS.md), [Relayer 운영](../03_Specs/06_RELAYER_OPS.md), [다중 캐릭터 채권](../03_Specs/07_MULTI_CHARACTER_BOND_SPEC.md)
 - **04_Logic**: [Audit Logic](./01_AUDIT_LOGIC.md), [Backlog](./00_BACKLOG.md), [Quality Plan](./02_QUALITY_IMPROVEMENT_PLAN.md)
 - **05_Test**: [QA Checklist](../05_Test/02_QA_CHECKLIST.md), [Code Audit](../05_Test/04_CODE_QUALITY_AUDIT.md)
 

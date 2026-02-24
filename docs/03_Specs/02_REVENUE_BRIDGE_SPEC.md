@@ -123,5 +123,6 @@ BondBase API (Vercel)
 ## X. Related Documents
 - **Foundation**: [Roadmap](../01_Foundation/03_ROADMAP.md) - 연동 단계 로드맵
 - **Specs**: [Infrastructure Specs](./01_INFRASTRUCTURE.md) - 네트워크 및 환경 설정
+- **Specs**: [Multi-Character Bond Spec](./07_MULTI_CHARACTER_BOND_SPEC.md) - 다중 캐릭터( bondId/characterId ) API 확장 및 DB 스키마
 - **Logic**: [Audit Logic](../04_Logic/01_AUDIT_LOGIC.md) - 오라클 데이터 검증 로직 상세
 - **Test**: [QA Checklist](../05_Test/02_QA_CHECKLIST.md) - 연동 후 테스트 항목

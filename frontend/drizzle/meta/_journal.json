@@ -15,6 +15,13 @@
       "when": 1768443181042,
       "tag": "0001_premium_sauron",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1771948095127,
+      "tag": "0002_add_choonsim_bond_id",
+      "breakpoints": true
     }
   ]
 }
