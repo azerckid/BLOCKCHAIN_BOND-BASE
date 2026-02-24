@@ -58,51 +58,18 @@ export const RINA_BOND_DATA: BondProps = {
     imageUrl: "/rina.png",
 };
 
-export const LEGACY_BONDS: BondProps[] = [
-    {
-        id: "1",
-        title: "SME Working Capital - Bangkok",
-        description: "Supporting local retail businesses in the heart of Thailand.",
-        apr: 12.5,
-        term: "12 Months",
-        location: "Bangkok, Thailand",
-        totalAmount: "$5.0M",
-        loanAmount: 5000000,
-        remainingAmount: "$1.2M",
-        status: "legacy",
-        category: "Real Estate",
-        lat: 13.7563,
-        lng: 100.5018,
-    },
-    {
-        id: "2",
-        title: "Agriculture Supply Chain",
-        description: "Post-harvest financing for rice farmers in Northern provinces.",
-        apr: 14.2,
-        term: "6 Months",
-        location: "Chiang Mai, Thailand",
-        totalAmount: "$2.0M",
-        loanAmount: 2000000,
-        remainingAmount: "$0.4M",
-        status: "legacy",
-        category: "Agriculture",
-        lat: 18.7883,
-        lng: 98.9853,
-    }
-];
-
 // Re-export MOCK_BONDS for backward compatibility with other components
 export const MOCK_BONDS: BondProps[] = [CHOONSIM_BOND_DATA, RINA_BOND_DATA];
 
-const CATEGORIES = ["All", "IP Rights", "Legacy Assets"];
+const CATEGORIES = ["All", "IP Rights"];
 
 export default function BondsPage() {
     const [selectedCategory, setSelectedCategory] = React.useState("All");
     const [searchQuery, setSearchQuery] = React.useState("");
 
     const allActiveBonds = [CHOONSIM_BOND_DATA, RINA_BOND_DATA];
-    const filteredBonds = (selectedCategory === "Legacy Assets" ? LEGACY_BONDS : allActiveBonds).filter(bond => {
-        const matchesCategory = selectedCategory === "All" || selectedCategory === "Legacy Assets" || bond.category === selectedCategory;
+    const filteredBonds = allActiveBonds.filter(bond => {
+        const matchesCategory = selectedCategory === "All" || bond.category === selectedCategory;
         const matchesSearch = bond.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             bond.location.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesCategory && matchesSearch;

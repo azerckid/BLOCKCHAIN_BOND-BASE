@@ -71,7 +71,7 @@ export function BondCard({ bond }: { bond: BondProps }) {
                             />
                         ) : (
                             <div
-                                className="absolute inset-0 bg-gradient-to-br from-neutral-800 via-neutral-900 to-black opacity-100 transition-transform duration-500 group-hover:scale-105"
+                                className="absolute inset-0 bg-linear-to-br from-neutral-800 via-neutral-900 to-black opacity-100 transition-transform duration-500 group-hover:scale-105"
                             />
                         )}
                         <div className="absolute inset-0 bg-black/40" />
