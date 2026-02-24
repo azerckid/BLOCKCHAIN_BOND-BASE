@@ -7,7 +7,12 @@ import { eq } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { relayDepositYield } from "@/lib/relayer";
 
-const CHOONSIM_BOND_ID = 101; // Defined in smart contract deployment/tests
+const CHOONSIM_BOND_ID = 101;
+const RINA_BOND_ID = 102;
+const DEFAULT_BOND_ID = CHOONSIM_BOND_ID;
+
+/** 허용 bondId 화이트리스트 (07_MULTI_CHARACTER_BOND_SPEC) */
+const ALLOWED_BOND_IDS = [CHOONSIM_BOND_ID, RINA_BOND_ID] as const;
 
 const REVENUE_AMOUNT_MAX = 1_000_000;
 
@@ -38,8 +43,36 @@ const apiRevenueBodySchema = z.discriminatedUnion("type", [
     z.object({ type: z.literal("METRICS"), data: metricsDataSchema }),
 ]);
 
+/** 최상위 bondId (선택). 생략 시 DEFAULT_BOND_ID(101) */
+const bondIdSchema = z.number().int().positive().optional();
+
 function jsonResponse(body: object, status: number) {
     return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
+}
+
+async function getOrCreateProjectByBondId(bondId: number) {
+    const projectId = bondId === CHOONSIM_BOND_ID ? "choonsim-main" : `bond-${bondId}`;
+    const name = bondId === CHOONSIM_BOND_ID ? "Chunsim AI-Talk" : bondId === RINA_BOND_ID ? "Rina" : `Bond ${bondId}`;
+    const existing = await db.query.choonsimProjects.findFirst({
+        where: eq(choonsimProjects.bondId, bondId),
+    });
+    if (existing) return existing;
+    const byId = await db.query.choonsimProjects.findFirst({
+        where: eq(choonsimProjects.id, projectId),
+    });
+    if (byId) {
+        if (byId.bondId == null) {
+            await db.update(choonsimProjects).set({ bondId, updatedAt: new Date().getTime() }).where(eq(choonsimProjects.id, projectId));
+        }
+        return { ...byId, bondId: byId.bondId ?? bondId };
+    }
+    await db.insert(choonsimProjects).values({
+        id: projectId,
+        bondId,
+        name,
+        updatedAt: new Date().getTime(),
+    });
+    return { id: projectId, bondId, name, totalFollowers: 0, totalSubscribers: 0, southAmericaShare: 70, japanShare: 30, otherRegionShare: 0, updatedAt: new Date().getTime() };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -55,32 +88,29 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     try {
-        const body = await request.json();
+        const body = (await request.json()) as Record<string, unknown>;
+        const bondIdParsed = bondIdSchema.safeParse(body.bondId);
+        const bondId = bondIdParsed.success && bondIdParsed.data != null
+            ? bondIdParsed.data
+            : DEFAULT_BOND_ID;
+        if (!ALLOWED_BOND_IDS.includes(bondId as typeof ALLOWED_BOND_IDS[number])) {
+            return jsonResponse({ success: false, error: "Invalid request", details: { fieldErrors: { bondId: ["bondId not in allowed list"] } } }, 400);
+        }
+
         const parsed = apiRevenueBodySchema.safeParse(body);
         if (!parsed.success) {
             return jsonResponse({ success: false, error: "Invalid request", details: parsed.error.flatten() }, 400);
         }
         const { type, data } = parsed.data;
 
-        // Ensure Choonsim project exists
-        const project = await db.query.choonsimProjects.findFirst({
-            where: eq(choonsimProjects.id, "choonsim-main"),
-        });
-
-        if (!project) {
-            await db.insert(choonsimProjects).values({
-                id: "choonsim-main",
-                name: "Chunsim AI-Talk",
-                updatedAt: new Date().getTime(),
-            });
-        }
+        const project = await getOrCreateProjectByBondId(bondId);
 
         if (type === "REVENUE") {
             const { amount: amountNum, source, description } = data;
 
             await db.insert(choonsimRevenue).values({
                 id: randomUUID(),
-                projectId: "choonsim-main",
+                projectId: project.id,
                 amount: Math.round(amountNum),
                 source,
                 description,
@@ -88,14 +118,13 @@ export async function action({ request }: ActionFunctionArgs) {
                 onChainTxHash: null,
             });
 
-            // 3. Update project totals
             if (source === "SUBSCRIPTION") {
                 await db.update(choonsimProjects)
                     .set({
-                        totalSubscribers: (project?.totalSubscribers || 0) + 1,
+                        totalSubscribers: (project.totalSubscribers ?? 0) + 1,
                         updatedAt: new Date().getTime()
                     })
-                    .where(eq(choonsimProjects.id, "choonsim-main"));
+                    .where(eq(choonsimProjects.id, project.id));
             }
 
             return jsonResponse({ success: true, onChainHash: null });
@@ -104,36 +133,33 @@ export async function action({ request }: ActionFunctionArgs) {
             const { key, description, achievedAt, bonusAmount } = data;
             await db.insert(choonsimMilestones).values({
                 id: randomUUID(),
-                projectId: "choonsim-main",
+                projectId: project.id,
                 key,
                 description,
                 achievedAt: achievedAt || new Date().getTime(),
                 bonusAmount,
             });
 
-            // Optional: Milestone bonus can also be relayed if needed
             if (bonusAmount && parseFloat(bonusAmount) > 0) {
-                await relayDepositYield(CHOONSIM_BOND_ID, bonusAmount);
+                await relayDepositYield(bondId, bonusAmount);
             }
         } else if (type === "METRICS") {
             const { followers, subscribers, shares } = data;
 
-            // 1. Update Project Main Stats
             await db.update(choonsimProjects)
                 .set({
                     totalFollowers: followers,
                     totalSubscribers: subscribers,
-                    southAmericaShare: shares?.southAmerica || 70,
-                    japanShare: shares?.japan || 30,
-                    otherRegionShare: shares?.other || 0,
+                    southAmericaShare: shares?.southAmerica ?? 70,
+                    japanShare: shares?.japan ?? 30,
+                    otherRegionShare: shares?.other ?? 0,
                     updatedAt: new Date().getTime()
                 })
-                .where(eq(choonsimProjects.id, "choonsim-main"));
+                .where(eq(choonsimProjects.id, project.id));
 
-            // 2. Record to History (for charts)
             await db.insert(choonsimMetricsHistory).values({
                 id: randomUUID(),
-                projectId: "choonsim-main",
+                projectId: project.id,
                 followers,
                 subscribers,
                 recordedAt: new Date().getTime(),
