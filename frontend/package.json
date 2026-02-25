@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/generate-knowledge.cjs && vite",
+    "prebuild": "cd .. && npm run build -w @bond-base/types",
     "build": "node scripts/generate-knowledge.cjs && react-router build",
     "lint": "eslint .",
     "preview": "vite preview",
