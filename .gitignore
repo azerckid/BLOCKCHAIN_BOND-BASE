@@ -55,5 +55,9 @@ contracts/.env
 .agent/
 .claude/
 .cursor/
-AGENTS.md
-CLAUDE.md
+
+# Local / stray artifacts
+mem
+/local.db
+contracts/error.log
+contracts/test_output.txt
