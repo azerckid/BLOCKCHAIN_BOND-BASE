@@ -16,9 +16,12 @@ const ALLOWED_BOND_IDS = [CHOONSIM_BOND_ID, RINA_BOND_ID] as const;
 
 const REVENUE_AMOUNT_MAX = 1_000_000;
 
+/** REVENUE source 허용 값 (02_REVENUE_BRIDGE_SPEC, 08_CHOONSIM_INTEGRATION_HANDOVER) */
+const REVENUE_SOURCE_VALUES = ["SUBSCRIPTION", "SUPERCHAT", "MD_SALES", "CHOCO_CONSUMPTION"] as const;
+
 const revenueDataSchema = z.object({
     amount: z.string().regex(/^\d+(\.\d+)?$/, "amount must be a non-negative number string").transform((s) => parseFloat(s)).pipe(z.number().min(0.01).max(REVENUE_AMOUNT_MAX)),
-    source: z.string().min(1),
+    source: z.enum(REVENUE_SOURCE_VALUES),
     description: z.string(),
 });
 const milestoneDataSchema = z.object({

@@ -1,9 +1,9 @@
 # 다중 캐릭터(채권) 연동 스펙 — API bondId 확장 및 DB 스키마
 > Created: 2026-01-23
-> Last Updated: 2026-01-23
+> Last Updated: 2026-02-26 (문서 재검토 및 날짜 갱신)
 
-**대상**: BondBase 개발팀, 춘심톡 백엔드 개발팀
-**목적**: 춘심톡 내 여러 캐릭터별로 채권(bondId)을 구분하여 수익·지표를 기록하고 온체인 배당을 지원하기 위한 API 확장 및 DB 변경 포인트를 정의합니다. 기존 [Revenue Bridge Spec](./02_REVENUE_BRIDGE_SPEC.md)을 확장합니다.
+**대상**: BondBase·춘심톡 연동 담당자
+**목적**: 캐릭터별 채권(bondId) 구분을 위한 API 확장 및 DB 변경 포인트 정의. [Revenue Bridge Spec](./02_REVENUE_BRIDGE_SPEC.md)을 확장한 다중 캐릭터 연동 규격.
 
 ---
 

@@ -1,9 +1,9 @@
 # 춘심톡 → BondBase Revenue Bridge 연동 스펙
 > Created: 2026-02-01 16:33
-> Last Updated: 2026-02-13 (Post-Phase 3 Stabilization)
+> Last Updated: 2026-02-26 (문서 재검토 및 보안 안내 강화)
 
-**대상**: 춘심톡 백엔드 개발팀
-**목적**: 춘심톡에서 BondBase `api/revenue`를 호출할 때 준수해야 할 규칙과 데이터 규격을 정의합니다.
+**대상**: BondBase·춘심톡 연동 담당자
+**목적**: POST /api/revenue 연동 규격 및 데이터 형식 정의. (BondBase와 춘심톡 간 공통 참조 스펙)
 
 ## 1. 연동 개요
 
@@ -50,8 +50,11 @@ BondBase API (Vercel)
 *   **amount (필수)**: USDC 기준 금액 (숫자 형태의 문자열).
     *   범위: 0.01 ~ 1,000,000
     *   소수점 2자리 권장.
-*   **source (필수)**: 매출 출처 (예: "SUBSCRIPTION", "SUPERCHAT", "MD_SALES").
-    *   `"SUBSCRIPTION"`인 경우 시스템 내 활성 구독자 수가 자동으로 1 증가합니다.
+*   **source (필수)**: 매출 출처. 허용 값:
+    *   `"SUBSCRIPTION"` — 구독 매출. 시스템 내 활성 구독자 수가 자동으로 1 증가.
+    *   `"SUPERCHAT"` — 슈퍼챗 등 후원 매출.
+    *   `"MD_SALES"` — MD/굿즈 판매 등.
+    *   `"CHOCO_CONSUMPTION"` — 춘심톡 내 CHOCO 소비(채팅 + 선물) 집계 (08 인수인계 연동).
 *   **description (필수)**: 매출에 대한 설명.
 
 #### (B) MILESTONE — 보너스 배당 이벤트 발생 시
@@ -115,7 +118,10 @@ BondBase API (Vercel)
 
 ## 4. 보안 및 오라클 검증 (Audit)
 
-1.  **API Key 보안**: 발급된 `CHOONSIM_API_KEY`는 서버 간 통신에만 사용하며 클라이언트(App/Web) 코드에 노출되지 않도록 주의하십시오.
+1.  **API Key 보안 (필수)**: 발급된 `CHOONSIM_API_KEY`는 **서버 간(Server-to-Server) 통신 전용**입니다.
+    - 모바일 앱, 웹 브라우저 등 클라이언트 측 코드에 절대 노출하지 마십시오.
+    - 환경변수(`.env`)로만 관리하고, 소스코드 저장소(Git)에 커밋하지 마십시오.
+    - 유출이 의심되는 경우 즉시 BondBase 팀에 연락하여 Key를 재발급 받으십시오.
 2.  **데이터 무결성**: 전송된 `amount`는 향후 오라클 노드에 의해 PG사(Stripe 등)의 수취 내역과 대조 검증될 수 있습니다. 실제 정산 시점의 수치와 일치해야 합니다.
 
 ---
