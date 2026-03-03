@@ -111,8 +111,9 @@ export async function action({ request }: ActionFunctionArgs) {
         if (type === "REVENUE") {
             const { amount: amountNum, source, description } = data;
 
+            const revenueId = randomUUID();
             await db.insert(choonsimRevenue).values({
-                id: randomUUID(),
+                id: revenueId,
                 projectId: project.id,
                 amount: Math.round(amountNum),
                 source,
@@ -130,7 +131,12 @@ export async function action({ request }: ActionFunctionArgs) {
                     .where(eq(choonsimProjects.id, project.id));
             }
 
-            return jsonResponse({ success: true, onChainHash: null });
+            const { hash } = await relayDepositYield(bondId, amountNum.toString());
+            await db.update(choonsimRevenue)
+                .set({ onChainTxHash: hash })
+                .where(eq(choonsimRevenue.id, revenueId));
+
+            return jsonResponse({ success: true, onChainHash: hash }, 200);
 
         } else if (type === "MILESTONE") {
             const { key, description, achievedAt, bonusAmount } = data;
@@ -140,7 +146,7 @@ export async function action({ request }: ActionFunctionArgs) {
                 key,
                 description,
                 achievedAt: achievedAt || new Date().getTime(),
-                bonusAmount,
+                bonusAmount: bonusAmount != null ? Math.round(parseFloat(bonusAmount)) : null,
             });
 
             if (bonusAmount && parseFloat(bonusAmount) > 0) {
@@ -169,7 +175,7 @@ export async function action({ request }: ActionFunctionArgs) {
             });
         }
 
-        return jsonResponse({ success: true });
+        return jsonResponse({ success: true }, 200);
     } catch (error: unknown) {
         const message = error instanceof Error ? error.message : "Internal Server Error";
         return jsonResponse({ success: false, error: message }, 500);
