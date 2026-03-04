@@ -2,7 +2,7 @@ import * as React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-import { HugeiconsIcon } from "@hugeicons/react";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 
 interface StatItemProps {
     title: string;
@@ -12,7 +12,7 @@ interface StatItemProps {
         value: number | string;
         isUp: boolean;
     };
-    icon: any;
+    icon: IconSvgElement;
     vibrant?: boolean;
     className?: string;
 }

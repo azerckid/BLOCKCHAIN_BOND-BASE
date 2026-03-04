@@ -15,11 +15,13 @@ import { CONTRACTS, type AssetPerformance } from "@/config/contracts";
 // In a real app, this might come from an API or the contract metadata itself
 import { MOCK_BONDS } from "@/routes/bonds";
 import type { BondProps } from "@/components/bonds/bond-card";
+
+type InvestmentItem = BondProps & { balance: bigint; formattedBalance: string };
 import { toast } from "sonner";
 import { ImpactSummary } from "./impact-summary";
 
 // Component for individual row to handle its own hooks
-function InvestmentRow({ inv, address }: { inv: any, address: `0x${string}` }) {
+function InvestmentRow({ inv, address }: { inv: InvestmentItem, address: `0x${string}` }) {
     // 1. Read Earned Yield
     const { data: earnedAmount, refetch: refetchEarned } = useReadContract({
         address: CONTRACTS.YieldDistributor.address as `0x${string}`,
