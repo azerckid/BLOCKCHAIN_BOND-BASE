@@ -1,6 +1,6 @@
 import * as React from "react";
 import { NavLink, Link } from "react-router";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
     Home01Icon,
     Database01Icon,
@@ -11,7 +11,8 @@ import {
     Menu01Icon,
     Comment01Icon,
     ChartBreakoutCircleIcon,
-    GlobalIcon
+    GlobalIcon,
+    ChampionIcon
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -19,7 +20,7 @@ import { HelpGuide } from "./help-guide";
 
 interface NavItemProps {
     to: string;
-    icon: any; // Hugeicons icon data
+    icon: IconSvgElement;
     label: string;
     onClick?: () => void;
 }
@@ -55,6 +56,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         { to: "/bonds", icon: Database01Icon, label: "Growth Market" },
         { to: "/portfolio", icon: Wallet01Icon, label: "My Portfolio" },
         { to: "/impact", icon: GlobalIcon, label: "Fandom Impact" },
+        { to: "/ranking", icon: ChampionIcon, label: "Leaderboard" },
         { to: "/ai-guide", icon: Comment01Icon, label: "AI Guide" },
         { to: "/settings", icon: Settings02Icon, label: "Settings" },
     ];

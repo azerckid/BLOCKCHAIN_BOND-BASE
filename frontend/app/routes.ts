@@ -9,9 +9,11 @@ export default [
     route("admin", "routes/admin.tsx"),
     route("ai-guide", "routes/ai-guide.tsx"),
     route("impact", "routes/impact.tsx"),
+    route("ranking", "routes/ranking.tsx"),
     route("api/auth/*", "routes/auth.ts"),
     route("api/chat", "routes/api.chat.ts"),
     route("api/revenue", "routes/api.revenue.ts"),
     route("api/faucet", "routes/api.faucet.ts"),
+    route("api/ranking", "routes/api.ranking.ts"),
     route("*", "routes/not-found.tsx"),
 ] satisfies RouteConfig;
