@@ -9,6 +9,10 @@ import { getEnv } from '@/lib/env';
  * Responsible for executing transactions from the BondBase backend to Creditcoin.
  */
 
+const MAX_UINT256 = BigInt("115792089237316195423570985008687907853269984665640564039457584007913129639935");
+/** waitForTransactionReceipt 최대 대기 시간 (ms) */
+const TX_TIMEOUT_MS = 60_000;
+
 /**
  * Lazy initialization for relayer account
  * Only validates and creates account when actually needed
@@ -18,13 +22,11 @@ let _walletClient: ReturnType<typeof createWalletClient> | null = null;
 
 function getValidPrivateKey(): `0x${string}` {
     const privateKey = getEnv('RELAYER_PRIVATE_KEY');
-
-    if (!privateKey || privateKey.trim() === '') {
+    // env.ts Zod 검증에서 0x 접두사 및 길이 보장 (설정 시). 여기서는 미설정 여부만 확인.
+    if (!privateKey) {
         throw new Error('[Relayer] RELAYER_PRIVATE_KEY 환경변수가 설정되지 않았습니다.');
     }
-
-    const cleanKey = privateKey.trim();
-    return (cleanKey.startsWith('0x') ? cleanKey : `0x${cleanKey}`) as `0x${string}`;
+    return privateKey as `0x${string}`;
 }
 
 export function getRelayerAccount() {
@@ -98,11 +100,11 @@ export async function relayDepositYield(bondId: number, amount: string) {
                 address: CONTRACTS.MockUSDC.address as `0x${string}`,
                 abi: CONTRACTS.MockUSDC.abi,
                 functionName: 'approve',
-                args: [CONTRACTS.YieldDistributor.address as `0x${string}`, BigInt("115792089237316195423570985008687907853269984665640564039457584007913129639935")], // Max uint256
+                args: [CONTRACTS.YieldDistributor.address as `0x${string}`, MAX_UINT256],
                 account,
                 chain: creditcoinTestnet,
             });
-            await publicClient.waitForTransactionReceipt({ hash: approveHash });
+            await publicClient.waitForTransactionReceipt({ hash: approveHash, timeout: TX_TIMEOUT_MS });
             console.log(`[Relayer] Approval confirmed: ${approveHash}`);
         }
 
@@ -120,12 +122,12 @@ export async function relayDepositYield(bondId: number, amount: string) {
         console.log(`[Relayer] Transaction sent: ${hash}`);
 
         // Wait for confirmation
-        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+        const receipt = await publicClient.waitForTransactionReceipt({ hash, timeout: TX_TIMEOUT_MS });
         console.log(`[Relayer] Transaction confirmed in block: ${receipt.blockNumber}`);
 
         return { success: true, hash, receipt };
     } catch (error) {
-        console.error('[Relayer] Error in depositYield:', error);
+        console.error(`[Relayer] depositYield failed — bondId: ${bondId}, amount: ${amount}, error:`, error instanceof Error ? error.message : error);
         throw error;
     }
 }

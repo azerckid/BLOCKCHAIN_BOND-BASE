@@ -102,7 +102,9 @@ export const repayments = sqliteTable("repayments", {
 // Choonsim Project Integration (다중 캐릭터: bond_id = 온체인 bondId 1:1)
 export const choonsimProjects = sqliteTable("choonsim_projects", {
     id: text("id").primaryKey(), // e.g. "choonsim-main", "bond-102"
-    bondId: integer("bond_id").unique(), // On-chain bond ID (101=춘심, 102=Rina). NULL 허용(기존 행 마이그레이션)
+    // On-chain bond ID (101=춘심, 102=Rina). nullable 유지: 마이그레이션 전 레거시 행 호환성.
+    // 신규 행은 항상 bondId 포함. api/revenue에서 DEFAULT_BOND_ID로 fallback 보장됨.
+    bondId: integer("bond_id").unique(),
     name: text("name").notNull(),
     totalFollowers: integer("total_followers").default(0),
     totalSubscribers: integer("total_subscribers").default(0),

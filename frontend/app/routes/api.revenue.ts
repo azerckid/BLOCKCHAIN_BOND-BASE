@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { relayDepositYield } from "@/lib/relayer";
 
+// 온체인 bond ID. 컨트랙트 재배포 시 contracts.ts와 함께 변경 필요 (07_MULTI_CHARACTER_BOND_SPEC).
 const CHOONSIM_BOND_ID = 101;
 const RINA_BOND_ID = 102;
 const DEFAULT_BOND_ID = CHOONSIM_BOND_ID;
@@ -14,6 +15,7 @@ const DEFAULT_BOND_ID = CHOONSIM_BOND_ID;
 /** 허용 bondId 화이트리스트 (07_MULTI_CHARACTER_BOND_SPEC) */
 const ALLOWED_BOND_IDS = [CHOONSIM_BOND_ID, RINA_BOND_ID] as const;
 
+// 단일 요청의 최대 수익 금액(USDC). 이상 입력 방어용.
 const REVENUE_AMOUNT_MAX = 1_000_000;
 
 /** REVENUE source 허용 값 (02_REVENUE_BRIDGE_SPEC, 08_CHOONSIM_INTEGRATION_HANDOVER) */
@@ -131,7 +133,14 @@ export async function action({ request }: ActionFunctionArgs) {
                     .where(eq(choonsimProjects.id, project.id));
             }
 
-            const { hash } = await relayDepositYield(bondId, amountNum.toString());
+            // 온체인 deposit 실패 시 DB 기록 삭제하여 일관성 유지
+            let hash: string;
+            try {
+                ({ hash } = await relayDepositYield(bondId, amountNum.toString()));
+            } catch (relayError) {
+                await db.delete(choonsimRevenue).where(eq(choonsimRevenue.id, revenueId));
+                throw relayError;
+            }
             await db.update(choonsimRevenue)
                 .set({ onChainTxHash: hash })
                 .where(eq(choonsimRevenue.id, revenueId));
@@ -140,8 +149,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
         } else if (type === "MILESTONE") {
             const { key, description, achievedAt, bonusAmount } = data;
+            const milestoneId = randomUUID();
             await db.insert(choonsimMilestones).values({
-                id: randomUUID(),
+                id: milestoneId,
                 projectId: project.id,
                 key,
                 description,
@@ -150,7 +160,13 @@ export async function action({ request }: ActionFunctionArgs) {
             });
 
             if (bonusAmount && parseFloat(bonusAmount) > 0) {
-                await relayDepositYield(bondId, bonusAmount);
+                // 온체인 deposit 실패 시 milestone 기록 삭제하여 일관성 유지
+                try {
+                    await relayDepositYield(bondId, bonusAmount);
+                } catch (relayError) {
+                    await db.delete(choonsimMilestones).where(eq(choonsimMilestones.id, milestoneId));
+                    throw relayError;
+                }
             }
         } else if (type === "METRICS") {
             const { followers, subscribers, shares } = data;
@@ -177,7 +193,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
         return jsonResponse({ success: true }, 200);
     } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : "Internal Server Error";
-        return jsonResponse({ success: false, error: message }, 500);
+        console.error("[api/revenue] Unhandled error:", error);
+        return jsonResponse({ success: false, error: "Internal Server Error" }, 500);
     }
 }
