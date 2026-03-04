@@ -1,6 +1,6 @@
 # 프로젝트 작업 백로그 (Backlog)
 > Created: 2026-02-01 15:14
-> Last Updated: 2026-02-13
+> Last Updated: 2026-03-04
 
 ## 1. 현재 진행 상황 (Kanban)
 
@@ -18,6 +18,7 @@
 - [ ] **[컨트랙트 UUPS 업그레이드]** 메인넷 전환 시 검토. → [감사 P3 6.3](../05_Test/04_CODE_QUALITY_AUDIT.md)
 - [ ] **[Relayer 모니터링 체계]** 구조화 로깅(Pino), 연속 실패 알림(Slack webhook), 메트릭 수집. 운영 인프라 결정 후 진행. → [감사 P3 6.6](../05_Test/04_CODE_QUALITY_AUDIT.md)
 #### 기능 개발 (Feature)
+- [ ] **[투자자 랭킹 리더보드]** `/ranking` 라우트 + `api.ranking.ts` 엔드포인트 + 사이드바 메뉴 추가. 주간/월간/전체 기간 필터, 총 수익 기준 정렬, 지갑 주소 마스킹, 본인 순위 강조. → [명세서](../03_Specs/09_INVESTOR_RANKING_SPEC.md)
 - [ ] 춘심톡 백엔드 실제 `api/revenue` 호출 모듈 개발 지원
 - [ ] 오라클 노드 외부 PG사 API 연동 테스트
 - [ ] 관리자 포털 다중 채권 관리 기능 추가
