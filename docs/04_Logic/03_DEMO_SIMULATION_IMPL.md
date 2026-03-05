@@ -25,9 +25,16 @@
 | `frontend/scripts/seed-demo.ts` | 스탠드얼론 시딩 스크립트 (DB만, 가짜 txHash) | 완료 |
 | `frontend/scripts/generate-demo-wallets.ts` | 20개 키페어 생성 → 주소 JSON + `.env.demo.local` (private key, gitignore) | 완료 |
 | `frontend/scripts/seed-demo-onchain.ts` | 20명 각각 approve + purchaseBond 실행 후 실제 tx hash로 investments INSERT | 완료 |
-| `frontend/app/routes/api.demo.ts` | tick / reset API | 완료 (개선 필요) |
+| `frontend/scripts/apply-choonsim-migrations.ts` | Turso 등 원격 DB에 `choonsim_projects.bond_id`, `choonsim_revenue.demo_yield_distributed_at` 컬럼 적용 (drizzle push 미사용 시) | 완료 |
+| `frontend/app/routes/api.demo.ts` | tick / reset API | 완료 |
 | `frontend/app/routes/demo.tsx` | 데모 페이지 (SSR + 클라이언트) | 완료 |
 | `frontend/app/routes.ts` | `/demo`, `/api/demo` 라우트 추가 | 완료 |
+
+### 1.3 데모 tick 전제 조건 (DB)
+
+- `choonsim_revenue.demo_yield_distributed_at`, `choonsim_projects.bond_id` 컬럼이 있어야 함.
+- 원격 DB(Turso)에 `drizzle-kit push`를 하지 않은 경우: `npm run apply-choonsim-migrations` 실행 후 `npm run update-choonsim-bond-ids`로 프로젝트별 bond_id(101/102) 설정 필요.
+- tick 시 분배할 revenue가 있으려면 `choonsim_revenue`에 `demo_yield_distributed_at = null`인 행이 있어야 함 (`seed-demo-revenue` 또는 bondbase-sync로 삽입).
 
 ---
 

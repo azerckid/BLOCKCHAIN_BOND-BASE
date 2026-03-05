@@ -4,10 +4,16 @@
  * 실행: cd frontend && npx tsx scripts/update-choonsim-bond-ids.ts
  */
 import "dotenv/config";
+import { config as loadEnv } from "dotenv";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import * as schema from "../app/db/schema.js";
 import { eq, isNull } from "drizzle-orm";
+
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
+loadEnv({ path: join(__dirname, "..", ".env.development") });
 
 const url = process.env.TURSO_DATABASE_URL ?? "file:local.db";
 const authToken = process.env.TURSO_AUTH_TOKEN;
