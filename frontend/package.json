@@ -15,7 +15,8 @@
     "test:coverage": "vitest run --coverage",
     "generate-demo-wallets": "npx tsx scripts/generate-demo-wallets.ts",
     "seed-demo-onchain": "npx tsx scripts/seed-demo-onchain.ts",
-    "fund-demo-investors": "npx tsx scripts/fund-demo-investors.ts"
+    "fund-demo-investors": "npx tsx scripts/fund-demo-investors.ts",
+    "update-choonsim-bond-ids": "npx tsx scripts/update-choonsim-bond-ids.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.10",

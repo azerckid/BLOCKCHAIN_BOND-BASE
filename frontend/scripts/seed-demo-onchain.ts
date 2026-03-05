@@ -18,6 +18,7 @@ import { DEMO_INVESTORS } from "../app/lib/demo-investors.js";
 import { DateTime } from "luxon";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
+loadEnv({ path: join(__dirname, "..", ".env.development") });
 loadEnv({ path: join(__dirname, "..", ".env.demo.local") });
 
 const RPC = process.env.CREDITCOIN_TESTNET_RPC ?? "https://rpc.cc3-testnet.creditcoin.network";

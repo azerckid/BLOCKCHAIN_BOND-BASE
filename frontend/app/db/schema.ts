@@ -130,6 +130,8 @@ export const choonsimRevenue = sqliteTable("choonsim_revenue", {
     description: text("description"),
     receivedAt: integer("received_at").notNull(), // Timestamp
     onChainTxHash: text("on_chain_tx_hash"),
+    /** 데모 tick에서 분배 완료 시각. null이면 미분배(다음 tick 대상). */
+    demoYieldDistributedAt: integer("demo_yield_distributed_at"),
 });
 
 export const choonsimMilestones = sqliteTable("choonsim_milestones", {

@@ -4,14 +4,17 @@
  * 실행: cd frontend && npm run fund-demo-investors
  */
 import "dotenv/config";
+import { config as loadEnv } from "dotenv";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+
 import { createPublicClient, createWalletClient, http, parseEther, parseUnits } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { readFileSync } from "node:fs";
 import { CONTRACTS } from "@bond-base/types";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
+loadEnv({ path: join(__dirname, "..", ".env.development") });
 
 const RPC = process.env.CREDITCOIN_TESTNET_RPC ?? "https://rpc.cc3-testnet.creditcoin.network";
 const chain = {

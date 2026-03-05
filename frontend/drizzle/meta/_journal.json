@@ -22,6 +22,13 @@
       "when": 1771948095127,
       "tag": "0002_add_choonsim_bond_id",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1771950000000,
+      "tag": "0003_add_demo_yield_distributed_at",
+      "breakpoints": true
     }
   ]
 }

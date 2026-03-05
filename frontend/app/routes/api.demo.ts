@@ -2,14 +2,21 @@
  * POST /api/demo
  * Body: { action: "tick" } | { action: "reset" }
  *
- * tick  — 랜덤 demo 투자자 yield 1건 삽입 후 이벤트 반환
+ * tick  — 미분배 choonsim_revenue 1건을 bond 투자 비율로 yield 분배 후 반환 (revenue 기반, 고정 APR 아님)
  * reset — demo- prefix 데이터 삭제 후 재시딩
  */
 import type { ActionFunctionArgs } from "react-router";
 import { z } from "zod";
 import { db } from "@/db";
-import { yieldDistributions, investments, investors, bonds } from "@/db/schema";
-import { eq, like, inArray } from "drizzle-orm";
+import {
+    yieldDistributions,
+    investments,
+    investors,
+    bonds,
+    choonsimRevenue,
+    choonsimProjects,
+} from "@/db/schema";
+import { eq, like, inArray, isNull } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { DEMO_INVESTORS, ID_TO_NAME } from "@/lib/demo-investors";
 import { seedDemo } from "@/lib/demo-seed.server";
@@ -19,8 +26,11 @@ const bodySchema = z.discriminatedUnion("action", [
     z.object({ action: z.literal("reset") }),
 ]);
 
-const APR = 0.185;
-const DAILY_RATE = APR / 365;
+/** 온체인 bondId(101/102) → 데모 bond DB id */
+const ONCHAIN_BOND_TO_DB_ID: Record<number, string> = {
+    101: "demo-bond-choonsim",
+    102: "demo-bond-rina",
+};
 
 function jsonRes(body: unknown, status = 200) {
     return new Response(JSON.stringify(body), {
@@ -30,39 +40,84 @@ function jsonRes(body: unknown, status = 200) {
 }
 
 async function tickDemo() {
-    const investor = DEMO_INVESTORS[Math.floor(Math.random() * DEMO_INVESTORS.length)];
+    const ts = DateTime.now().toUnixInteger();
 
-    const invRows = await db
-        .select({ usdcAmount: investments.usdcAmount, bondId: investments.bondId })
-        .from(investments)
-        .where(eq(investments.investorId, investor.id));
+    const rows = await db
+        .select({
+            revenueId: choonsimRevenue.id,
+            amount: choonsimRevenue.amount,
+            bondIdOnChain: choonsimProjects.bondId,
+        })
+        .from(choonsimRevenue)
+        .innerJoin(choonsimProjects, eq(choonsimRevenue.projectId, choonsimProjects.id))
+        .where(isNull(choonsimRevenue.demoYieldDistributedAt))
+        .limit(1);
 
-    if (invRows.length === 0) {
-        // 시딩이 안 된 경우 — 조용히 다른 투자자로 fallback
-        return jsonRes({ error: "no investments — run seed first" }, 404);
+    if (rows.length === 0) {
+        return jsonRes({ error: "no undistributed revenue — add choonsim_revenue or run bondbase-sync" }, 404);
     }
 
-    const totalUsdc = invRows.reduce((sum, r) => sum + r.usdcAmount, 0);
-    const yieldAmount = Math.max(1, Math.floor(totalUsdc * DAILY_RATE));
-    const pickedInv = invRows[Math.floor(Math.random() * invRows.length)];
-    const ts = DateTime.now();
+    const { revenueId, amount: revenueAmount, bondIdOnChain } = rows[0];
+    const bondDbId = bondIdOnChain != null ? ONCHAIN_BOND_TO_DB_ID[bondIdOnChain] : null;
+    if (!bondDbId) {
+        await db
+            .update(choonsimRevenue)
+            .set({ demoYieldDistributedAt: ts })
+            .where(eq(choonsimRevenue.id, revenueId));
+        return jsonRes({ error: "revenue project has no demo bond (101/102)" }, 400);
+    }
 
-    await db.insert(yieldDistributions).values({
-        id: `demo-yield-live-${crypto.randomUUID()}`,
-        bondId: pickedInv.bondId,
-        investorId: investor.id,
-        yieldAmount,
-        transactionHash: null,
-        distributedAt: ts.toUnixInteger(),
-    });
+    const demoIds = new Set(DEMO_INVESTORS.map((i) => i.id));
+    const invRowsAll = await db
+        .select({ investorId: investments.investorId, usdcAmount: investments.usdcAmount })
+        .from(investments)
+        .where(eq(investments.bondId, bondDbId));
+    const invRows = invRowsAll.filter((r) => demoIds.has(r.investorId));
+
+    const totalUsdc = invRows.reduce((sum, r) => sum + r.usdcAmount, 0);
+    if (totalUsdc === 0) {
+        await db
+            .update(choonsimRevenue)
+            .set({ demoYieldDistributedAt: ts })
+            .where(eq(choonsimRevenue.id, revenueId));
+        return jsonRes({
+            ok: true,
+            revenueId,
+            bondId: bondDbId,
+            distributed: 0,
+            message: "revenue marked distributed; no demo investments for this bond",
+        });
+    }
+
+    const inserted: { investorId: string; yieldAmount: number }[] = [];
+    for (const inv of invRows) {
+        const yieldAmount = Math.floor((revenueAmount * inv.usdcAmount) / totalUsdc);
+        if (yieldAmount <= 0) continue;
+        await db.insert(yieldDistributions).values({
+            id: `demo-yield-${revenueId}-${inv.investorId}-${crypto.randomUUID().slice(0, 8)}`,
+            bondId: bondDbId,
+            investorId: inv.investorId,
+            yieldAmount,
+            transactionHash: null,
+            distributedAt: ts,
+        });
+        inserted.push({ investorId: inv.investorId, yieldAmount });
+    }
+
+    await db
+        .update(choonsimRevenue)
+        .set({ demoYieldDistributedAt: ts })
+        .where(eq(choonsimRevenue.id, revenueId));
 
     return jsonRes({
-        investorId: investor.id,
-        investorName: ID_TO_NAME.get(investor.id) ?? investor.id,
-        walletAddress: investor.walletAddress,
-        yieldAmount,
-        bondId: pickedInv.bondId,
-        timestamp: ts.toISO(),
+        ok: true,
+        revenueId,
+        bondId: bondDbId,
+        revenueAmount,
+        totalUsdc,
+        distributed: inserted.length,
+        yields: inserted,
+        timestamp: DateTime.fromSeconds(ts).toISO(),
     });
 }
 

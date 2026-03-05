@@ -49,9 +49,6 @@ const INVESTMENT_AMOUNTS = [
     8_500_000_000, 10_000_000_000, 12_500_000_000, 15_000_000_000,
     18_000_000_000, 20_000_000_000, 22_000_000_000, 25_000_000_000,
 ];
-const APR = 0.185;
-const DAILY_RATE = APR / 365;
-
 function makeSeedRandom(seed: number) {
     let s = seed;
     return () => {
@@ -114,40 +111,7 @@ async function seedDemo() {
         await db.insert(schema.investments).values(inv).onConflictDoNothing();
     }
     console.log(`  ✔ ${investmentList.length} investments`);
-
-    console.log("▶ Seeding yieldDistributions (30 days)...");
-    type InsertYieldDistribution = typeof schema.yieldDistributions.$inferInsert;
-    const yieldList: InsertYieldDistribution[] = [];
-    let yieldSeq = 0;
-
-    for (let day = 30; day >= 1; day--) {
-        const dayBase = t.minus({ days: day });
-        const eventsPerDay = 2 + Math.floor(rand() * 3);
-        const chosen = [...DEMO_INVESTORS].sort(() => rand() - 0.5).slice(0, eventsPerDay);
-
-        for (const investor of chosen) {
-            const invs = investmentList.filter((x) => x.investorId === investor.id);
-            if (invs.length === 0) continue;
-            const totalUsdc = invs.reduce((sum, x) => sum + x.usdcAmount, 0);
-            const yieldAmount = Math.max(1, Math.floor(totalUsdc * DAILY_RATE));
-            const bondDbId = invs[Math.floor(rand() * invs.length)].bondId;
-            yieldSeq++;
-            yieldList.push({
-                id: `demo-yield-${String(yieldSeq).padStart(4, "0")}`,
-                bondId: bondDbId,
-                investorId: investor.id,
-                yieldAmount,
-                transactionHash: null,
-                distributedAt: dayBase.plus({ hours: Math.floor(rand() * 20) + 2 }).toUnixInteger(),
-            });
-        }
-    }
-
-    for (const yd of yieldList) {
-        await db.insert(schema.yieldDistributions).values(yd).onConflictDoNothing();
-    }
-    console.log(`  ✔ ${yieldList.length} yieldDistributions`);
-    console.log("✅ Demo seeding complete.");
+    console.log("✅ Demo seeding complete (bonds, investors, investments only).");
 }
 
 await seedDemo();

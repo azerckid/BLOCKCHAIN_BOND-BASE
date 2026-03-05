@@ -44,9 +44,6 @@ const INVESTMENT_AMOUNTS = [
     18_000_000_000, 20_000_000_000, 22_000_000_000, 25_000_000_000,
 ];
 
-const APR = 0.185;
-const DAILY_RATE = APR / 365;
-
 /** LCG seeded pseudo-random — deterministic so re-seeding produces same data */
 function makeSeedRandom(seed: number) {
     let s = seed;
@@ -107,37 +104,5 @@ export async function seedDemo() {
 
     for (const inv of investments) {
         await db.insert(schema.investments).values(inv).onConflictDoNothing();
-    }
-
-    // 4. YieldDistributions — 30일치 히스토리
-    type InsertYieldDistribution = typeof schema.yieldDistributions.$inferInsert;
-    const yieldRows: InsertYieldDistribution[] = [];
-    let yieldSeq = 0;
-
-    for (let day = 30; day >= 1; day--) {
-        const dayBase = t.minus({ days: day });
-        const eventsPerDay = 2 + Math.floor(rand() * 3);
-        const chosen = [...DEMO_INVESTORS].sort(() => rand() - 0.5).slice(0, eventsPerDay);
-
-        for (const investor of chosen) {
-            const invs = investments.filter((i) => i.investorId === investor.id);
-            if (invs.length === 0) continue;
-            const totalUsdc = invs.reduce((sum, i) => sum + i.usdcAmount, 0);
-            const yieldAmount = Math.max(1, Math.floor(totalUsdc * DAILY_RATE));
-            const bondDbId = invs[Math.floor(rand() * invs.length)].bondId;
-            yieldSeq++;
-            yieldRows.push({
-                id: `demo-yield-${String(yieldSeq).padStart(4, "0")}`,
-                bondId: bondDbId,
-                investorId: investor.id,
-                yieldAmount,
-                transactionHash: null,
-                distributedAt: dayBase.plus({ hours: Math.floor(rand() * 20) + 2 }).toUnixInteger(),
-            });
-        }
-    }
-
-    for (const yd of yieldRows) {
-        await db.insert(schema.yieldDistributions).values(yd).onConflictDoNothing();
     }
 }
