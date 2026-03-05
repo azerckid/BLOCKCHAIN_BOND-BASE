@@ -74,6 +74,11 @@ character
 - **③ ChocoConsumptionLog 미전송**: 춘심톡 레포에서 `bondbase-sync`(또는 동등 로직)를 수동/자동 실행해야 CHOCO 소비 집계가 BondBase `POST /api/revenue`로 전달되고 `choonsim_revenue`에 적재된다.
 - **⑥ Cron 등록**: mock-grant, mock-activity, bondbase-sync를 일별 실행하려면 **춘심톡** 서비스의 `vercel.json`(또는 해당 Cron 설정)에 해당 작업을 등록해야 한다. BondBase는 `/api/revenue` 수신 및 tick 분배만 담당한다.
 
+### 2.4 검증 (Phase-Exit QA)
+
+- 스펙 [10_DEMO_SIMULATION_SPEC 7절](../03_Specs/10_DEMO_SIMULATION_SPEC.md#7-검증-기준-phase-exit-qa) 기준으로 확인.
+- tick 응답 `yields[]` → Live Activity Feed 연동 수정 및 사이드바 "Live Demo" 메뉴 추가 완료 (2026-01-23). 시딩·tick·리더보드 갱신·콘솔 오류 여부는 배포/로컬 환경에서 수동 점검.
+
 ---
 
 ## 3. 데이터 설계
