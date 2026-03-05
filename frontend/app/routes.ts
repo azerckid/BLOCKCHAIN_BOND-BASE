@@ -15,5 +15,7 @@ export default [
     route("api/revenue", "routes/api.revenue.ts"),
     route("api/faucet", "routes/api.faucet.ts"),
     route("api/ranking", "routes/api.ranking.ts"),
+    route("demo", "routes/demo.tsx"),
+    route("api/demo", "routes/api.demo.ts"),
     route("*", "routes/not-found.tsx"),
 ] satisfies RouteConfig;

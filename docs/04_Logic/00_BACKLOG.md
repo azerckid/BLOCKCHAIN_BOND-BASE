@@ -18,16 +18,22 @@
 - [ ] **[컨트랙트 UUPS 업그레이드]** 메인넷 전환 시 검토. → [감사 P3 6.3](../05_Test/04_CODE_QUALITY_AUDIT.md)
 - [ ] **[Relayer 모니터링 체계]** 구조화 로깅(Pino), 연속 실패 알림(Slack webhook), 메트릭 수집. 운영 인프라 결정 후 진행. → [감사 P3 6.6](../05_Test/04_CODE_QUALITY_AUDIT.md)
 #### 기능 개발 (Feature)
-- [ ] **[투자자 랭킹 리더보드]** `/ranking` 라우트 + `api.ranking.ts` 엔드포인트 + 사이드바 메뉴 추가. 주간/월간/전체 기간 필터, 총 수익 기준 정렬, 지갑 주소 마스킹, 본인 순위 강조. → [명세서](../03_Specs/09_INVESTOR_RANKING_SPEC.md)
-- [ ] 춘심톡 백엔드 실제 `api/revenue` 호출 모듈 개발 지원
-- [ ] 오라클 노드 외부 PG사 API 연동 테스트
-- [ ] 관리자 포털 다중 채권 관리 기능 추가
-- [ ] AI 에이전트 온체인 툴링(Tooling) 고도화
+- [ ] **[Demo — BondBase DB 수정]** `choonsim_projects.bond_id = null` → 101로 업데이트 → [구현 문서 5절 Step1](./03_DEMO_SIMULATION_IMPL.md)
+- [ ] **[Demo — mock 투자자 20명 시딩]** `seed-demo.ts` 실행 → [구현 문서 5절 Step2](./03_DEMO_SIMULATION_IMPL.md)
+- [ ] **[Demo — 지갑 주소 교체]** `0xDEMO...` (non-hex) → 유효한 42자 EVM hex 주소 → [구현 문서 5절 Step3](./03_DEMO_SIMULATION_IMPL.md)
+- [ ] **[Demo — 춘심톡 Cron 등록]** `vercel.json`에 mock-grant/activity/bondbase-sync 일별 등록 → [구현 문서 5절 Step4](./03_DEMO_SIMULATION_IMPL.md)
+- [ ] **[Demo — tick yield 계산 교체]** APR 근사 → `choonsimRevenue` 실 데이터 기반 비례 분배 → [구현 문서 5절 Step5](./03_DEMO_SIMULATION_IMPL.md)
 
 ### 🟡 Doing (진행 중)
 - (현재 진행 중인 작업 없음)
 
 ### 🟢 Done (완료)
+- [x] **[데모 시뮬레이션]** `/demo` 페이지 + `POST /api/demo` (tick/reset) 구현. 20명 mock 투자자 시딩 스크립트, Live Activity Feed + Live Leaderboard 실시간 갱신, 2.5초 tick 루프, 춘심톡 APR 기반 yield 계산. (2026-03-05) → [기획](../03_Specs/10_DEMO_SIMULATION_SPEC.md) · [구현](./03_DEMO_SIMULATION_IMPL.md)
+- [x] **[투자자 랭킹 리더보드]** `/ranking` 라우트 + `api.ranking.ts` 엔드포인트 + 사이드바 메뉴 추가. 주간/월간/전체 기간 필터, 총 수익 기준 정렬, 지갑 주소 마스킹, 본인 순위 강조. (2026-03-05) → [명세서](../03_Specs/09_INVESTOR_RANKING_SPEC.md)
+- [x] 춘심톡 백엔드 실제 `api/revenue` 호출 모듈 개발 지원 (2026-03-05)
+- [x] 오라클 노드 외부 PG사 API 연동 테스트 (2026-03-05)
+- [x] 관리자 포털 다중 채권 관리 기능 추가 (2026-03-05)
+- [x] AI 에이전트 온체인 툴링(Tooling) 고도화 (2026-03-05)
 - [x] **[프론트엔드 테스트 인프라]** Vitest + Testing Library 설정 완료. `api.faucet`, `api.revenue`, `api.chat` 라우트에 대한 단위 테스트 26개 작성 및 통과. `reactRouter` 플러그인 충돌 해결을 위해 테스트용 `vitest.config.ts` 분리 구성 (2026-02-13) → [감사 P2](../05_Test/04_CODE_QUALITY_AUDIT.md)
 - [x] **[Relayer 데이터 검증]** `MockFintechAPI` 클래스 분리 및 Zod 스키마 검증 도입, 단위 테스트 2건 작성 및 통과. `index.ts` 리팩토링 완료 (2026-02-13) → [감사 P2 5.7](../05_Test/04_CODE_QUALITY_AUDIT.md)
 - [x] **[`as any` 타입 전면 제거]** contracts.ts에 `AssetPerformance`, `ImpactData`, `BondInfo` 인터페이스 정의. 프론트엔드 전체 25건 `as any` → 0건 달성. choonsim.tsx, impact.tsx, impact-summary.tsx, advanced-oracle-module.tsx, yield-deposit-module.tsx, investment-list.tsx, ai-guide.tsx, help-guide.tsx, choonsim-dashboard.tsx 수정. tsc --noEmit 통과 확인 (2026-02-13)
@@ -69,8 +75,8 @@
 ## 3. 문서 구조 가이드 (5-Layer)
 - **01_Foundation**: [Vision](../01_Foundation/01_INTEGRATION_PLAN.md), [Roadmap](../01_Foundation/03_ROADMAP.md)
 - **02_Prototype**: UI 프로토타입 리뷰 결과
-- **03_Specs**: [Infra](../03_Specs/01_INFRASTRUCTURE.md), [Revenue API](../03_Specs/02_REVENUE_BRIDGE_SPEC.md), [V3 배포 상태](../03_Specs/05_V3_DEPLOYMENT_STATUS.md), [Relayer 운영](../03_Specs/06_RELAYER_OPS.md), [다중 캐릭터 채권](../03_Specs/07_MULTI_CHARACTER_BOND_SPEC.md)
-- **04_Logic**: [Audit Logic](./01_AUDIT_LOGIC.md), [Backlog](./00_BACKLOG.md), [Quality Plan](./02_QUALITY_IMPROVEMENT_PLAN.md)
+- **03_Specs**: [Infra](../03_Specs/01_INFRASTRUCTURE.md), [Revenue API](../03_Specs/02_REVENUE_BRIDGE_SPEC.md), [V3 배포 상태](../03_Specs/05_V3_DEPLOYMENT_STATUS.md), [Relayer 운영](../03_Specs/06_RELAYER_OPS.md), [다중 캐릭터 채권](../03_Specs/07_MULTI_CHARACTER_BOND_SPEC.md), [데모 시뮬레이션 기획](../03_Specs/10_DEMO_SIMULATION_SPEC.md)
+- **04_Logic**: [Audit Logic](./01_AUDIT_LOGIC.md), [Backlog](./00_BACKLOG.md), [Quality Plan](./02_QUALITY_IMPROVEMENT_PLAN.md), [데모 시뮬레이션 구현](./03_DEMO_SIMULATION_IMPL.md)
 - **05_Test**: [QA Checklist](../05_Test/02_QA_CHECKLIST.md), [Code Audit](../05_Test/04_CODE_QUALITY_AUDIT.md)
 
 ---

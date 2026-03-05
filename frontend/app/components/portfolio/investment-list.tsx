@@ -209,7 +209,7 @@ function InvestmentRow({ inv, address }: { inv: InvestmentItem, address: `0x${st
 
             {/* Impact Section - Shown inside the card or expanded */}
             <div className="w-full border-t border-neutral-200/50 pt-4 mt-4">
-                <ImpactSummary bondId={inv.id} />
+                <ImpactSummary bondId={Number(inv.id)} />
             </div>
         </div>
     );

@@ -12,7 +12,10 @@
     "generate-knowledge": "node scripts/generate-knowledge.cjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "generate-demo-wallets": "npx tsx scripts/generate-demo-wallets.ts",
+    "seed-demo-onchain": "npx tsx scripts/seed-demo-onchain.ts",
+    "fund-demo-investors": "npx tsx scripts/fund-demo-investors.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.10",
