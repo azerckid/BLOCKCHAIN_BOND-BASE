@@ -1,6 +1,6 @@
 # 프로젝트 작업 백로그 (Backlog)
 > Created: 2026-02-01 15:14
-> Last Updated: 2026-03-04
+> Last Updated: 2026-01-23
 
 ## 1. 현재 진행 상황 (Kanban)
 
@@ -18,17 +18,17 @@
 - [ ] **[컨트랙트 UUPS 업그레이드]** 메인넷 전환 시 검토. → [감사 P3 6.3](../05_Test/04_CODE_QUALITY_AUDIT.md)
 - [ ] **[Relayer 모니터링 체계]** 구조화 로깅(Pino), 연속 실패 알림(Slack webhook), 메트릭 수집. 운영 인프라 결정 후 진행. → [감사 P3 6.6](../05_Test/04_CODE_QUALITY_AUDIT.md)
 #### 기능 개발 (Feature)
-- [ ] **[Demo — BondBase DB 수정]** `choonsim_projects.bond_id = null` → 101로 업데이트 → [구현 문서 5절 Step1](./03_DEMO_SIMULATION_IMPL.md)
-- [ ] **[Demo — mock 투자자 20명 시딩]** `seed-demo.ts` 실행 → [구현 문서 5절 Step2](./03_DEMO_SIMULATION_IMPL.md)
-- [ ] **[Demo — 지갑 주소 교체]** `0xDEMO...` (non-hex) → 유효한 42자 EVM hex 주소 → [구현 문서 5절 Step3](./03_DEMO_SIMULATION_IMPL.md)
-- [ ] **[Demo — 춘심톡 Cron 등록]** `vercel.json`에 mock-grant/activity/bondbase-sync 일별 등록 → [구현 문서 5절 Step4](./03_DEMO_SIMULATION_IMPL.md)
-- [ ] **[Demo — tick yield 계산 교체]** APR 근사 → `choonsimRevenue` 실 데이터 기반 비례 분배 → [구현 문서 5절 Step5](./03_DEMO_SIMULATION_IMPL.md)
+- [ ] **[Demo — 춘심톡 Cron 등록]** (춘심톡 레포) `vercel.json`에 mock-grant/activity/bondbase-sync 일별 등록 → [구현 문서 2.2 ⑥](./03_DEMO_SIMULATION_IMPL.md)
 
 ### 🟡 Doing (진행 중)
 - (현재 진행 중인 작업 없음)
 
 ### 🟢 Done (완료)
-- [x] **[데모 시뮬레이션]** `/demo` 페이지 + `POST /api/demo` (tick/reset) 구현. 20명 mock 투자자 시딩 스크립트, Live Activity Feed + Live Leaderboard 실시간 갱신, 2.5초 tick 루프, 춘심톡 APR 기반 yield 계산. (2026-03-05) → [기획](../03_Specs/10_DEMO_SIMULATION_SPEC.md) · [구현](./03_DEMO_SIMULATION_IMPL.md)
+- [x] **[Demo — BondBase DB 수정]** `apply-choonsim-migrations` + `update-choonsim-bond-ids`로 `choonsim_projects.bond_id` 101/102 설정. (2026-01-23) → [구현 문서 1.3](./03_DEMO_SIMULATION_IMPL.md)
+- [x] **[Demo — mock 투자자 20명 시딩]** `seed-demo.ts` / `seed-demo-onchain.ts`로 bonds·investors·investments 시딩. (2026-01-23) → [구현 문서 2.2 ②](./03_DEMO_SIMULATION_IMPL.md)
+- [x] **[Demo — 지갑 주소 교체]** `generate-demo-wallets`로 20개 키페어 생성, `demo-investor-addresses.json` + `.env.demo.local` 사용. (2026-01-23) → [구현 문서 1.2](./03_DEMO_SIMULATION_IMPL.md)
+- [x] **[Demo — tick yield 계산 교체]** `api.demo.ts` tick을 revenue 비례 분배로 변경, amount 달러 단위 legacy 처리. (2026-01-23) → [구현 문서 2.2 ④](./03_DEMO_SIMULATION_IMPL.md)
+- [x] **[데모 시뮬레이션]** `/demo` 페이지 + `POST /api/demo` (tick/reset) 구현. 20명 mock 투자자 시딩 스크립트, Live Activity Feed + Live Leaderboard 실시간 갱신, 2.5초 tick 루프, revenue 기반 yield 분배. (2026-03-05) → [기획](../03_Specs/10_DEMO_SIMULATION_SPEC.md) · [구현](./03_DEMO_SIMULATION_IMPL.md)
 - [x] **[투자자 랭킹 리더보드]** `/ranking` 라우트 + `api.ranking.ts` 엔드포인트 + 사이드바 메뉴 추가. 주간/월간/전체 기간 필터, 총 수익 기준 정렬, 지갑 주소 마스킹, 본인 순위 강조. (2026-03-05) → [명세서](../03_Specs/09_INVESTOR_RANKING_SPEC.md)
 - [x] 춘심톡 백엔드 실제 `api/revenue` 호출 모듈 개발 지원 (2026-03-05)
 - [x] 오라클 노드 외부 PG사 API 연동 테스트 (2026-03-05)

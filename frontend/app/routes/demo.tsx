@@ -135,10 +135,10 @@ interface FeedEvent {
 }
 
 interface TickResponse {
-    investorName: string;
-    yieldAmount: number;
-    bondId: string;
-    timestamp: string;
+    ok?: boolean;
+    yields?: { investorId: string; yieldAmount: number }[];
+    bondId?: string;
+    timestamp?: string;
 }
 
 // ── 컴포넌트 ─────────────────────────────────────────────────────────────────
@@ -168,20 +168,23 @@ export default function DemoPage() {
         return () => clearInterval(id);
     }, [running, fetcher]);
 
-    // tick 응답 → feed 업데이트 + revalidate
+    // tick 응답(yields[]) → feed 업데이트 + revalidate
     React.useEffect(() => {
         if (fetcher.state !== "idle" || !fetcher.data) return;
         const data = fetcher.data as TickResponse;
-        if (!data.investorName) return;
+        const yields = data.yields ?? [];
+        if (yields.length === 0) return;
 
-        const event: FeedEvent = {
-            key: `live-${Date.now()}-${Math.random()}`,
-            investorName: data.investorName,
-            yieldAmount: data.yieldAmount,
-            bondId: data.bondId,
-            timestamp: data.timestamp,
-        };
-        setFeed((prev) => [event, ...prev].slice(0, 50));
+        const ts = data.timestamp ?? "";
+        const bondId = data.bondId ?? "";
+        const newEvents: FeedEvent[] = yields.map((y, i) => ({
+            key: `live-${Date.now()}-${i}-${y.investorId}`,
+            investorName: ID_TO_NAME.get(y.investorId) ?? y.investorId,
+            yieldAmount: y.yieldAmount,
+            bondId,
+            timestamp: ts,
+        }));
+        setFeed((prev) => [...newEvents, ...prev].slice(0, 50));
         revalidate();
     }, [fetcher.state, fetcher.data, revalidate]);
 

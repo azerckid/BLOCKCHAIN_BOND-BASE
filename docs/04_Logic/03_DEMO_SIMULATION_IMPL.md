@@ -69,6 +69,11 @@ character
 | ⑤ | 지갑 주소 non-hex 문자 포함 | `demo-investors.ts` | 유효한 42자 hex로 교체 | 완료 |
 | ⑥ | 춘심톡 Cron 미등록 | 춘심톡 `vercel.json` | mock-grant/activity/bondbase-sync 등록 | 춘심톡 측 |
 
+### 2.3 춘심톡 연동 전제 조건 (BondBase 외)
+
+- **③ ChocoConsumptionLog 미전송**: 춘심톡 레포에서 `bondbase-sync`(또는 동등 로직)를 수동/자동 실행해야 CHOCO 소비 집계가 BondBase `POST /api/revenue`로 전달되고 `choonsim_revenue`에 적재된다.
+- **⑥ Cron 등록**: mock-grant, mock-activity, bondbase-sync를 일별 실행하려면 **춘심톡** 서비스의 `vercel.json`(또는 해당 Cron 설정)에 해당 작업을 등록해야 한다. BondBase는 `/api/revenue` 수신 및 tick 분배만 담당한다.
+
 ---
 
 ## 3. 데이터 설계
