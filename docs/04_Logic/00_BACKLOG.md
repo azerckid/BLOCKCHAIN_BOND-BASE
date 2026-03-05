@@ -18,7 +18,7 @@
 - [ ] **[컨트랙트 UUPS 업그레이드]** 메인넷 전환 시 검토. → [감사 P3 6.3](../05_Test/04_CODE_QUALITY_AUDIT.md)
 - [ ] **[Relayer 모니터링 체계]** 구조화 로깅(Pino), 연속 실패 알림(Slack webhook), 메트릭 수집. 운영 인프라 결정 후 진행. → [감사 P3 6.6](../05_Test/04_CODE_QUALITY_AUDIT.md)
 #### 기능 개발 (Feature)
-- [ ] **[Demo — 춘심톡 Cron 등록]** (춘심톡 레포) `vercel.json`에 mock-grant/activity/bondbase-sync 일별 등록 → [구현 문서 2.2 ⑥](./03_DEMO_SIMULATION_IMPL.md)
+- [ ] **[Demo — 춘심톡 Cron]** (춘심톡 레포) GitHub Actions로 mock-grant/mock-activity/bondbase-sync 이미 등록됨. 배포 환경의 CRON_SECRET·APP_URL·BONDBASE_API_URL·CHOONSIM_API_KEY 설정 확인 → [구현 문서 2.3.1](./03_DEMO_SIMULATION_IMPL.md)
 
 ### 🟡 Doing (진행 중)
 - (현재 진행 중인 작업 없음)

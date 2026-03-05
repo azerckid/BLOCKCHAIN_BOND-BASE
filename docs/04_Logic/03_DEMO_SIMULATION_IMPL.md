@@ -72,7 +72,18 @@ character
 ### 2.3 춘심톡 연동 전제 조건 (BondBase 외)
 
 - **③ ChocoConsumptionLog 미전송**: 춘심톡 레포에서 `bondbase-sync`(또는 동등 로직)를 수동/자동 실행해야 CHOCO 소비 집계가 BondBase `POST /api/revenue`로 전달되고 `choonsim_revenue`에 적재된다.
-- **⑥ Cron 등록**: mock-grant, mock-activity, bondbase-sync를 일별 실행하려면 **춘심톡** 서비스의 `vercel.json`(또는 해당 Cron 설정)에 해당 작업을 등록해야 한다. BondBase는 `/api/revenue` 수신 및 tick 분배만 담당한다.
+- **⑥ Cron 등록**: mock-grant, mock-activity, bondbase-sync를 일별/주기 실행하려면 **춘심톡** 측에서 Cron을 등록해야 한다. BondBase는 `/api/revenue` 수신 및 tick 분배만 담당한다.
+
+#### 2.3.1 춘심톡 코드 확인 (AI-CHOONSIM-TALK 레포 기준)
+
+- **Cron 방식**: Vercel cron이 아닌 **GitHub Actions** 사용. `vercel.json`은 비어 있음.
+- **워크플로** (`.github/workflows/`):
+  - `mock-grant.yml`: 매일 00:00 UTC, `GET $APP_URL/api/cron/mock-grant` 호출 (CRON_SECRET 인증).
+  - `mock-activity.yml`: 매시간 정각 UTC, `GET $APP_URL/api/cron/mock-activity` 호출.
+  - `bondbase-sync.yml`: 매시간 정각 UTC, `GET $APP_URL/api/cron/bondbase-sync` 호출.
+- **bondbase-sync API** (`apps/web/app/routes/api/cron/bondbase-sync.ts`): ChocoConsumptionLog `isSynced=false` 집계 → character별 bondBaseId 조회 → CHOCO→USDC 환산 → `sendRevenue(bondBaseId, amountUsdc, description)` 호출.
+- **BondBase 연동** (`apps/web/app/lib/bondbase/client.server.ts`): `BONDBASE_API_URL`(BondBase API 베이스 URL), `CHOONSIM_API_KEY`로 `POST` body `{ bondId, type: "REVENUE", data: { amount, source: "CHOCO_CONSUMPTION", description } }` 전송. BondBase `api/revenue`가 수신·검증·choonsim_revenue 적재.
+- **정리**: ⑥은 GitHub Actions로 이미 등록되어 있음. 춘심톡 배포 앱에 `CRON_SECRET`, `APP_URL` 및 BondBase 쪽에 `BONDBASE_API_URL`, `CHOONSIM_API_KEY` 설정이 되어 있으면 주기 실행·전송 가능.
 
 ### 2.4 검증 (Phase-Exit QA)
 
