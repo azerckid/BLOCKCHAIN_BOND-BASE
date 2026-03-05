@@ -133,19 +133,19 @@ export async function action({ request }: ActionFunctionArgs) {
                     .where(eq(choonsimProjects.id, project.id));
             }
 
-            // 온체인 deposit 실패 시 DB 기록 삭제하여 일관성 유지
-            let hash: string;
+            // 온체인 deposit 시도. 실패해도 DB 기록은 유지하고 2xx 반환(춘심톡 연동 안 끊기게).
+            let hash: string | null = null;
             try {
                 ({ hash } = await relayDepositYield(bondId, amountNum.toString()));
+                if (hash) {
+                    await db.update(choonsimRevenue)
+                        .set({ onChainTxHash: hash })
+                        .where(eq(choonsimRevenue.id, revenueId));
+                }
             } catch (relayError) {
-                await db.delete(choonsimRevenue).where(eq(choonsimRevenue.id, revenueId));
-                throw relayError;
+                console.error("[api/revenue] relayDepositYield failed (revenue saved, onChain pending):", relayError);
             }
-            await db.update(choonsimRevenue)
-                .set({ onChainTxHash: hash })
-                .where(eq(choonsimRevenue.id, revenueId));
-
-            return jsonResponse({ success: true, onChainHash: hash }, 200);
+            return jsonResponse({ success: true, onChainHash: hash ?? undefined }, 200);
 
         } else if (type === "MILESTONE") {
             const { key, description, achievedAt, bonusAmount } = data;
@@ -160,12 +160,10 @@ export async function action({ request }: ActionFunctionArgs) {
             });
 
             if (bonusAmount && parseFloat(bonusAmount) > 0) {
-                // 온체인 deposit 실패 시 milestone 기록 삭제하여 일관성 유지
                 try {
                     await relayDepositYield(bondId, bonusAmount);
                 } catch (relayError) {
-                    await db.delete(choonsimMilestones).where(eq(choonsimMilestones.id, milestoneId));
-                    throw relayError;
+                    console.error("[api/revenue] relayDepositYield (milestone bonus) failed:", relayError);
                 }
             }
         } else if (type === "METRICS") {
