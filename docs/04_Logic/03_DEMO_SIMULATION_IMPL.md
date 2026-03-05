@@ -46,10 +46,10 @@
 춘심톡 DB (Turso)                      BondBase DB (Turso)
 ──────────────────────                  ────────────────────
 User (mock 50명) ✔                      choonsim_projects
-  email: mock-*@test.local               └ bond_id: null ← 문제 ①
+  email: mock-*@test.local               └ bond_id: 101/102 (update-choonsim-bond-ids로 설정) ✔
 
-ChocoConsumptionLog (102건) ✔           investors (demo-inv-*) ← 미삽입 ②
-  chunsim: 49건, 599 CHOCO
+ChocoConsumptionLog (102건) ✔           investors (demo-inv-*) · investments
+  chunsim: 49건, 599 CHOCO               └ 앱과 동일 DB에 seed-demo / seed-demo-onchain 실행 시 존재
   rina:    53건, 625 CHOCO
   isSynced: 전부 false ← 문제 ③
 
@@ -60,14 +60,14 @@ character
 
 ### 2.2 미완료 항목 (수정 필요)
 
-| # | 항목 | 위치 | 필요 작업 |
-|---|------|------|-----------|
-| ① | `choonsim_projects.bond_id = null` | BondBase DB | 101로 업데이트 |
-| ② | mock 투자자 20명 미삽입 | BondBase DB | `seed-demo.ts` 실행 |
-| ③ | ChocoConsumptionLog 102건 미전송 | 춘심톡 | `bondbase-sync` 수동 실행 |
-| ④ | tick yield 계산이 APR 기반 | `api.demo.ts` | revenue 실 데이터 기반으로 교체 |
-| ⑤ | 지갑 주소 non-hex 문자 포함 | `demo-investors.ts` | 유효한 42자 hex로 교체 |
-| ⑥ | 춘심톡 Cron 미등록 | 춘심톡 `vercel.json` | mock-grant/activity/bondbase-sync 등록 |
+| # | 항목 | 위치 | 필요 작업 | 상태 |
+|---|------|------|-----------|------|
+| ① | `choonsim_projects.bond_id = null` | BondBase DB | `apply-choonsim-migrations` 후 `update-choonsim-bond-ids` | 완료 |
+| ② | mock 투자자 20명·investments 미삽입 | BondBase DB | 앱과 동일 DB(Turso 등) 대상으로 `seed-demo.ts` 또는 `seed-demo-onchain` 실행 | 진행 시 필요 |
+| ③ | ChocoConsumptionLog 102건 미전송 | 춘심톡 | `bondbase-sync` 수동 실행 | 춘심톡 측 |
+| ④ | tick yield 계산이 APR 기반 | `api.demo.ts` | revenue 실 데이터 기반 비율 분배로 교체 | 완료 |
+| ⑤ | 지갑 주소 non-hex 문자 포함 | `demo-investors.ts` | 유효한 42자 hex로 교체 | 완료 |
+| ⑥ | 춘심톡 Cron 미등록 | 춘심톡 `vercel.json` | mock-grant/activity/bondbase-sync 등록 | 춘심톡 측 |
 
 ---
 

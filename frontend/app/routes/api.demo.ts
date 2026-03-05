@@ -57,7 +57,12 @@ async function tickDemo() {
         return jsonRes({ error: "no undistributed revenue — add choonsim_revenue or run bondbase-sync" }, 404);
     }
 
-    const { revenueId, amount: revenueAmount, bondIdOnChain } = rows[0];
+    const { revenueId, amount: amountRaw, bondIdOnChain } = rows[0];
+    // DB에 달러 단위(소수)로 들어온 legacy 행 대비: base units(1e6)로 통일
+    const revenueAmount =
+        typeof amountRaw === "number" && amountRaw > 0 && amountRaw < 1_000_000
+            ? Math.round(amountRaw * 1_000_000)
+            : Number(amountRaw);
     const bondDbId = bondIdOnChain != null ? ONCHAIN_BOND_TO_DB_ID[bondIdOnChain] : null;
     if (!bondDbId) {
         await db
