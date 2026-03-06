@@ -68,7 +68,10 @@ BondBase /api/revenue 수신
 /demo 페이지
     → Live Activity Feed: 최신 yield 이벤트 실시간 표시
     → Live Leaderboard: 누적 수익 기준 20명 순위
+    → Start 후 tick 클릭 시: BondBase에 쌓인 미분배 revenue(choonsim_revenue, demo_yield_distributed_at=null)를 1건씩 순서대로 분배 → 총 수익 갱신
 ```
+
+**참고**: 춘심톡 DB에 `isSynced=false`인 로그(예: 102건)가 있으면 bondbase-sync가 BondBase로 보낸 뒤 `choonsim_revenue`에 적재된다. 그 미분배 revenue는 /demo에서 tick을 누를 때마다 1건씩 분배된다. 상세는 [03_DEMO_SIMULATION_IMPL 2.1.1](../04_Logic/03_DEMO_SIMULATION_IMPL.md#211-데모에서-총-수익이-갱신되는-흐름-사용자-관점) 참조.
 
 ---
 

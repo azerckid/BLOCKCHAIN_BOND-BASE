@@ -58,6 +58,15 @@ character
   rina.bondBaseId:    102 ✔
 ```
 
+### 2.1.1 데모에서 총 수익이 갱신되는 흐름 (사용자 관점)
+
+- **춘심톡 쪽**: ChocoConsumptionLog에 `isSynced=false`인 건수(예: 102건)가 대기 중이다. bondbase-sync가 실행되면 이 로그를 캐릭터별로 집계해 BondBase `POST /api/revenue`로 보내고, 전송된 로그는 `isSynced=true`로 갱신된다.
+- **BondBase 쪽**: 수신된 revenue는 `choonsim_revenue`에 적재된다. 이 중 `demo_yield_distributed_at`이 null인 행이 **미분배 revenue**다(예: 75건. 시딩·수신량에 따라 건수는 달라짐).
+- **/demo 페이지**: 사용자가 **Start** 후 **tick** 버튼을 누르면, `api.demo` tick이 **미분배 revenue 1건**을 `demo_yield_distributed_at`이 null인 순서로 가져와 해당 bond 투자 비율대로 yield를 계산해 `yield_distributions`에 넣고, 해당 revenue 행의 `demo_yield_distributed_at`을 갱신한다.  
+  → tick을 누를 때마다 미분배 revenue가 1건씩 처리되며, **총 수익**은 그때마다 갱신된다(페이지 revalidate 시 리더보드·활동 피드에 반영).
+
+정리: **춘심톡에 isSynced=false 102건 대기 → bondbase-sync로 BondBase에 revenue 적재 → /demo에서 tick을 누르면 미분배 revenue가 순서대로 1건씩 분배되며 총 수익이 올라감.**
+
 ### 2.2 미완료 항목 (수정 필요)
 
 | # | 항목 | 위치 | 필요 작업 | 상태 |

@@ -47,7 +47,15 @@
 - **Date/Time Standard**: **Luxon** (Asia/Seoul 기준 우선 처리)
 - **Hosting**: Vercel
 
-## 6. Deployment Status (Current)
+## 6. Vercel Git 연동 확인 (배포 트리거)
+
+**저장소 코드만으로는 "Vercel이 main에 연결돼 있는지"를 확인할 수 없습니다.** 연결·프로덕션 브랜치 설정은 Vercel 대시보드에만 있습니다.
+
+- **확인 경로**: [Vercel Dashboard](https://vercel.com) → 해당 프로젝트 → **Settings** → **Git**  
+  - **Production Branch**: `main` (또는 사용 중인 프로덕션 브랜치)로 되어 있으면, 해당 브랜치에 push할 때마다 자동 배포가 트리거됩니다.
+- **저장소에서 확인 가능한 것**: `frontend/vercel.json` 존재, `@vercel/react-router` 사용, 문서상 배포 URL `https://blockchain-bond-base.vercel.app` 참조. 즉, 프로젝트가 Vercel 배포용으로 구성돼 있고 과거에 해당 도메인으로 배포된 기록이 있다는 사실만 알 수 있습니다.
+
+## 7. Deployment Status (Current)
 
 | Module | Env | Status | Last Deployment |
 | :--- | :--- | :--- | :--- |
@@ -55,7 +63,7 @@
 | Dashboard App | Dev | Active | 2026-01-24 |
 | RAG Engine | Dev | Integrated | 2026-01-24 |
 
-## 7. V3 Contract Addresses (Creditcoin Testnet)
+## 8. V3 Contract Addresses (Creditcoin Testnet)
 
 | Contract | Address | 비고 |
 | :--- | :--- | :--- |
